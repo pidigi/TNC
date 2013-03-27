@@ -454,4 +454,39 @@ public class SpacialElement{
 	 * The mass is expressed in kg.
 	 */
 	private final double mass;
+	
+	public boolean isTerminated(){
+		return false;
+	}
+	
+	public void terminate(){
+		
+	}
+	
+	private boolean isTerminated;
+	
+	public World getWorld(){
+		return null;
+	}
+	
+	public boolean canHaveAsWorld(World world){
+		return false;
+	}
+	
+	public boolean hasProperWorld() {
+		return false;
+	}
+	
+	private void setWorld(World world){
+		
+	}
+	
+	private World world;
+	
+	
+	
+	
+	
+	
+	
 }

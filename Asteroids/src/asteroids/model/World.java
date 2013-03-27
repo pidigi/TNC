@@ -2,6 +2,8 @@ package asteroids.model;
 
 import java.util.*;
 
+import be.kuleuven.cs.som.annotate.*;
+
 /**
  * This class implements the interface IFacade to use the 
  * class Ship to control ships in the GUI of Asteroids.
@@ -18,6 +20,16 @@ public class World {
 		this.width = width;
 		this.height = height;
 	}
+	
+	public boolean isTerminated(){
+		return false;
+	}
+	
+	public void terminate(){
+		
+	}
+	
+	private boolean isTerminated = false;
 	
 	
 	public double getWidth(){
@@ -55,26 +67,27 @@ public class World {
 		return maxWidth;
 	}
 	
+	
+	public Set<SpacialElement> getSpacialElementsOfClass(Class wantedClass){
+//		// TODO implement; tricky, weet niet of Class argument wel lukt...
+//		// op deze manier errors + set van wantedClass wss geen subklasse van set van spacialelement...
+//		Set<wantedClass> wantedElements = new HashSet<SpacialElement>();
+//		for(SpacialElement element: elements){
+//			if(element instanceof wantedClass)
+//				wantedElements.add(element);
+//		}
+		return null;
+	}
+	
 	public boolean hasAsSpacialElement(SpacialElement element){
 		return elements.contains(element);
 	}
 	
-	public boolean canHaveAsShip(){
+	public boolean canHaveAsSpacialElement(SpacialElement element){
 		return false;
 	}
 	
-	public Set<SpacialElement> getSpacialElementsOfClass(Class wantedClass){
-		// TODO implement; tricky, weet niet of Class argument wel lukt...
-		// op deze manier errors + set van wantedClass wss geen subklasse van set van spacialelement...
-		Set<wantedClass> wantedElements = new HashSet<SpacialElement>();
-		for(SpacialElement element: elements){
-			if(element instanceof wantedClass)
-				wantedElements.add(element);
-		}
-		return null;
-	}
-	
-	public void addSpacialElement(SpacialElement element) throws IllegalArgumentException, NullPointerException{
+	public void addAsSpacialElement(SpacialElement element) throws IllegalArgumentException, NullPointerException{
 		if(element == null)
 			throw new NullPointerException();
 //		if(element.isTerminated())
@@ -83,6 +96,14 @@ public class World {
 		if(!successfullyAdded)
 			throw new IllegalArgumentException("Element already present.");
 //		element.setWorld(this);
+	}
+	
+	public void removeAsSpacialElement(SpacialElement element){
+		//todo
+	}
+	
+	public boolean hasProperSpacialElements(){
+		return false;
 	}
 	
 	private final static double maxHeight = Double.MAX_VALUE;
