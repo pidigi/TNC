@@ -224,7 +224,7 @@ public class SpacialElement{
 	 * 			|if ((velocity == null) || (velocity.containsNaN())
 	 * 			|	then (new this).getVelocity == new Vector2D(0,0)
 	 */
-	private void setVelocity(Vector2D velocity){
+	public void setVelocity(Vector2D velocity){
 		if (velocity == null || velocity.containsNaN()){
 			this.velocity = new Vector2D(0,0);
 		} else {
