@@ -73,17 +73,45 @@ public class World {
 		return maxWidth;
 	}
 	
-	
-	public Set<SpacialElement> getSpacialElementsOfClass(Class wantedClass){
-//		// TODO implement; tricky, weet niet of Class argument wel lukt...
-//		// op deze manier errors + set van wantedClass wss geen subklasse van set van spacialelement...
-//		Set<wantedClass> wantedElements = new HashSet<SpacialElement>();
-//		for(SpacialElement element: elements){
-//			if(element instanceof wantedClass)
-//				wantedElements.add(element);
-//		}
-		return null;
+	// Nog eens goed checken of er geen problemen zijn met acces rights 
+	// (vb dat ze dingen kunnen veranderen aan objecten die in ons systeem zitten)
+	public Set<Ship> getShips(){
+	  Set<Ship> allShips = new HashSet<Ship>();
+	  for(SpacialElement element : elements){
+	    if(element instanceof Ship)
+	      allShips.add((Ship) element);
+	  }
+	  return allShips;
 	}
+	
+	public Set<Bullet> getBullets(){
+	  Set<Bullet> allBullets = new HashSet<Bullet>();
+	  for(SpacialElement element : elements){
+	    if(element instanceof Bullet)
+	      allBullets.add((Bullet) element);
+	  }
+	  return allBullets;
+	}
+	
+	public Set<Asteroid> getAsteroids(){
+	  Set<Asteroid> allAsteroids = new HashSet<Asteroid>();
+	  for(SpacialElement element : elements){
+	    if(element instanceof Asteroid)
+	      allAsteroids.add((Asteroid) element);
+		}
+	  return allAsteroids;
+	}
+	
+//	public Set<SpacialElement> getSpacialElementsOfClass(Class wantedClass){
+////		// TODO implement; tricky, weet niet of Class argument wel lukt...
+////		// op deze manier errors + set van wantedClass wss geen subklasse van set van spacialelement...
+////		Set<wantedClass> wantedElements = new HashSet<SpacialElement>();
+////		for(SpacialElement element: elements){
+////			if(element instanceof wantedClass)
+////				wantedElements.add(element);
+////		}
+//		return null;
+//	}
 	
 	public boolean hasAsSpacialElement(SpacialElement element){
 		return elements.contains(element);
