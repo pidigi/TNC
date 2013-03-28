@@ -53,7 +53,7 @@ public class SpacialElement{
 			throw new IllegalArgumentException("Given radius was invalid while constructing new element.");
 		}
 		if (!isValidMass(mass)){
-			throw new IllegalArgumentException("Given mass was invalis while constructing new element");
+			throw new IllegalArgumentException("Given mass was invalid while constructing new element");
 		}
 		setPosition(position);
 		this.radius = radius;
@@ -456,37 +456,31 @@ public class SpacialElement{
 	private final double mass;
 	
 	public boolean isTerminated(){
-		return false;
+		return this.isTerminated;
 	}
 	
 	public void terminate(){
-		
+		this.isTerminated = true;
 	}
 	
 	private boolean isTerminated;
 	
+	
 	public World getWorld(){
-		return null;
+		return this.world;
 	}
 	
 	public boolean canHaveAsWorld(World world){
-		return false;
+		return (world != null) && (!world.isTerminated());
 	}
 	
 	public boolean hasProperWorld() {
-		return false;
+		return this.world != null;
 	}
 	
-	private void setWorld(World world){
-		
+	public void setWorld(World world){
+		this.world = world;
 	}
 	
 	private World world;
-	
-	
-	
-	
-	
-	
-	
 }

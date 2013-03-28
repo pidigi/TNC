@@ -16,4 +16,30 @@ public class Bullet extends SpacialElement{
 			throws IllegalArgumentException, NullPointerException{
 		super(position,radius,velocity,maxSpeed,mass);
 	}
+	
+	public boolean canHaveAsShip(Ship ship){
+		return ship != null;
+	}
+	
+	public boolean hasProperShip() {
+		return this.ship != null;
+	}
+	
+	public void setShip(Ship ship){
+		this.ship = ship;
+	}
+	
+	private Ship ship;
+	
+	
+	public boolean isTerminated(){
+		return this.isTerminated;
+	}
+	
+	public void terminate(){
+		this.isTerminated = true;
+		this.ship = null;
+	}
+	
+	private boolean isTerminated;
 }

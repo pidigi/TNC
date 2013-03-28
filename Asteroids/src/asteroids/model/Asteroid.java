@@ -11,7 +11,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  */
 public class Asteroid extends SpacialElement{
 	@Raw
-	public AsteroidRock(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass)
+	public Asteroid(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass)
 			throws IllegalArgumentException, NullPointerException{
 		super(position,radius,velocity,maxSpeed,mass);
 	}
