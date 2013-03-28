@@ -19,17 +19,23 @@ public class World {
 			throw new IllegalArgumentException("Illegal dimension.");
 		this.width = width;
 		this.height = height;
+		this.isTerminated = false;
 	}
 	
 	public boolean isTerminated(){
-		return false;
+		return this.isTerminated;
 	}
 	
 	public void terminate(){
-		
+		if(!isTerminated()){
+			for(SpacialElement element: elements){
+				element.terminate();
+			}
+			this.isTerminated = true;
+		}
 	}
 	
-	private boolean isTerminated = false;
+	private boolean isTerminated;
 	
 	
 	public double getWidth(){
@@ -83,27 +89,37 @@ public class World {
 		return elements.contains(element);
 	}
 	
+	// checken of het terminated moet zijn?????
 	public boolean canHaveAsSpacialElement(SpacialElement element){
-		return false;
+		return (element != null) && (element.canHaveAsWorld(this)) && (!element.isTerminated());
 	}
 	
-	public void addAsSpacialElement(SpacialElement element) throws IllegalArgumentException, NullPointerException{
-		if(element == null)
-			throw new NullPointerException();
-//		if(element.isTerminated())
-//			throw new IllegalArgumentException();
+	public void addAsSpacialElement(SpacialElement element) throws IllegalArgumentException{
+		if(!canHaveAsSpacialElement(element))
+			throw new IllegalArgumentException();
 		boolean successfullyAdded = elements.add(element);
 		if(!successfullyAdded)
 			throw new IllegalArgumentException("Element already present.");
-//		element.setWorld(this);
+		element.setWorld(this);
 	}
 	
 	public void removeAsSpacialElement(SpacialElement element){
-		//todo
+		if(element.getWorld() != this)
+			throw new IllegalArgumentException("Element not assigned to this world.");
 	}
 	
 	public boolean hasProperSpacialElements(){
-		return false;
+		for(SpacialElement element: elements){
+			if(!canHaveAsSpacialElement(element))
+				return false;
+			if(element.getWorld() != this)
+				return false;
+		}
+		return true;
+	}
+	
+	public void evolve(){
+		
 	}
 	
 	private final static double maxHeight = Double.MAX_VALUE;
