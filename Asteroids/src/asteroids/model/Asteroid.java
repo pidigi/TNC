@@ -34,9 +34,9 @@ public class Asteroid extends SpacialElement{
 	
 	public void die(){
 		if(fuzzyLessThanOrEqualTo(30, getRadius())){
-			double newRandomNumber = random.nextDouble();
-			Vector2D randomDirection = new Vector2D(Math.cos(newRandomNumber),
-					Math.sin(newRandomNumber));
+			double newRandomAngle = random.nextDouble()*2*Math.PI;
+			Vector2D randomDirection = new Vector2D(Math.cos(newRandomAngle),
+					Math.sin(newRandomAngle));
 			double radiusChild = getRadius()/2;
 			Vector2D positionChild1 = getPosition().add(randomDirection.multiply(radiusChild));
 			Vector2D positionChild2 = getPosition().add(randomDirection.multiply(-radiusChild));
