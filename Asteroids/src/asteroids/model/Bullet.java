@@ -42,8 +42,14 @@ public class Bullet extends SpacialElement{
 	
 	public void terminate(){
 		this.isTerminated = true;
-		this.ship = null;
+		setShip(null);
 	}
 	
 	private boolean isTerminated;
+	
+	public static double getMassDensity(){
+		return massDensity;
+	}
+	
+	private static final double massDensity = 7.8*Math.pow(10,12);
 }
