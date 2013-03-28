@@ -134,6 +134,9 @@ public class World {
 	public void removeAsSpacialElement(SpacialElement element){
 		if(element.getWorld() != this)
 			throw new IllegalArgumentException("Element not assigned to this world.");
+		// TODO nog andere exceptions?????
+		element.setWorld(null);
+		elements.remove(element);
 	}
 	
 	public boolean hasProperSpacialElements(){
@@ -172,8 +175,8 @@ public class World {
 			Involved2.move(timeToCollision);
 			if((Involved1 instanceof Bullet) && (Involved2 instanceof Ship)) {
 				if (((Bullet)Involved1).getShip() != ((Ship)Involved2)){
-					Involved1.terminate();
-					Involved2.terminate();
+					Involved1.die();
+					Involved2.die();
 				}
 				else {
 					Involved1.move(restT);
@@ -182,8 +185,8 @@ public class World {
 			}
 			else if((Involved2 instanceof Bullet) && (Involved1 instanceof Ship)) {
 				if (((Bullet)Involved2).getShip() != ((Ship)Involved1)){
-					Involved1.terminate();
-					Involved2.terminate();
+					Involved1.die();
+					Involved2.die();
 				}
 				else {
 					Involved1.move(restT);
@@ -191,8 +194,8 @@ public class World {
 				}
 			}
 			else
-				Involved1.terminate();
-				Involved2.terminate();
+				Involved1.die();
+				Involved2.die();
 			}
 		// Case of asteroid colliding with ship
 		else if ((Involved1 instanceof Ship) && (Involved2 instanceof Asteroid)) {
@@ -210,54 +213,98 @@ public class World {
 		}
 	}
 	
-	// Changing back to hashset with iterator?
-	public void evolve(Double deltaT){
-		// Getting the times to collision
-		ArrayList<Double> timesToCollision = new ArrayList<Double>();
-		for (int i = 0; i < elements.size(); i = i+1)
-			for (int j = 0; j < elements.size(); j = j+1)
-				timesToCollision.add(elements.get(i).getTimeToCollision(elements.get(j)));
-		// Finding the minimum of the list
-		Double min = Double.MAX_VALUE;
-		Boolean go = true;
-		ArrayList<SpacialElement>  elementsRemoved = new ArrayList<SpacialElement>();
-		while (go) {
-			for (Double collisionTime : timesToCollision) {
-				if (collisionTime <= min) {
-					min = collisionTime;
-					}
+	private void resolve(SpacialElement involved1,SpacialElement involved2){
+		// Case of two ships or two asteroids that collide
+		// For now just exchange the velocity of both ships/asteroids
+		if ((involved1.isShip() && (involved2.isShip())) || 
+				(involved1.isAsteroid()) && (involved2.isAsteroid())){
+			// TODO : Take the mass of both elements into account.
+			Vector2D vel1 = involved1.getVelocity();
+			Vector2D vel2 = involved2.getVelocity();
+			Vector2D dir1 = vel1.getDirection();
+			Vector2D dir2 = vel2.getDirection();
+			involved1.setVelocity(dir2.multiply(vel1.getNorm()));
+			involved2.setVelocity(dir1.multiply(vel2.getNorm()));
+			
+			// suppose perfectly elestic collision
+			Vector2D unitNormal = (involved1.getPosition().subtract(involved2.getPosition())).getDirection();
+			Vector2D unitTangent = new Vector2D(-unitNormal.getYComponent(),unitNormal.getXComponent());
+			double involved1NormalComponent = 0;
+			
+			
+			
+			
+			
+		}
+		// Case of bullet colliding with something
+		if((involved1.isBullet()) || (involved2.isBullet())){
+			// TODO : disappearing of the bullet?
+			if((involved1.isBullet() && involved2.isShip())) {
+				if (((Bullet)involved1).getShip() != ((Ship)involved2)){
+					involved1.die();
+					involved2.die();
 				}
-			timesToCollision.remove(min);
-			// Resolving time to collision
-			if (min <= Double.MAX_VALUE) {
-				if (min < deltaT){
-					go = false;
-					}
-				else{
-					int indexOfCollision = timesToCollision.indexOf(min);
-					int indexInvolved1 = indexOfCollision%elements.size();
-					int indexInvolved2 = (indexOfCollision - indexOfCollision%elements.size())/elements.size()+1;
-					SpacialElement involved1 = elements.get(indexInvolved1);
-					SpacialElement involved2 = elements.get(indexInvolved2);
-					this.resolve(involved1,involved2,min,deltaT-min);
-					elementsRemoved.add(involved1);
-					elementsRemoved.add(involved2);
-					timesToCollision.remove(min);
+			} else if((involved1.isShip() && involved2.isBullet())) {
+				if (((Bullet)involved2).getShip() != ((Ship)involved1)){
+					involved1.die();
+					involved2.die();
 				}
-			}
-			else {
-				go = false;
+			}else {
+				involved1.die();
+				involved2.die();
 			}
 		}
-		
-		for(SpacialElement element : elements) {
-			if (!elementsRemoved.contains(element)) {
-				element.move(deltaT);
-			}
+		// Case of asteroid colliding with ship
+		else if ((involved1.isShip()) && (involved2.isAsteroid())) {
+			involved1.die();
+			
+		}
+		else if ((involved1.isAsteroid()) && (involved2.isShip())) {
+			involved2.die();
 		}
 		
+		// TODO botsen met randen
 	}
 	
+	
+	// Changing back to hashset with iterator?
+	public void evolve(Double deltaT){
+		
+		
+		// Getting the minimum collision time
+		double minTime = Double.MAX_VALUE;
+		double collisionTime;
+		SpacialElement involved1 = null;
+		SpacialElement involved2 = null;
+		for (SpacialElement element1: elements){
+			for (SpacialElement element2: elements){
+				collisionTime = element1.getTimeToCollision(element2);
+				if(collisionTime < minTime){
+					minTime = collisionTime;
+					involved1 = element1;
+					involved2 = element2;
+				}
+			}
+		}
+		
+		for(SpacialElement element: elements){
+			element.move(Math.min(minTime, deltaT));
+			if (element instanceof Ship){
+				if (((Ship)element).isThrusterActive()) {
+					Double acc = Math.min(minTime, deltaT) * 1.1E18 / element.getMass();
+					((Ship) element).thrust(acc);
+				}
+			}
+		}
+			
+		if(minTime <= deltaT){
+			this.resolve(involved1,involved2);
+			evolve(deltaT - minTime);
+		}
+
+	}
+	
+
 	private final static double maxHeight = Double.MAX_VALUE;
 	
 	private final static double maxWidth = Double.MAX_VALUE;

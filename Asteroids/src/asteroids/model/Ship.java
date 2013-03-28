@@ -176,12 +176,12 @@ public class Ship extends SpacialElement{
 //	 * 			|													Math.sin(this.getAngle())*acceleration)
 //	 * 			|		 in this.setVelocity(this.getVelocity().add(deltaVelocity));
 //	 */
-//	public void thrust(double acceleration){
-//		if(acceleration >= 0){
-//			Vector2D deltaVelocity = new Vector2D(Math.cos(this.getAngle())*acceleration,Math.sin(this.getAngle())*acceleration);
-//			this.setVelocity(this.getVelocity().add(deltaVelocity));
-//		}
-//	}
+	public void thrust(double acceleration){
+		if(acceleration >= 0){
+			Vector2D deltaVelocity = new Vector2D(Math.cos(this.getAngle())*acceleration,Math.sin(this.getAngle())*acceleration);
+			this.setVelocity(this.getVelocity().add(deltaVelocity));
+		}
+	}
 	
 	public boolean isThrusterActive() {
 		return thrusterActive;
@@ -200,10 +200,13 @@ public class Ship extends SpacialElement{
 		Vector2D bulletVelocity = shootingDirection.multiply(250);
 		double bulletRadius = 3;
 		double bulletMass = 4/3*Math.PI*Math.pow(bulletRadius, 3)*Bullet.getMassDensity();
-		Bullet bullet = new Bullet(bulletPosition, 3, bulletVelocity, 300000, bulletMass);
-		if(!bullet.canHaveAsShip(this))
+		SpacialElement bullet = new Bullet(bulletPosition, 3, bulletVelocity, 300000, bulletMass);
+		if(!((Bullet)bullet).canHaveAsShip(this))
 			throw new IllegalArgumentException();
-		bullet.setShip(this);
+		this.getWorld().addAsSpacialElement(bullet);
+		((Bullet)bullet).setShip(this);
 	}
+	
+	
 	
 }

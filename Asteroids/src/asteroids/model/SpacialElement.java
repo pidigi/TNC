@@ -463,6 +463,12 @@ public class SpacialElement{
 		this.isTerminated = true;
 	}
 	
+	// TODO vragen aan assistent of dit een goed idee is
+	public void die(){
+		this.terminate();
+		this.getWorld().removeAsSpacialElement(this);
+	}
+	
 	private boolean isTerminated;
 	
 	
