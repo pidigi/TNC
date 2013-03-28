@@ -45,7 +45,6 @@ public class Asteroid extends SpacialElement{
 			SpacialElement childAsteroid2 = new Asteroid(positionChild2, radiusChild, velocityChild1.multiply(-1), random);
 			getWorld().addAsSpacialElement(childAsteroid1);
 			getWorld().addAsSpacialElement(childAsteroid2);
-			this.terminate();
 		}
 		this.terminate();
 		this.getWorld().removeAsSpacialElement(this);

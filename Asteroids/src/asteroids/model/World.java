@@ -1,6 +1,7 @@
 package asteroids.model;
 
 import java.util.*;
+import static asteroids.Util.*;
 
 import be.kuleuven.cs.som.annotate.*;
 
@@ -149,11 +150,8 @@ public class World {
 		return true;
 	}
 	
-	
-	
 	private void resolve(SpacialElement involved1,SpacialElement involved2){
 		// Case of two ships or two asteroids that collide
-		// For now just exchange the velocity of both ships/asteroids
 		if ((involved1.isShip() && (involved2.isShip())) || 
 				(involved1.isAsteroid()) && (involved2.isAsteroid())){
 			// suppose perfectly elestic collision
@@ -177,30 +175,32 @@ public class World {
 			involved2.setVelocity(unitNormal.multiply(involved2NormalComponentUpdated).add(
 					unitTangent.multiply(involved2TangentComponent)));
 		}
+		
 		// Case of bullet colliding with something
 		if((involved1.isBullet()) || (involved2.isBullet())){
-			// TODO : disappearing of the bullet?
 			if((involved1.isBullet() && involved2.isShip())) {
 				if (((Bullet)involved1).getShip() != ((Ship)involved2)){
 					involved1.die();
 					involved2.die();
 				}
-			} else if((involved1.isShip() && involved2.isBullet())) {
-				if (((Bullet)involved2).getShip() != ((Ship)involved1)){
-					involved1.die();
-					involved2.die();
-				}
-			}else {
+			} else {
+				if((involved1.isShip() && involved2.isBullet())) {
+					if (((Bullet)involved2).getShip() != ((Ship)involved1)){
+						involved1.die();
+						involved2.die();
+					}
+				} else {
 				involved1.die();
 				involved2.die();
+				}
 			}
 		}
 		// Case of asteroid colliding with ship
-		else if ((involved1.isShip()) && (involved2.isAsteroid())) {
+		if ((involved1.isShip()) && (involved2.isAsteroid())) {
 			involved1.die();
-
 		}
-		else if ((involved1.isAsteroid()) && (involved2.isShip())) {
+		
+		if ((involved1.isAsteroid()) && (involved2.isShip())) {
 			involved2.die();
 		}
 		
@@ -213,40 +213,39 @@ public class World {
 		
 		
 		// Getting the minimum collision time
-		double minTime = Double.MAX_VALUE;
-		double collisionTime;
-		SpacialElement involved1 = null;
-		SpacialElement involved2 = null;
-		for (SpacialElement element1: elements){
-			for (SpacialElement element2: elements){
-				collisionTime = element1.getTimeToCollision(element2);
-//				collisionTime2 = element1.getTimeToWallCollision;
-				
-				if(collisionTime < minTime && collisionTime >= 0){
-					minTime = collisionTime;
-					involved1 = element1;
-					involved2 = element2;
+			double minTime = Double.MAX_VALUE;
+			double collisionTime;
+			SpacialElement involved1 = null;
+			SpacialElement involved2 = null;
+			for (SpacialElement element1: elements){
+				for (SpacialElement element2: elements){
+					collisionTime = element1.getTimeToCollision(element2);
+					if(collisionTime < minTime && collisionTime > 0){
+						minTime = collisionTime;
+						involved1 = element1;
+						involved2 = element2;
+					}
 				}
 			}
-		}
-		
-		for(SpacialElement element: elements){
-			System.out.println(minTime);
-			System.out.println(deltaT);
-			element.move(Math.min(minTime, deltaT));
-			if (element instanceof Ship){
-				if (((Ship)element).isThrusterActive()) {
-					Double acc = Math.min(minTime, deltaT) * 1.1E18 / element.getMass();
-					((Ship) element).thrust(acc);
-				}
-			}
-		}
 			
-		if(minTime < deltaT){
-			this.resolve(involved1,involved2);
-			evolve(deltaT - minTime);
-		}
+			for(SpacialElement element: elements){
+				element.move(Math.min(minTime, deltaT));
+				if (element instanceof Ship){
+					if (((Ship)element).isThrusterActive()) {
+						Double acc = Math.min(minTime, deltaT) * 1.1E18 / element.getMass();
+						((Ship) element).thrust(acc);
+					}
+				}
+			}
+				
+			if(fuzzyLessThanOrEqualTo(minTime,deltaT)){
+				this.resolve(involved1,involved2);
+				evolve(deltaT - minTime);
+			}
+			
 
+			
+			
 	}
 	
 

@@ -13,43 +13,63 @@ import be.kuleuven.cs.som.annotate.Raw;
 public class Bullet extends SpacialElement{
 	@Raw
 	public Bullet(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass)
-			throws IllegalArgumentException, NullPointerException{
+	throws IllegalArgumentException, NullPointerException{
 		super(position,radius,velocity,maxSpeed,mass);
 	}
-	
+
 	public boolean canHaveAsShip(Ship ship){
 		return ship != null;
 	}
-	
+
 	public boolean hasProperShip() {
 		return this.ship != null;
 	}
-	
+
 	public Ship getShip() {
 		return this.ship;
 	}
-	
+
 	public void setShip(Ship ship){
 		this.ship = ship;
 	}
-	
+
 	private Ship ship;
-	
-	
+
+
 	public boolean isTerminated(){
 		return this.isTerminated;
 	}
-	
+
 	public void terminate(){
 		this.isTerminated = true;
 		setShip(null);
 	}
-	
+
 	private boolean isTerminated;
-	
+
+	public void die(){
+		this.terminate();
+		this.setShip(null);
+		this.getWorld().removeAsSpacialElement(this);
+	}
+
 	public static double getMassDensity(){
 		return massDensity;
 	}
-	
+
 	private static final double massDensity = 7.8*Math.pow(10,12);
+
+	public boolean getHasBounced(){
+		return hasBounced;
+	}
+
+	public void bounce(){
+		setHasBounced(true);
+	}
+
+	private void setHasBounced(boolean bounce){
+		this.hasBounced = bounce;
+	}
+
+	private boolean hasBounced;
 }

@@ -196,15 +196,15 @@ public class Ship extends SpacialElement{
 	public void fireBullet(){
 		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
 				Math.sin(this.getAngle()));
-		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getAngle()));
+		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));
 		Vector2D bulletVelocity = shootingDirection.multiply(250);
 		double bulletRadius = 3;
 		double bulletMass = 4/3*Math.PI*Math.pow(bulletRadius, 3)*Bullet.getMassDensity();
-		SpacialElement bullet = new Bullet(bulletPosition, 3, bulletVelocity, 300000, bulletMass);
-		if(!((Bullet)bullet).canHaveAsShip(this))
+		Bullet bullet = new Bullet(bulletPosition, 3, bulletVelocity, 300000, bulletMass);
+		if(!(bullet).canHaveAsShip(this))
 			throw new IllegalArgumentException();
 		this.getWorld().addAsSpacialElement(bullet);
-		((Bullet)bullet).setShip(this);
+		(bullet).setShip(this);
 	}
 	
 	
