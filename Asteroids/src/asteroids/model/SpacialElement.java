@@ -387,8 +387,24 @@ public class SpacialElement{
 		}
 	}
 	
+	public double getTimeToHorizontalWallCollision(double yBound) {
+		double yVelocity = this.getVelocity().getYComponent();
+		double yComponent = this.getPosition().getYComponent();
+		if ((yBound - yComponent) * yVelocity > 0) {
+			return (yBound - yComponent - getRadius()*Math.signum(yVelocity))/yVelocity;
+		} else
+			return Double.POSITIVE_INFINITY;
+	}
 	
-	
+	public double getTimeToVerticalWallCollision(double xBound) {
+		double xVelocity = this.getVelocity().getXComponent();
+		double xComponent = this.getPosition().getXComponent();
+		if ((xBound - xComponent) * xVelocity > 0) {
+			return (xBound - xComponent - getRadius()*Math.signum(xVelocity))/xVelocity;
+		} else
+			return Double.POSITIVE_INFINITY;
+	}
+
 	/**
 	 * Return the radius of this ship.
 	 */
