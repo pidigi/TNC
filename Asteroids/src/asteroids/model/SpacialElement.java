@@ -482,5 +482,17 @@ public class SpacialElement{
 		this.world = world;
 	}
 	
+	public boolean isShip(){
+		return (this instanceof Ship);
+	}
+	
+	public boolean isAsteroid(){
+		return (this instanceof Asteroid);
+	}
+	
+	public boolean isBullet(){
+		return (this instanceof Bullet);
+	}
+	
 	private World world;
 }
