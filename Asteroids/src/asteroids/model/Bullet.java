@@ -25,10 +25,6 @@ public class Bullet extends SpacialElement{
 		return this.ship != null;
 	}
 	
-	public Ship getShip() {
-		return this.ship;
-	}
-	
 	public void setShip(Ship ship){
 		this.ship = ship;
 	}
@@ -42,8 +38,14 @@ public class Bullet extends SpacialElement{
 	
 	public void terminate(){
 		this.isTerminated = true;
-		this.ship = null;
+		setShip(null);
 	}
 	
 	private boolean isTerminated;
+	
+	public static double getMassDensity(){
+		return massDensity;
+	}
+	
+	private static final double massDensity = 7.8*Math.pow(10,12);
 }
