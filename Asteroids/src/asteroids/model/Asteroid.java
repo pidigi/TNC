@@ -47,6 +47,8 @@ public class Asteroid extends SpacialElement{
 			getWorld().addAsSpacialElement(childAsteroid2);
 			this.terminate();
 		}
+		this.terminate();
+		this.getWorld().removeAsSpacialElement(this);
 	}
 	
 	public static double getMassDensity(){

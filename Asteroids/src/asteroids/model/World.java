@@ -150,91 +150,32 @@ public class World {
 	}
 	
 	
-	private void resolve(SpacialElement Involved1,SpacialElement Involved2, 
-			double timeToCollision, double restT){
-		// Case of two ships that collide
-		if (((Involved1 instanceof Ship) && (Involved2 instanceof Ship)) || 
-				((Involved1 instanceof Asteroid) && (Involved2 instanceof Asteroid))){
-			// TODO : Incalculate the mass of both elements as well.
-			Involved1.move(timeToCollision);
-			Involved2.move(timeToCollision);
-			Vector2D vel1 = Involved1.getVelocity();
-			Vector2D vel2 = Involved2.getVelocity();
-			Vector2D dir1 = vel1.getDirection();
-			Vector2D dir2 = vel2.getDirection();
-			
-			Involved1.setVelocity(dir2.multiply(vel1.getNorm()));
-			Involved2.setVelocity(dir1.multiply(vel2.getNorm()));
-			Involved1.move(restT);
-			Involved2.move(restT);
-		}
-		// Case of bullet colliding with something
-		else if((Involved1 instanceof Bullet) || (Involved2 instanceof Bullet)) {
-			// TODO : disappearing of the bullet?
-			Involved1.move(timeToCollision);
-			Involved2.move(timeToCollision);
-			if((Involved1 instanceof Bullet) && (Involved2 instanceof Ship)) {
-				if (((Bullet)Involved1).getShip() != ((Ship)Involved2)){
-					Involved1.die();
-					Involved2.die();
-				}
-				else {
-					Involved1.move(restT);
-					Involved2.move(restT);	
-				}
-			}
-			else if((Involved2 instanceof Bullet) && (Involved1 instanceof Ship)) {
-				if (((Bullet)Involved2).getShip() != ((Ship)Involved1)){
-					Involved1.die();
-					Involved2.die();
-				}
-				else {
-					Involved1.move(restT);
-					Involved2.move(restT);	
-				}
-			}
-			else
-				Involved1.die();
-				Involved2.die();
-			}
-		// Case of asteroid colliding with ship
-		else if ((Involved1 instanceof Ship) && (Involved2 instanceof Asteroid)) {
-			Involved1.move(timeToCollision);
-			Involved2.move(timeToCollision);
-			Involved1.terminate();
-			Involved2.move(restT);
-			
-		}
-		else if ((Involved1 instanceof Asteroid) && (Involved2 instanceof Ship)) {
-			Involved1.move(timeToCollision);
-			Involved2.move(timeToCollision);
-			Involved2.terminate();
-			Involved1.move(restT);
-		}
-	}
 	
 	private void resolve(SpacialElement involved1,SpacialElement involved2){
 		// Case of two ships or two asteroids that collide
 		// For now just exchange the velocity of both ships/asteroids
 		if ((involved1.isShip() && (involved2.isShip())) || 
 				(involved1.isAsteroid()) && (involved2.isAsteroid())){
-			// TODO : Take the mass of both elements into account.
-			Vector2D vel1 = involved1.getVelocity();
-			Vector2D vel2 = involved2.getVelocity();
-			Vector2D dir1 = vel1.getDirection();
-			Vector2D dir2 = vel2.getDirection();
-			involved1.setVelocity(dir2.multiply(vel1.getNorm()));
-			involved2.setVelocity(dir1.multiply(vel2.getNorm()));
-			
 			// suppose perfectly elestic collision
 			Vector2D unitNormal = (involved1.getPosition().subtract(involved2.getPosition())).getDirection();
 			Vector2D unitTangent = new Vector2D(-unitNormal.getYComponent(),unitNormal.getXComponent());
-			double involved1NormalComponent = 0;
-			
-			
-			
-			
-			
+			double involved1NormalComponent = involved1.getVelocity().getDotProduct(unitNormal);
+			double involved1TangentComponent = involved1.getVelocity().getDotProduct(unitTangent);
+			double involved2NormalComponent = involved2.getVelocity().getDotProduct(unitNormal);
+			double involved2TangentComponent = involved2.getVelocity().getDotProduct(unitTangent);
+			// Update velocities
+			double massInvolved1 = involved1.getMass();
+			double massInvolved2 = involved2.getMass();
+			double involved1NormalComponentUpdated = (involved1NormalComponent*
+					(massInvolved1 - massInvolved2)	+ 2 * massInvolved2 * involved2NormalComponent)
+					/(massInvolved1 + massInvolved2);
+			double involved2NormalComponentUpdated = (involved2NormalComponent*
+					(massInvolved2 - massInvolved1)	+ 2 * massInvolved1 * involved1NormalComponent)
+					/(massInvolved1 + massInvolved2);
+			involved1.setVelocity(unitNormal.multiply(involved1NormalComponentUpdated).add(
+					unitTangent.multiply(involved1TangentComponent)));
+			involved2.setVelocity(unitNormal.multiply(involved2NormalComponentUpdated).add(
+					unitTangent.multiply(involved2TangentComponent)));
 		}
 		// Case of bullet colliding with something
 		if((involved1.isBullet()) || (involved2.isBullet())){
@@ -257,7 +198,7 @@ public class World {
 		// Case of asteroid colliding with ship
 		else if ((involved1.isShip()) && (involved2.isAsteroid())) {
 			involved1.die();
-			
+
 		}
 		else if ((involved1.isAsteroid()) && (involved2.isShip())) {
 			involved2.die();
@@ -279,7 +220,9 @@ public class World {
 		for (SpacialElement element1: elements){
 			for (SpacialElement element2: elements){
 				collisionTime = element1.getTimeToCollision(element2);
-				if(collisionTime < minTime){
+//				collisionTime2 = element1.getTimeToWallCollision;
+				
+				if(collisionTime < minTime && collisionTime >= 0){
 					minTime = collisionTime;
 					involved1 = element1;
 					involved2 = element2;
@@ -288,6 +231,8 @@ public class World {
 		}
 		
 		for(SpacialElement element: elements){
+			System.out.println(minTime);
+			System.out.println(deltaT);
 			element.move(Math.min(minTime, deltaT));
 			if (element instanceof Ship){
 				if (((Ship)element).isThrusterActive()) {
@@ -297,7 +242,7 @@ public class World {
 			}
 		}
 			
-		if(minTime <= deltaT){
+		if(minTime < deltaT){
 			this.resolve(involved1,involved2);
 			evolve(deltaT - minTime);
 		}
