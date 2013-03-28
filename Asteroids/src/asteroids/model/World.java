@@ -118,7 +118,115 @@ public class World {
 		return true;
 	}
 	
-	public void evolve(){
+	
+	private void resolve(SpacialElement Involved1,SpacialElement Involved2, 
+			double timeToCollision, double restT){
+		// Case of two ships that collide
+		if (((Involved1 instanceof Ship) && (Involved2 instanceof Ship)) || 
+				((Involved1 instanceof Asteroid) && (Involved2 instanceof Asteroid))){
+			// TODO : Incalculate the mass of both elements as well.
+			Involved1.move(timeToCollision);
+			Involved2.move(timeToCollision);
+			Vector2D vel1 = Involved1.getVelocity();
+			Vector2D vel2 = Involved2.getVelocity();
+			Vector2D dir1 = vel1.getDirection();
+			Vector2D dir2 = vel2.getDirection();
+			
+			Involved1.setVelocity(dir2.multiply(vel1.getNorm()));
+			Involved2.setVelocity(dir1.multiply(vel2.getNorm()));
+			Involved1.move(restT);
+			Involved2.move(restT);
+		}
+		// Case of bullet colliding with something
+		else if((Involved1 instanceof Bullet) || (Involved2 instanceof Bullet)) {
+			// TODO : disappearing of the bullet?
+			Involved1.move(timeToCollision);
+			Involved2.move(timeToCollision);
+			if((Involved1 instanceof Bullet) && (Involved2 instanceof Ship)) {
+				if (((Bullet)Involved1).getShip() != ((Ship)Involved2)){
+					Involved1.terminate();
+					Involved2.terminate();
+				}
+				else {
+					Involved1.move(restT);
+					Involved2.move(restT);	
+				}
+			}
+			else if((Involved2 instanceof Bullet) && (Involved1 instanceof Ship)) {
+				if (((Bullet)Involved2).getShip() != ((Ship)Involved1)){
+					Involved1.terminate();
+					Involved2.terminate();
+				}
+				else {
+					Involved1.move(restT);
+					Involved2.move(restT);	
+				}
+			}
+			else
+				Involved1.terminate();
+				Involved2.terminate();
+			}
+		// Case of asteroid colliding with ship
+		else if ((Involved1 instanceof Ship) && (Involved2 instanceof Asteroid)) {
+			Involved1.move(timeToCollision);
+			Involved2.move(timeToCollision);
+			Involved1.terminate();
+			Involved2.move(restT);
+			
+		}
+		else if ((Involved1 instanceof Asteroid) && (Involved2 instanceof Ship)) {
+			Involved1.move(timeToCollision);
+			Involved2.move(timeToCollision);
+			Involved2.terminate();
+			Involved1.move(restT);
+		}
+	}
+	
+	// Changing back to hashset with iterator?
+	public void evolve(Double deltaT){
+		// Getting the times to collision
+		ArrayList<Double> timesToCollision = new ArrayList<Double>();
+		for (int i = 0; i < elements.size(); i = i+1)
+			for (int j = 0; j < elements.size(); j = j+1)
+				timesToCollision.add(elements.get(i).getTimeToCollision(elements.get(j)));
+		// Finding the minimum of the list
+		Double min = Double.MAX_VALUE;
+		Boolean go = true;
+		ArrayList<SpacialElement>  elementsRemoved = new ArrayList<SpacialElement>();
+		while (go) {
+			for (Double collisionTime : timesToCollision) {
+				if (collisionTime <= min) {
+					min = collisionTime;
+					}
+				}
+			timesToCollision.remove(min);
+			// Resolving time to collision
+			if (min <= Double.MAX_VALUE) {
+				if (min < deltaT){
+					go = false;
+					}
+				else{
+					int indexOfCollision = timesToCollision.indexOf(min);
+					int indexInvolved1 = indexOfCollision%elements.size();
+					int indexInvolved2 = (indexOfCollision - indexOfCollision%elements.size())/elements.size()+1;
+					SpacialElement involved1 = elements.get(indexInvolved1);
+					SpacialElement involved2 = elements.get(indexInvolved2);
+					this.resolve(involved1,involved2,min,deltaT-min);
+					elementsRemoved.add(involved1);
+					elementsRemoved.add(involved2);
+					timesToCollision.remove(min);
+				}
+			}
+			else {
+				go = false;
+			}
+		}
+		
+		for(SpacialElement element : elements) {
+			if (!elementsRemoved.contains(element)) {
+				element.move(deltaT);
+			}
+		}
 		
 	}
 	
@@ -126,5 +234,5 @@ public class World {
 	
 	private final static double maxWidth = Double.MAX_VALUE;
 	
-	private final Set<SpacialElement> elements = new HashSet<SpacialElement>();
+	private final ArrayList<SpacialElement> elements = new ArrayList<SpacialElement>();
 }

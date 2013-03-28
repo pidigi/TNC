@@ -25,6 +25,10 @@ public class Bullet extends SpacialElement{
 		return this.ship != null;
 	}
 	
+	public Ship getShip() {
+		return this.ship;
+	}
+	
 	public void setShip(Ship ship){
 		this.ship = ship;
 	}
