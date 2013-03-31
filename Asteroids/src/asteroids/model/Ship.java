@@ -8,7 +8,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar	The angle of each ship must be a valid angle for a ship.
  *			| isValidAngle(getAngle())
  * 
- * @version  2.5
+ * @version  3.1
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
 			 Pieter Lietaert (1st master Mathematical engineering)
  */
@@ -19,9 +19,9 @@ import be.kuleuven.cs.som.annotate.Raw;
 // changing the position, velocity or angle of the ship directly in other places makes little sense.
 // The methods move, thrust and turn can be used to indirectly change these attributes.
 
-public class Ship extends SpacialElement{
+public class Ship extends SpatialElement{
 	/**
-	 * Initialize this new ship with given position, angle, radius, velocity and maximum speed.
+	 * Initialize this new ship with given position, angle, radius, velocity, maximum speed and mass.
 	 * 
 	 * @param 	position
 	 * 			The 2D vector containing the position coordinates for this new ship.
@@ -33,35 +33,27 @@ public class Ship extends SpacialElement{
 	 * 			The 2D vector containing the velocity components for this new ship.
 	 * @param 	maxSpeed
 	 * 			The maximum allowed speed for this new ship.
-	 * @post	The radius of this new ship is equal to the given radius.
+	 * @param	mass
+	 * 			The mass of this new ship.
+	 * @pre		The given angle must be a valid angle.
+	 * 			| (new this).isValidAngle(angle)
+	 * @post	The angle of this new ship is equal to the given angle.
 	 * 			| (new this).getRadius() == radius
-	 * @post	If the maximum speed is a number that is positive and smaller than or equal to the speed of light,
-	 * 			the maximum speed of this new ship is equal to the given maximum speed.
-	 * 			|if ((!Double.isNaN(maxSpeed)) &&  (maxSpeed  >=0) && (maxSpeed <= 300000))
-	 * 			|	then (new this).getMaxSpeed() == maxSpeed
-	 * @post	If the maximum speed is NaN, a negative number or larger than the speed of light,
-	 * 			the maximum speed of this new ship is equal to the speed of light.
-	 * 			|if (Double.isNaN(maxSpeed) || (maxSpeed  < 0) || (maxSpeed > 300000))
-	 * 			|	then (new this).getMaxSpeed() == 300000;
-	 * @effect	The given position is set as the position of this new ship.
-	 *       	| this.setPostion(position)
-	 * @effect 	The given angle is set as the angle of this new ship.
-	 * 			| this.setAngle(angle)
-	 * @effect	The given velocity is set as the velocity of this new ship.
-	 * 			| this.setVelocity(velocity)
-	 * @throws	IllegalArgumentException
-	 * 			Check if the given radius is valid.
-	 * 			| ! this.isValidRadius(radius)
+	 * @effect	This new ship is initialized as a spatial element with the given position,
+	 * 			radius, velocity, maximum speed and mass.
+	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
 	@Raw
 	public Ship(Vector2D position, double angle, double radius, Vector2D velocity, double maxSpeed, double mass)
 			throws IllegalArgumentException, NullPointerException{
 		super(position,radius,velocity,maxSpeed,mass);
+		assert isValidAngle(angle);
 		setAngle(angle);
 	}
 		
 	/**
-	 * Initialize this new ship with given position, angle, radius, velocity and maximum speed set as the speed of light.
+	 * Initialize this new ship with given position, angle, radius, velocity, maximum speed set as the 
+	 * speed of light and the mass equal to the given mass.
 	 * 
 	 * @param 	position
 	 * 			The 2D vector containing the position coordinates for this new ship.
@@ -73,17 +65,18 @@ public class Ship extends SpacialElement{
 	 * 			The 2D vector containing the velocity components for this new ship.
 	 * @param 	maxSpeed
 	 * 			The maximum allowed speed for this new ship.
+	 * @param	mass
+	 * 			The mass of this new ship.
 	 * @effect	The new ship is initialized with position equal to the given position, 
 	 * 			angle equal to the given angle, radius equal to the given 
-	 * 			radius, velocity equal to given velocity and maximum speed 
-	 * 			equal to the speed of light.
-	 * 			| this(position, angle, radius, velocity, 300000)
+	 * 			radius, velocity equal to given velocity, maximum speed 
+	 * 			equal to the speed of light and the mass equal to the given mass.
+	 * 			| this(position, angle, radius, velocity, 300000, mass)
 	 */
 	@Raw
 	public Ship(Vector2D position, double angle, double radius, Vector2D velocity, double mass)
 			throws IllegalArgumentException, NullPointerException{
-		super(position,radius,velocity,300000,mass);
-		setAngle(angle);
+		this(position,angle,radius,velocity,300000,mass);
 	}
 	
 	/**
@@ -91,15 +84,14 @@ public class Ship extends SpacialElement{
 	 * 
 	 * @effect	The new ship is initialized with the components of position equal to 0, 
 	 * 			the angle equal to 0, the radius equal to the minimum radius,
-	 * 			the velocity components equal to 0 and the maximum speed 
-	 * 			equal to the speed of light.
-	 * 			| this(new Vector(0,0), 0, getMinRadius(), new Vector(0,0))
+	 * 			the velocity components equal to 0, the maximum speed 
+	 * 			equal to the speed of light and the mass equal to 100.
+	 * 			| this(new Vector(0,0), 0, getMinRadius(), new Vector(0,0),100)
 	 */
 	@Raw
 	public Ship() 
 			throws IllegalArgumentException, NullPointerException{
-		super(new Vector2D(0,0),10,new Vector2D(0,0),100);
-		setAngle(angle);
+		this(new Vector2D(0,0),0,10,new Vector2D(0,0),100);
 	}
 		
 	/**
@@ -161,21 +153,21 @@ public class Ship extends SpacialElement{
 		this.setAngle(this.getAngle() + angle);
 	}
 	
-//	/**
-//	 * Accelerate this ship according to the given acceleration.
-//	 * 
-//	 * @param	acceleration
-//	 * 			The acceleration of this ship.
-//	 * @post	If the given acceleration is negative, the velocity of this ship remains unchanged.
-//	 * 			| if(acceleration < 0)
-//	 * 			|	then (new this).getVelocity() == this.getVelocity
-//	 * @effect	If the given acceleration is positive, the given acceleration in the direction 
-//	 * 			of angle is added to the velocity of this ship and set as the velocity of this ship.
-//	 * 			| if(acceleration >= 0)
-//	 * 			|	then let Vector2D deltaVelocity == new Vector2D(Math.cos(this.getAngle())*acceleration,
-//	 * 			|													Math.sin(this.getAngle())*acceleration)
-//	 * 			|		 in this.setVelocity(this.getVelocity().add(deltaVelocity));
-//	 */
+	/**
+	 * Accelerate this ship according to the given acceleration.
+	 * 
+	 * @param	acceleration
+	 * 			The acceleration of this ship.
+	 * @post	If the given acceleration is negative, the velocity of this ship remains unchanged.
+	 * 			| if(acceleration < 0)
+	 * 			|	then (new this).getVelocity() == this.getVelocity
+	 * @effect	If the given acceleration is positive, the given acceleration in the direction 
+	 * 			of angle is added to the velocity of this ship and set as the velocity of this ship.
+	 * 			| if(acceleration >= 0)
+	 * 			|	then let Vector2D deltaVelocity == new Vector2D(Math.cos(this.getAngle())*acceleration,
+	 * 			|													Math.sin(this.getAngle())*acceleration)
+	 * 			|		 in this.setVelocity(this.getVelocity().add(deltaVelocity));
+	 */
 	public void thrust(double acceleration){
 		if(acceleration >= 0){
 			Vector2D deltaVelocity = new Vector2D(Math.cos(this.getAngle())*acceleration,Math.sin(this.getAngle())*acceleration);
@@ -183,16 +175,56 @@ public class Ship extends SpacialElement{
 		}
 	}
 	
+	/** 
+	 * Check the status of the thruster of this ship.
+	 * 
+	 * @return	The status of the thruster of this ship.
+	 * 			| result == thrusterActive
+	 */
 	public boolean isThrusterActive() {
 		return thrusterActive;
 	}
 
+	/** 
+	 * Set the status of the thruster.
+	 * 
+	 * @post 	The status of the thruster is equal to the given status thrusterActive.
+	 * 			| (new this).isThrusterActive() == thrusterActive
+	 */	
 	public void setThrusterActive(boolean thrusterActive) {
 		this.thrusterActive = thrusterActive;
 	}
 
+	/** 
+	 * Boolean indicating if the thruster of this ship is active.
+	 */
 	private boolean thrusterActive;
 	
+	/** 
+	 * Fire a bullet from this ship and add this to the world that contains this ship.
+	 * 
+	 * @post	A new bullet is created with position equal to the position of this ship 
+	 * 			added to the radius in the direction of angle, radius equal to 3, 
+	 * 			velocity equal to 250 in the direction of angle, 
+	 * 			maximum speed equal to the speed of light, mass derived from the density and size,
+	 * 			added as a spatial element to the world containing ship and this ship is appointed 
+	 * 			as the owner of the bullet.
+	 * 			| let Bullet newBullet == new Bullet
+	 * 			| in
+	 * 			| (newBullet.getPosition().subtract(this.getPosition()).getDirection().getXComponent() 
+	 * 			| 	== Math.cos(this.getAngle())
+	 * 			| (newBullet.getPosition().subtract(this.getPosition()).getDirection().getYComponent() 
+	 * 			| 	== Math.sin(this.getAngle())
+	 * 			| (newBullet.getPosition().subtract(this.getPosition()).getNorm() == this.getRadius()
+	 * 			| newBullet.getRadius() == 3
+	 * 			| newBullet.getVelocity().getNorm() == 250
+	 * 			| newBullet.getVelocity().getDirection().getXComponent() == Math.cos(this.getAngle())
+	 * 			| newBullet.getVelocity().getDirection().getYComponent() == Math.sin(this.getAngle())
+	 * 			| newBullet.getMaxSpeed() == 300000
+	 * 			| newBullet.getMass() == 4/3*PI*3^3*Bullet.getMassDensity()
+	 * 			| newBullet.getShip() == this
+	 * 			| this.getWorld().hasAsSpatialElement(newBullet) == true
+	 */
 	public void fireBullet(){
 		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
 				Math.sin(this.getAngle()));
@@ -203,10 +235,7 @@ public class Ship extends SpacialElement{
 		Bullet bullet = new Bullet(bulletPosition, 3, bulletVelocity, 300000, bulletMass);
 		if(!(bullet).canHaveAsShip(this))
 			throw new IllegalArgumentException();
-		this.getWorld().addAsSpacialElement(bullet);
+		this.getWorld().addAsSpatialElement(bullet);
 		(bullet).setShip(this);
 	}
-	
-	
-	
 }

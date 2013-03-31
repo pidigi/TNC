@@ -1,84 +1,155 @@
 package asteroids.model;
 
 import java.util.*;
-import static asteroids.Util.fuzzyLessThanOrEqualTo;
-
+ //import static asteroids.Util.fuzzyLessThanOrEqualTo;
 import be.kuleuven.cs.som.annotate.*;
 
 /**
- * This class implements the interface IFacade to use the 
- * class Ship to control ships in the GUI of Asteroids.
+ * This class implements the game world of Asteroids.
  * 
- * @version	1.0
+ * @version	1.1
  * @author 	Frederik Van Eeghem, Pieter Lietaert
  */
 
+// Samenvoegen van de checkers voor width en height? Naar bv isValidSide
 public class World {
-
+	/**
+	 * Initialize this new world with given width and height.
+	 * 
+	 * @param 	width
+	 * 			The width for this new world.
+	 * @param 	heigth
+	 * 			The height for this new world.
+	 * @post	| (new this).getHeigth() == height
+	 * @post	| (new this).getWidth() == width
+	 * @throws	IllegalArgumentException
+	 * 			| ! this.isValidWidth(width)
+	 * @throws	IllegalArgumentException
+	 * 			| ! this.isValidHeight(height)
+	 */
+	@Raw
 	public World(double width, double height) throws IllegalArgumentException{
 		if(!isValidWidth(width) || !isValidHeight(height))
-			throw new IllegalArgumentException("Illegal dimension.");
+			throw new IllegalArgumentException("Illegal dimension given for the new game world.");
 		this.width = width;
 		this.height = height;
 		this.isTerminated = false;
 	}
 
+	/**
+	 * Check whether this world is already terminated.
+	 */
+	@Basic @Raw
 	public boolean isTerminated(){
 		return this.isTerminated;
 	}
 
+	/**
+     * Terminate this world.
+     *
+     * @post  | (new this).isTerminated()
+     * @post  | for each element in elements:
+     * 		  | 	((new element).isTerminated()) 
+     */
+	// use die on the elements also?
 	public void terminate(){
 		if(!isTerminated()){
-			for(SpacialElement element: elements){
+			for(SpatialElement element: elements){
 				element.terminate();
 			}
 			this.isTerminated = true;
 		}
 	}
 
+	/**
+	 * Variable registering whether or not this world is
+	 * terminated.
+	 */
 	private boolean isTerminated;
 
-
+	/**
+	 * Get the width of this game world in km.
+	 */
+	@Basic @Raw
 	public double getWidth(){
 		return width;
 	}
 
+	/**
+	 * Variable registering the width of this world in km.
+	 */
+	private final double width;
+	
+	/**
+	 * Check whether the given height is a valid height for this game world.
+	 * 
+	 * @param	width
+	 * 			Width to check.
+	 * @return	| result == (width >= 0) && (width <= maxHeight)
+	 */
 	// evt fuzzylessorequalto (bij 0 wel zo houden)
+	// p.: zou hier geen fuzzylessorequals gebruiken
+	// Getter gebruiken voor maxWidth of rechtstreeks gebruiken?
 	public boolean isValidWidth(double width){
-		return (width >= 0) && (width <= World.getMaxWidth());		
+		return (width >= 0) && (width <= World.maxWidth);		
 	}
-
+	
+	/**
+	 * Get the height of this game world in km.
+	 */
+	@Basic @Raw
 	public double getHeight() {
 		return height;
 	}
-
+	
+	/**
+	 * Check whether the given height is a valid height for this game world.
+	 * 
+	 * @param	height
+	 * 			Height to check.
+	 * @return	| result == (height >= 0) && (height <= maxHeight)
+	 */
+	// Getter gebruiken voor maxHeight of rechtstreeks gebruiken?
 	public boolean isValidHeight(double height){
-		return (height >= 0) && (height <= World.getMaxHeight());		
+		return (height >= 0) && (height <= maxHeight);
 	}
-
-	private final double width;
-
+	
+	/**
+	 * Variable registering the height of this world in km.
+	 */
 	private final double height;
 
 	/**
-	 * Get the maximum value for the width of this game world.
+	 * Get the maximum value for the height of this world.
 	 */
+	@Basic @Raw
 	public static double getMaxHeight() {
 		return maxHeight;
 	}
+	
+	/**
+	 * Variable registering the maximum height of this world in km.
+	 */
+	private final static double maxHeight = Double.MAX_VALUE;
 
 	/**
-	 * Get the maximum value for the width of this game world.
+	 * Get the maximum value for the width of this game world in km.
 	 */
+	@Basic @Raw
 	public static double getMaxWidth() {
 		return maxWidth;
 	}
-
-	// Nog eens goed checken of er geen problemen zijn met acces rights 
+	
+	/**
+	 * Variable registering the maximum width of this world in km.
+	 */
+	private final static double maxWidth = Double.MAX_VALUE;
+	
+	// TODO: Nog eens goed checken of er geen problemen zijn met acces rights 
 	// (vb dat ze dingen kunnen veranderen aan objecten die in ons systeem zitten)
 	public Set<Ship> getShips(){
 		Set<Ship> allShips = new HashSet<Ship>();
-		for(SpacialElement element : elements){
+		for(SpatialElement element : elements){
 			if(element instanceof Ship)
 				allShips.add((Ship) element);
 		}
@@ -87,7 +158,7 @@ public class World {
 
 	public Set<Bullet> getBullets(){
 		Set<Bullet> allBullets = new HashSet<Bullet>();
-		for(SpacialElement element : elements){
+		for(SpatialElement element : elements){
 			if(element instanceof Bullet)
 				allBullets.add((Bullet) element);
 		}
@@ -96,69 +167,130 @@ public class World {
 
 	public Set<Asteroid> getAsteroids(){
 		Set<Asteroid> allAsteroids = new HashSet<Asteroid>();
-		for(SpacialElement element : elements){
+		for(SpatialElement element : elements){
 			if(element instanceof Asteroid)
 				allAsteroids.add((Asteroid) element);
 		}
 		return allAsteroids;
 	}
 
-	//	public Set<SpacialElement> getSpacialElementsOfClass(Class wantedClass){
+	//	public Set<SpatialElement> getSpatialElementsOfClass(Class wantedClass){
 	////		// TODO implement; tricky, weet niet of Class argument wel lukt...
-	////		// op deze manier errors + set van wantedClass wss geen subklasse van set van spacialelement...
-	////		Set<wantedClass> wantedElements = new HashSet<SpacialElement>();
-	////		for(SpacialElement element: elements){
+	////		// op deze manier errors + set van wantedClass wss geen subklasse van set van spatialelement...
+	////		Set<wantedClass> wantedElements = new HashSet<SpatialElement>();
+	////		for(SpatialElement element: elements){
 	////			if(element instanceof wantedClass)
 	////				wantedElements.add(element);
 	////		}
 	//		return null;
 	//	}
 
-	public boolean hasAsSpacialElement(SpacialElement element){
+	/**
+     * Check whether this world has the given element as one
+     * of its spatial elements.
+     */
+	@Basic @Raw
+	public boolean hasAsSpatialElement(SpatialElement element){
 		return elements.contains(element);
 	}
-
+	
+	/**
+	 * Check whether this world can have the given spatial element.
+	 * 
+	 * @param  	element
+	 * 		   	The spatial element to check.
+	 * @return 	True if and only if the given element is effective, 
+	 * 			not terminated and the element can be an element of this world.
+	 *         	| result == (element != null) && (element.canHaveAsWorld(this)) && (!element.isTerminated());
+	 */         
 	// checken of het terminated moet zijn?????
-	public boolean canHaveAsSpacialElement(SpacialElement element){
+	// p.: Ik denk het wel.
+	@Raw
+	public boolean canHaveAsSpatialElement(SpatialElement element){
 		return (element != null) && (element.canHaveAsWorld(this)) && (!element.isTerminated());
 	}
 
-	public void addAsSpacialElement(SpacialElement element) throws IllegalArgumentException{
-		if(!canHaveAsSpacialElement(element))
-			throw new IllegalArgumentException();
+	/**
+     * Add the given spatial element to the array of spatial elements registered in this world.
+     * 
+     * @param   element
+     *          The spatial element to be added.
+     * @post    | (new this).hasAsSpatialElement(element)
+     * @throws	IllegalArgumentException
+     * 			| !canHaveAsSpatialElement(element)
+     * @throws	IllegalArgumentException
+     * 			| this.hasAsSpatialElement(element)
+     */
+	public void addAsSpatialElement(SpatialElement element) throws IllegalArgumentException{
+		if(!canHaveAsSpatialElement(element))
+			throw new IllegalArgumentException("The given spacial element can't be added to the game world.");
 		boolean successfullyAdded = elements.add(element);
 		if(!successfullyAdded)
-			throw new IllegalArgumentException("Element already present.");
+			throw new IllegalArgumentException("Spacial element already present in the game world.");
 		element.setWorld(this);
 	}
-
-	public void removeAsSpacialElement(SpacialElement element){
-		if(element.getWorld() != this)
-			throw new IllegalArgumentException("Element not assigned to this world.");
+	
+	/**
+     * Remove the given spatial element from the array of spatial elements registered in this world.
+     * 
+     * @param   element
+     *          The spatial element to be removed.
+     * @post    | ! (new this).hasAsSpatialElement(element)
+     * @throws	IllegalArgumentException
+     * 			| ! hasAsSpatialElement(element)
+     * @throws	IllegalArgumentException
+     * 			| element.getWorld() != this
+     */
+	public void removeAsSpatialElement(SpatialElement element) throws IllegalArgumentException{
+		if ((element.getWorld() != this) || (!this.hasAsSpatialElement(element)))
+			throw new IllegalArgumentException("Element trying to be deleted not assigned to this world.");
 		// TODO nog andere exceptions?????
+		// p.: => Miss kijken of dat er een verwijzing is vanuit deze wereld 
+		// (bidirectioneel, zo heb ik het nu geprogameerd)
 		element.setWorld(null);
 		elements.remove(element);
 	}
-
-	public boolean hasProperSpacialElements(){
-		for(SpacialElement element: elements){
-			if(!canHaveAsSpacialElement(element))
+	
+	/**
+     * Check whether this world has proper spatial elements.
+     * 
+     * @return  | for each element in Elements:
+     *        	|     (canHaveAsSpatialElement(element)) && (element.getWorld() == this)
+     */
+	public boolean hasProperSpatialElements(){
+		for(SpatialElement element: elements){
+			if(!canHaveAsSpatialElement(element))
 				return false;
 			if(element.getWorld() != this)
 				return false;
 		}
 		return true;
 	}
+	
+	/**
+     * Variable referencing an array containing all the spatial elements
+     * registered in this world.
+     * 
+     * @invar   The referenced array is effective.
+     *        	| elements != null
+     * @invar   Each element in the array is
+     *          an effective, non-terminated spatial element.
+     *        	| for each element in elements:
+     *        	|   (element != null) &&
+     *        	|   (! element.isTerminated()) &&
+     *        	|   (element.getWorld() == this)
+     */
+	// Zetten we deze invars in?
+	private final ArrayList<SpatialElement> elements = new ArrayList<SpatialElement>();
 
-
-
-	private void resolve(SpacialElement involved1,SpacialElement involved2){
-		// Case of two ships or two asteroids that collide
-		// For now just exchange the velocity of both ships/asteroids
+	private void resolve(SpatialElement involved1,SpatialElement involved2){
+		// Check if there are two spatial elements involved (else collision with the wall).
 		if (involved2 != null) {
+			// Case of two ships or two asteroids that collide
+			// For now just exchange the velocity of both ships/asteroids
 			if ((involved1.isShip() && (involved2.isShip())) || 
 					(involved1.isAsteroid()) && (involved2.isAsteroid())){
-				// suppose perfectly elestic collision
+				// Suppose perfectly elastic collision.
 				Vector2D unitNormal = (involved1.getPosition().subtract(involved2.getPosition())).getDirection();
 				Vector2D unitTangent = new Vector2D(-unitNormal.getYComponent(),unitNormal.getXComponent());
 				double involved1NormalComponent = involved1.getVelocity().getDotProduct(unitNormal);
@@ -179,9 +311,11 @@ public class World {
 				involved2.setVelocity(unitNormal.multiply(involved2NormalComponentUpdated).add(
 						unitTangent.multiply(involved2TangentComponent)));
 			}
+			
 			// Case of bullet colliding with something
 			if((involved1.isBullet()) || (involved2.isBullet())){
-				// TODO : disappearing of the bullet?
+				// TODO : verdwijnen van de kogel
+				// => Gedaan met die()?
 				if((involved1.isBullet() && involved2.isShip())) {
 					if (((Bullet)involved1).getShip() != ((Ship)involved2)){
 						involved1.die();
@@ -197,6 +331,7 @@ public class World {
 					involved2.die();
 				}
 			}
+			
 			// Case of asteroid colliding with ship
 			else if ((involved1.isShip()) && (involved2.isAsteroid())) {
 				involved1.die();
@@ -206,34 +341,41 @@ public class World {
 				involved2.die();
 			}
 		}
+		
+		// Collision with the wall, no second spatial element was involved.
 		else if(involved1 != null) {
+			// Case of bullet colliding with wall
 			if(involved1.isBullet()) {
-				if (((Bullet)involved1).getHasBounced()) {
+				// If bullet has already bounced once, it dies.
+				if (((Bullet)involved1).hasBounced()) {
 					involved1.die();
 				}
 				else {
 					((Bullet)involved1).bounce();
 				}
 					
-			}			
+			}
+			// Kan ja dan bij een kogel die dood is nog dit doen, blijkbaar wel maar is toch vreemd?
+			// Collision resolved for a vertical wall collision
 			if (Math.min(involved1.getTimeToHorizontalWallCollision(0), involved1.getTimeToHorizontalWallCollision(getHeight())) 
 					> Math.min(involved1.getTimeToVerticalWallCollision(0), involved1.getTimeToVerticalWallCollision(getWidth()))){
 				involved1.setVelocity(new Vector2D(-1*involved1.getVelocity().getXComponent(),involved1.getVelocity().getYComponent()));
 			}
+			// Or for a horizontal wall collision
 			else {
 				involved1.setVelocity(new Vector2D(involved1.getVelocity().getXComponent(),-1*involved1.getVelocity().getYComponent()));
 			}
 		}
 	}
-
+	
 	public void evolve(Double deltaT){
 		double minCollisionTime = Double.POSITIVE_INFINITY;
 		double totalToCollisionTime = deltaT;
 		do {
-			SpacialElement element1 = null;
-			SpacialElement element2 = null;
-			SpacialElement involved1 = null;
-			SpacialElement involved2 = null;
+			SpatialElement element1 = null;
+			SpatialElement element2 = null;
+			SpatialElement involved1 = null;
+			SpatialElement involved2 = null;
 
 			for(int i = 0; i < this.elements.size(); i++) {
 				element1 = this.elements.get(i);				
@@ -262,14 +404,14 @@ public class World {
 				}
 			}
 			if (totalToCollisionTime > minCollisionTime) {
-				for(SpacialElement element : elements) {
+				for(SpatialElement element : elements) {
 					element.move(minCollisionTime);
 				}
 				totalToCollisionTime -= minCollisionTime;
 				this.resolve(involved1,involved2);
 			}
 			else {
-				for(SpacialElement element : elements) {
+				for(SpatialElement element : elements) {
 					element.move(totalToCollisionTime);
 					if (element.isShip() && ((Ship) element).isThrusterActive()) {
 						Double acc = deltaT*1.1E18/element.getMass();
@@ -279,11 +421,4 @@ public class World {
 			}
 		} while (0>totalToCollisionTime);
 	}
-	
-
-	private final static double maxHeight = Double.MAX_VALUE;
-
-	private final static double maxWidth = Double.MAX_VALUE;
-
-	private final ArrayList<SpacialElement> elements = new ArrayList<SpacialElement>();
 }
