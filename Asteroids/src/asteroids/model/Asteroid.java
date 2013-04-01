@@ -6,7 +6,7 @@ import static asteroids.Util.*;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
- * A class of ships for the game asteroids.
+ * A class of Asteroids for the game asteroids.
  * 
  * @version  1.1
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
@@ -49,7 +49,7 @@ public class Asteroid extends SpatialElement{
 		this.random = random;
 	}
 	
-	public void die(){
+	public void terminate(){
 		if(fuzzyLessThanOrEqualTo(30, getRadius())){
 			double newRandomAngle = random.nextDouble()*2*Math.PI;
 			Vector2D randomDirection = new Vector2D(Math.cos(newRandomAngle),
@@ -63,8 +63,7 @@ public class Asteroid extends SpatialElement{
 			getWorld().addAsSpatialElement(childAsteroid1);
 			getWorld().addAsSpatialElement(childAsteroid2);
 		}
-		this.terminate();
-		this.getWorld().removeAsSpatialElement(this);
+		super.terminate();
 	}
 	
 	

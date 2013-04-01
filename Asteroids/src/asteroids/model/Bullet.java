@@ -1,5 +1,6 @@
 package asteroids.model;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
@@ -29,9 +30,12 @@ public class Bullet extends SpatialElement{
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
 	@Raw
-	public Bullet(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass)
+	public Bullet(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass, Ship shooter)
 	throws IllegalArgumentException, NullPointerException{
 		super(position,radius,velocity,maxSpeed,mass);
+		if(shooter == null)
+			throw new IllegalArgumentException("Invalid bullet source.");
+		this.ship = shooter;
 	}
 	
 	/**
@@ -47,75 +51,68 @@ public class Bullet extends SpatialElement{
 		return ship != null;
 	}
 
-	/**
-     * Check whether this bullet has a proper ship.
-     * 
-     * @return  | this.ship != null
-     */
-	public boolean hasProperShip() {
-		return this.ship != null;
-	}
+	// Deze methode niet nodig?
+//	/**
+//     * Check whether this bullet has a proper ship.
+//     * 
+//     * @return  | this.ship != null
+//     */
+//	public boolean hasProperShip() {
+//		return this.ship != null;
+//	}
 	
 	/**
      * Return the ship that is the owner of this bullet.
      * 
      * @return  | this.ship
      */
+	// TODO Probleem is dat je eigenlijk Ship moeten teruggeven, maar dan zouden
+	// externen hiervan eigenschappen kunnen veranderen terwijl ze wel nog in
+	// onze database zit dus dat zou niet zo koosjer zijn. Alternatief om een
+	// kopie terug te geven werkt niet omdat echt de source van Ship gebruikt
+	// wordt... Mijn voorstel zou zijn om een methode te schrijven
+	// 'isSource(Ship)' die in deze klasse checkt of het inderdaad om de source
+	// gaat... Probleem is dat dat deze methode toch public (of default) moet zijn
+	// om ze te kunnen meegeven in Facade
 	public Ship getShip() {
+//		Ship cloneShip = new Ship(ship.getPosition(), ship.getAngle(),
+//				ship.getRadius(), ship.getVelocity(), ship.getMaxSpeed(),
+//				ship.getMass());
 		return this.ship;
 	}
 
-	/**
-     * Set the given ship as the owner for this bullet.
-     * 
-     * @post  	| this.getShip() == ship
-     * @throws	IllegalArgumentException
-     * 			| canHaveAsShip(ship)
-     */
-	public void setShip(Ship ship) throws IllegalArgumentException {
-		if ((!this.isTerminated()) && (!canHaveAsShip(ship))) {
-			throw new IllegalArgumentException("Given ship is not a valid ship for this bullet.");
-		}
-		this.ship = ship;
-	}
+	// Niet meer nodig want in opgave duidelijk insinuatie dat het final moet zijn
+//	/**
+//     * Set the given ship as the owner for this bullet.
+//     * 
+//     * @post  	| this.getShip() == ship
+//     * @throws	IllegalArgumentException
+//     * 			| canHaveAsShip(ship)
+//     */
+//	public void setShip(Ship ship) throws IllegalArgumentException {
+//		if ((!this.isTerminated()) && (!canHaveAsShip(ship))) {
+//			throw new IllegalArgumentException("Given ship is not a valid ship for this bullet.");
+//		}
+//		this.ship = ship;
+//	}
 
 	/**
      * The ship that is the owner of this bullet.
      */
-	private Ship ship;
+	private final Ship ship;
 	
-	// Waarom is al die terminated code herhaald hier als die exact hetzelfde in de superklasse staat?
-//	/**
-//	 * Check whether this bullet is already terminated.
-//	 */
-//	public boolean isTerminated(){
-//		return this.isTerminated;
-//	}
-//
-//	/**
-//     * Terminate this bullet.
-//     *
-//     * @post  | (new this).isTerminated()
-//     */
-//	public void terminate(){
-//		this.isTerminated = true;
-//	}
-//
-//	/**
-//	 * Variable registering whether or not this bullet is
-//	 * terminated.
-//	 */
-//	private boolean isTerminated;
-
-	public void die(){
-		this.terminate();
-		this.setShip(null);
-		this.getWorld().removeAsSpatialElement(this);
+	//TODO vragen aan assistent of bullet nog naar Ship mag verwijzen na death (zie niet in waarom niet)
+	// indien geen probleem mag heel deze methode weg want zit toch in SpatialElement
+	@Override
+	public void terminate(){
+		//this.setShip(null);
+		super.terminate();
 	}
 
 	/**
 	 * Get the mass density of this bullet.
 	 */
+	@Basic
 	public static double getMassDensity(){
 		return massDensity;
 	}
@@ -128,7 +125,8 @@ public class Bullet extends SpatialElement{
 	/**
 	 * Check whether this bullet has already bounced of a wall.
 	 */
-	public boolean hasBounced(){
+	@Basic
+	public boolean getHasBounced(){
 		return hasBounced;
 	}
 

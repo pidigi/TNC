@@ -41,28 +41,28 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 
 	@Override
 	public void addShip(World world, Ship ship) {
-		world.addAsSpacialElement(ship);
+		world.addAsSpatialElement(ship);
 	}
 
 	@Override
 	public void addAsteroid(World world, Asteroid asteroid) {
-		world.addAsSpacialElement(asteroid);
+		world.addAsSpatialElement(asteroid);
 	}
 
 	@Override
 	public void removeShip(World world, Ship ship) {
-		world.removeAsSpacialElement(ship);
+		world.removeAsSpatialElement(ship);
 	}
 
 	@Override
 	public void removeAsteroid(World world, Asteroid asteroid) {
-		world.removeAsSpacialElement(asteroid);
+		world.removeAsSpatialElement(asteroid);
 	}
 
 	@Override
 	public void evolve(World world, double dt,
 			CollisionListener collisionListener) {
-		world.evolve(dt);
+		world.evolve(dt, collisionListener);
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 	@Override
 	public boolean isShip(Object o) {
 		try{
-			boolean result = ((SpacialElement) o).isShip();
+			boolean result = ((SpatialElement) o).isShip();
 			return result;
 		} catch(Exception exc) {
 			return false;
@@ -168,7 +168,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 	@Override
 	public boolean isAsteroid(Object o) {
 		try{
-			boolean result = ((SpacialElement) o).isAsteroid();
+			boolean result = ((SpatialElement) o).isAsteroid();
 			return result;
 		} catch(Exception exc) {
 			return false;
@@ -213,7 +213,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 	@Override
 	public boolean isBullets(Object o) {
 		try{
-			boolean result = ((SpacialElement) o).isBullet();
+			boolean result = ((SpatialElement) o).isBullet();
 			return result;
 		} catch(Exception exc) {
 			return false;
