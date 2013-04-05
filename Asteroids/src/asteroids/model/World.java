@@ -56,7 +56,7 @@ public class World {
 	 * @post | (new this).isTerminated()
 	 * @post | for each element in elements: | ((new element).isTerminated())
 	 */
-	// use die on the elements also?
+	// Element kan niet null zijn?
 	public void terminate() {
 		if (!isTerminated()) {
 			for (SpatialElement element : elements) {
@@ -213,8 +213,8 @@ public class World {
 	 */
 	@Raw
 	public boolean canHaveAsSpatialElement(SpatialElement element) {
-		return (element != null) && (element.canHaveAsWorld(this))
-				&& (!element.isTerminated());
+		return (element != null) && ( (!this.isTerminated())
+				&& (!element.isTerminated()) );
 	}
 
 	/**
@@ -234,10 +234,9 @@ public class World {
 		if (!canHaveAsSpatialElement(element))
 			throw new IllegalArgumentException(
 					"The given spacial element can't be added to the game world.");
-		boolean successfullyAdded = elements.add(element);
-		if (!successfullyAdded)
-			throw new IllegalArgumentException(
-					"Spacial element already present in the game world.");
+		if (element.getWorld() != null)
+			throw new IllegalArgumentException("Element already refers to a world.");
+		elements.add(element);
 		element.setWorld(this);
 	}
 
@@ -255,15 +254,11 @@ public class World {
 	 */
 	public void removeAsSpatialElement(SpatialElement element)
 			throws IllegalArgumentException {
-		if ((element.getWorld() != this)
-				|| (!this.hasAsSpatialElement(element)))
+		if (!this.hasAsSpatialElement(element))
 			throw new IllegalArgumentException(
-					"Element trying to be deleted not assigned to this world.");
-		// TODO nog andere exceptions?????
-		// p.: => Miss kijken of dat er een verwijzing is vanuit deze wereld
-		// (bidirectioneel, zo heb ik het nu geprogameerd)
-		element.setWorld(null);
+					"Element not assigned to this world.");
 		elements.remove(element);
+		element.setWorld(null);		
 	}
 
 	/**

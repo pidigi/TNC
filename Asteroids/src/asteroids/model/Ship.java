@@ -226,6 +226,8 @@ public class Ship extends SpatialElement{
 	 * 			| this.getWorld().hasAsSpatialElement(newBullet) == true
 	 */
 	public void fireBullet() throws IllegalArgumentException {
+		if(!this.hasProperWorld())
+			throw new NullPointerException("Ship not located within a world.");
 		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
 				Math.sin(this.getAngle()));
 		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));

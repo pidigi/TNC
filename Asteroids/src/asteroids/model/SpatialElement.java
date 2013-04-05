@@ -583,11 +583,15 @@ public class SpatialElement {
 	// TODO check whether (new this).isTerminated() is legitimate
 	// & whether the 'if' is necessary
 	// & does it need try - catch around removeAsSpatialElement???
+	// Nu enkel checken of het null is want non terminated elementen kunnen geen
+	// world hebben (dan is world null) en als ze al geterminate zijn is world
+	// ook null dus !isTerminated erbij in if statement zou dubbelop zijn
+	// Exception van remove zal nooit komen want aangeroepen via this.getworld
 	public void terminate() {
-		if (!isTerminated()) {
+		if (this.getWorld() != null) {
 			this.getWorld().removeAsSpatialElement(this);
-			this.isTerminated = true;
 		}
+		this.isTerminated = true;
 	}
 
 	/**
@@ -611,10 +615,7 @@ public class SpatialElement {
 	 */
 	// TODO dubbelcheck, heb paar nuances en veranderingen aangebreacht
 	public boolean canHaveAsWorld(World world) {
-		if (isTerminated())
-			return world == null;
-		else
-			return ((world != null) && (!world.isTerminated()));
+		return ((world == null) || (world.canHaveAsSpatialElement(this)));
 	}
 
 	/**
@@ -637,6 +638,9 @@ public class SpatialElement {
 	 *            The world to set as the world for this spatial element.
 	 * @post | this.getWorld() == world
 	 */
+	// TODO misschien deze beter defensief???
+	// M.O. hasAsSpatialElement impliceert dat de canHaveAsWorld reeds gecheckt
+	// werd
 	public void setWorld(World world) {
 		assert (world == null) || world.hasAsSpatialElement(this);
 		assert (world != null) || (getWorld() == null)
