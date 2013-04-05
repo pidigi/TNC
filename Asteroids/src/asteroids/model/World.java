@@ -1,7 +1,7 @@
 package asteroids.model;
 
 import java.util.*;
-//import static asteroids.Util.fuzzyLessThanOrEqualTo;
+import static asteroids.Util.*;
 import asteroids.CollisionListener;
 import be.kuleuven.cs.som.annotate.*;
 
@@ -277,6 +277,29 @@ public class World {
 		}
 		return true;
 	}
+	
+	public SpatialElement overlapWith(SpatialElement element){
+		for (SpatialElement otherElement: elements){
+			if(element.overlap(otherElement)){
+				return otherElement;
+			}
+		}
+		return null;
+	}
+	
+	public boolean withinBounds(SpatialElement element){
+		return (fuzzyLessThanOrEqualTo(0, element.getPosition().getXComponent())
+				&& fuzzyLessThanOrEqualTo(0, element.getPosition().getYComponent())
+				&& fuzzyLessThanOrEqualTo(element.getPosition().getXComponent(), getMaxWidth())
+				&& fuzzyLessThanOrEqualTo(element.getPosition().getYComponent(), getMaxHeight()));
+	}
+	
+//	public boolean canAddAsSpatialElement(SpatialElement element){
+//		for (SpatialElement otherElement: elements){
+//			result
+//		}
+//		return false;
+//	}
 
 	/**
 	 * Variable referencing an array containing all the spatial elements
@@ -290,164 +313,156 @@ public class World {
 	// Zetten we deze invars in?
 	private final List<SpatialElement> elements = new ArrayList<SpatialElement>();
 
-	private void resolve(SpatialElement involved1, SpatialElement involved2,
-			CollisionListener collisionListener) {
-		// Check if there are two spatial elements involved (else collision with
-		// the wall).
-		if (involved2 != null) {
-			// Case of two ships or two asteroids that collide
-			// For now just exchange the velocity of both ships/asteroids
-			if ((involved1.isShip() && (involved2.isShip()))
-					|| (involved1.isAsteroid()) && (involved2.isAsteroid())) {
-				// Suppose perfectly elastic collision.
-				Vector2D unitNormal = (involved1.getPosition()
-						.subtract(involved2.getPosition())).getDirection();
-				Vector2D unitTangent = new Vector2D(
-						-unitNormal.getYComponent(), unitNormal.getXComponent());
-				double involved1NormalComponent = involved1.getVelocity()
-						.getDotProduct(unitNormal);
-				double involved1TangentComponent = involved1.getVelocity()
-						.getDotProduct(unitTangent);
-				double involved2NormalComponent = involved2.getVelocity()
-						.getDotProduct(unitNormal);
-				double involved2TangentComponent = involved2.getVelocity()
-						.getDotProduct(unitTangent);
-				// Update velocities
-				double massInvolved1 = involved1.getMass();
-				double massInvolved2 = involved2.getMass();
-				double involved1NormalComponentUpdated = (involved1NormalComponent
-						* (massInvolved1 - massInvolved2) + 2 * massInvolved2
-						* involved2NormalComponent)
-						/ (massInvolved1 + massInvolved2);
-				double involved2NormalComponentUpdated = (involved2NormalComponent
-						* (massInvolved2 - massInvolved1) + 2 * massInvolved1
-						* involved1NormalComponent)
-						/ (massInvolved1 + massInvolved2);
-				involved1.setVelocity(unitNormal.multiply(
-						involved1NormalComponentUpdated).add(
-						unitTangent.multiply(involved1TangentComponent)));
-				involved2.setVelocity(unitNormal.multiply(
-						involved2NormalComponentUpdated).add(
-						unitTangent.multiply(involved2TangentComponent)));
-			}
-
-			// Case of bullet colliding with something
-			if ((involved1.isBullet()) || (involved2.isBullet())) {
-				// TODO : verdwijnen van de kogel
-				// => Gedaan met die()?
-				if ((involved1.isBullet() && involved2.isShip())) {
-					if (((Bullet) involved1).getShip() != ((Ship) involved2)) {
-						involved1.terminate();
-						involved2.terminate();
-					}
-				} else if ((involved1.isShip() && involved2.isBullet())) {
-					if (((Bullet) involved2).getShip() != ((Ship) involved1)) {
-						involved1.terminate();
-						involved2.terminate();
-					}
-				} else {
-					Vector2D collisionPosition = involved1.getPosition().add(involved1.getPosition().subtract(involved2.getPosition()).multiply(0.5));
+	private void resolveBounce(SpatialElement involved1, SpatialElement involved2){
+		// Suppose perfectly elastic collision.
+		Vector2D unitNormal = (involved1.getPosition()
+				.subtract(involved2.getPosition())).getDirection();
+		Vector2D unitTangent = new Vector2D(
+				-unitNormal.getYComponent(), unitNormal.getXComponent());
+		double involved1NormalComponent = involved1.getVelocity()
+				.getDotProduct(unitNormal);
+		double involved1TangentComponent = involved1.getVelocity()
+				.getDotProduct(unitTangent);
+		double involved2NormalComponent = involved2.getVelocity()
+				.getDotProduct(unitNormal);
+		double involved2TangentComponent = involved2.getVelocity()
+				.getDotProduct(unitTangent);
+		// Update velocities
+		double massInvolved1 = involved1.getMass();
+		double massInvolved2 = involved2.getMass();
+		double involved1NormalComponentUpdated = (involved1NormalComponent
+				* (massInvolved1 - massInvolved2) + 2 * massInvolved2
+				* involved2NormalComponent)
+				/ (massInvolved1 + massInvolved2);
+		double involved2NormalComponentUpdated = (involved2NormalComponent
+				* (massInvolved2 - massInvolved1) + 2 * massInvolved1
+				* involved1NormalComponent)
+				/ (massInvolved1 + massInvolved2);
+		involved1.setVelocity(unitNormal.multiply(
+				involved1NormalComponentUpdated).add(
+				unitTangent.multiply(involved1TangentComponent)));
+		involved2.setVelocity(unitNormal.multiply(
+				involved2NormalComponentUpdated).add(
+				unitTangent.multiply(involved2TangentComponent)));
+	}
+	
+	private void resolveBullet(SpatialElement involved1, SpatialElement involved2, CollisionListener collisionListener){
+			if ((involved1.isBullet() && involved2.isShip())) {
+				if (((Bullet) involved1).getShip() != ((Ship) involved2)) {
 					involved1.terminate();
 					involved2.terminate();
-					collisionListener.objectCollision(involved1, involved2, collisionPosition.getXComponent(), 
-							collisionPosition.getYComponent());
 				}
+			} else if ((involved1.isShip() && involved2.isBullet())) {
+				if (((Bullet) involved2).getShip() != ((Ship) involved1)) {
+					involved1.terminate();
+					involved2.terminate();
+				}
+			} else {
+				Vector2D collisionPosition;
+				if(involved1.isBullet())
+					collisionPosition = involved1.getPosition();
+				else
+					collisionPosition = involved2.getPosition();
+				involved1.terminate();
+				involved2.terminate();
+				collisionListener.objectCollision(involved1, involved2, collisionPosition.getXComponent(), 
+						collisionPosition.getYComponent());
 			}
-
-			// Case of asteroid colliding with ship
-			else if ((involved1.isShip()) && (involved2.isAsteroid())) {
+	}
+	
+	
+	private void resolveElements(SpatialElement involved1, SpatialElement involved2,
+			CollisionListener collisionListener) {
+			if ((involved1.isShip() && (involved2.isShip()))
+					|| (involved1.isAsteroid()) && (involved2.isAsteroid())) {
+				resolveBounce(involved1,involved2);
+			}
+			if ((involved1.isBullet()) || (involved2.isBullet())) {
+				resolveBullet(involved1,involved2,collisionListener);
+			}
+			if ((involved1.isShip()) && (involved2.isAsteroid())) {
 				involved1.terminate();
 
 			} else if ((involved1.isAsteroid()) && (involved2.isShip())) {
 				involved2.terminate();
 			}
-		}
-
-		// Collision with the wall, no second spatial element was involved.
-		else if (involved1 != null) {
-			// Case of bullet colliding with wall
-			if (involved1.isBullet()) {
-				// If bullet has already bounced once, it dies.
-				if (((Bullet) involved1).getHasBounced()) {
-					involved1.terminate();
-				} else {
-					((Bullet) involved1).bounce();
-				}
-
-			}
-			// Kan ja dan bij een kogel die dood is nog dit doen, blijkbaar wel
-			// maar is toch vreemd?
-			// Collision resolved for a vertical wall collision
-			if (Math.min(involved1.getTimeToHorizontalWallCollision(0),
-					involved1.getTimeToHorizontalWallCollision(getHeight())) > Math
-					.min(involved1.getTimeToVerticalWallCollision(0), involved1
-							.getTimeToVerticalWallCollision(getWidth()))) {
-				involved1.setVelocity(new Vector2D(-1
-						* involved1.getVelocity().getXComponent(), involved1
-						.getVelocity().getYComponent()));
-			}
-			// Or for a horizontal wall collision
-			else {
-				involved1.setVelocity(new Vector2D(involved1.getVelocity()
-						.getXComponent(), -1
-						* involved1.getVelocity().getYComponent()));
-			}
-		}
 	}
 
+	private void resolveWall(SpatialElement involved, boolean horizontal){
+		double xComp = involved.getVelocity().getXComponent();
+		double yComp = involved.getVelocity().getYComponent();
+		
+		if(horizontal){
+			involved.setVelocity(new Vector2D(xComp, -1*yComp));
+		} else {
+			involved.setVelocity(new Vector2D(-1*xComp, yComp));
+		}
+		if(involved.isBullet()){
+			if (((Bullet) involved).getHasBounced()) {
+				involved.terminate();
+			} else {
+				((Bullet) involved).bounce();
+			}
+		}		
+	}
+	
+
 	public void evolve(Double deltaT, CollisionListener collisionListener) {
-		double minCollisionTime = Double.POSITIVE_INFINITY;
-		double totalToCollisionTime = deltaT;
+		double timeLeft = deltaT;
 		do {
-			SpatialElement element1 = null;
-			SpatialElement element2 = null;
 			SpatialElement involved1 = null;
 			SpatialElement involved2 = null;
-
-			for (int i = 0; i < this.elements.size(); i++) {
-				element1 = this.elements.get(i);
-
-				double collisionTimeWall = Math
-						.min(Math.min(element1
+			SpatialElement involvedWall = null;
+			double minCollisionTimeElement = Double.POSITIVE_INFINITY;
+			double minCollisionTimeWall = Double.POSITIVE_INFINITY;
+			boolean horizontal = false;
+			for (SpatialElement element1: elements) {
+				double collisionTimeHorizontalWall = Math.min(element1
 								.getTimeToHorizontalWallCollision(0), element1
-								.getTimeToHorizontalWallCollision(getHeight())),
-								Math.min(
+								.getTimeToHorizontalWallCollision(getHeight()));
+				double collisionTimeVerticalWall = Math.min(
 										element1.getTimeToVerticalWallCollision(0),
-										element1.getTimeToVerticalWallCollision(getWidth())));
-
-				if (collisionTimeWall < minCollisionTime
-						&& collisionTimeWall > 0) {
-					minCollisionTime = collisionTimeWall;
-					involved1 = element1;
-					involved2 = null;
+										element1.getTimeToVerticalWallCollision(getWidth()));
+				double collisionTimeWall = Math.min(collisionTimeHorizontalWall, collisionTimeVerticalWall);
+				if(collisionTimeWall < minCollisionTimeWall && collisionTimeWall > 0){
+					minCollisionTimeWall = collisionTimeWall;
+					involvedWall= element1;
+					horizontal = ( collisionTimeHorizontalWall < collisionTimeVerticalWall);
 				}
-				for (int j = i + 1; j < this.elements.size(); j++) {
-					element2 = this.elements.get(j);
-					double collisionTime = element1
-							.getTimeToCollision(element2);
-					if (collisionTime < minCollisionTime && collisionTime > 0) {
 
-						minCollisionTime = collisionTime;
+				for (SpatialElement element2: elements) {
+					double collisionTimeElement = element1.getTimeToCollision(element2);
+					if (collisionTimeElement < minCollisionTimeElement && collisionTimeElement > 0) {
+						minCollisionTimeElement = collisionTimeElement;
 						involved1 = element1;
 						involved2 = element2;
 					}
 				}
 			}
-			if (totalToCollisionTime > minCollisionTime) {
+			
+			double minCollisionTime = Math.min(minCollisionTimeWall, minCollisionTimeElement);
+			
+			if (!fuzzyLessThanOrEqualTo(timeLeft, minCollisionTime) && !fuzzyLessThanOrEqualTo(minCollisionTime,0)) {
 				for (SpatialElement element : elements) {
 					element.move(minCollisionTime);
 				}
-				totalToCollisionTime -= minCollisionTime;
-				this.resolve(involved1, involved2, collisionListener);
-			} else {
+				timeLeft -= minCollisionTime;
+				if(minCollisionTimeElement < minCollisionTimeWall)
+					this.resolveElements(involved1, involved2, collisionListener);
+				else
+					this.resolveWall(involvedWall, horizontal);
+			} else{
 				for (SpatialElement element : elements) {
-					element.move(totalToCollisionTime);
+					element.move(timeLeft);
 					if (element.isShip() && ((Ship) element).isThrusterActive()) {
 						Double acc = deltaT * 1.1E18 / element.getMass();
 						((Ship) element).thrust(acc);
-					}
+					}				
 				}
+				timeLeft -= minCollisionTime;
 			}
-		} while (0 > totalToCollisionTime);
+		} while (0 < timeLeft);
+		
+		
 	}
 }
