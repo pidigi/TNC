@@ -238,6 +238,7 @@ public class World {
 			throw new IllegalArgumentException("Element already refers to a world.");
 		elements.add(element);
 		element.setWorld(this);
+		this.addCollision(element);
 	}
 
 	/**
@@ -287,11 +288,25 @@ public class World {
 		return null;
 	}
 	
+	public void resolveInitialCondition(SpatialElement element,CollisionListener collisionListener) {
+		SpatialElement conflictingElement = this.overlapWith(element);
+		if (conflictingElement != null) {
+			this.resolveElements(conflictingElement,element,collisionListener);
+		}
+		if (!withinBounds(element)) {
+			element.terminate();
+		}
+	}
+	
 	public boolean withinBounds(SpatialElement element){
-		return (fuzzyLessThanOrEqualTo(0, element.getPosition().getXComponent())
-				&& fuzzyLessThanOrEqualTo(0, element.getPosition().getYComponent())
-				&& fuzzyLessThanOrEqualTo(element.getPosition().getXComponent(), getMaxWidth())
-				&& fuzzyLessThanOrEqualTo(element.getPosition().getYComponent(), getMaxHeight()));
+//		return (fuzzyLessThanOrEqualTo(0, element.getPosition().getXComponent())
+//				&& fuzzyLessThanOrEqualTo(0, element.getPosition().getYComponent())
+//				&& fuzzyLessThanOrEqualTo(element.getPosition().getXComponent(), getMaxWidth())
+//				&& fuzzyLessThanOrEqualTo(element.getPosition().getYComponent(), getMaxHeight()));
+		return ((0 < element.getPosition().getXComponent())
+				&& (0 < element.getPosition().getYComponent())
+				&& (element.getPosition().getXComponent() < getMaxWidth())
+				&& element.getPosition().getYComponent() < getMaxHeight());
 	}
 	
 //	public boolean canAddAsSpatialElement(SpatialElement element){
@@ -312,7 +327,29 @@ public class World {
 	 */
 	// Zetten we deze invars in?
 	private final List<SpatialElement> elements = new ArrayList<SpatialElement>();
-
+	
+	public void removeCollision(SpatialElement element) {
+		List<Set<SpatialElement>> collisionsRemoved = new ArrayList<Set<SpatialElement>>();
+		for (Set<SpatialElement> collision: collisions) {
+			if (collision.contains(element)) {
+				collisionsRemoved.add(collision);
+			}
+		}
+		collisions.removeAll(collisionsRemoved);
+	}
+	
+	public void addCollision(SpatialElement element1) {
+		for (SpatialElement element2: elements) {
+			if (element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY) {
+				Set<SpatialElement> newCollision = new HashSet<SpatialElement>();
+				newCollision.add(element1);
+				newCollision.add(element2);
+				collisions.add(newCollision);
+			}
+		}
+	}
+	private final List<Set<SpatialElement>> collisions = new ArrayList<Set<SpatialElement>>();
+	
 	private void resolveBounce(SpatialElement involved1, SpatialElement involved2){
 		// Suppose perfectly elastic collision.
 		Vector2D unitNormal = (involved1.getPosition()
@@ -376,15 +413,23 @@ public class World {
 			if ((involved1.isShip() && (involved2.isShip()))
 					|| (involved1.isAsteroid()) && (involved2.isAsteroid())) {
 				resolveBounce(involved1,involved2);
+				this.removeCollision(involved1);
+				this.removeCollision(involved2);
+				this.addCollision(involved1);
+				this.addCollision(involved2);
 			}
 			if ((involved1.isBullet()) || (involved2.isBullet())) {
 				resolveBullet(involved1,involved2,collisionListener);
+				this.removeCollision(involved1);
+				this.removeCollision(involved2);
 			}
 			if ((involved1.isShip()) && (involved2.isAsteroid())) {
 				involved1.terminate();
+				this.removeCollision(involved1);
 
 			} else if ((involved1.isAsteroid()) && (involved2.isShip())) {
 				involved2.terminate();
+				this.removeCollision(involved1);
 			}
 	}
 
@@ -403,7 +448,9 @@ public class World {
 			} else {
 				((Bullet) involved).bounce();
 			}
-		}		
+		}
+		this.removeCollision(involved);
+		this.addCollision(involved);
 	}
 	
 
@@ -417,6 +464,7 @@ public class World {
 			double minCollisionTimeWall = Double.POSITIVE_INFINITY;
 			boolean horizontal = false;
 			for (SpatialElement element1: elements) {
+//				this.resolveInitialCondition(element1,collisionListener);
 				double collisionTimeHorizontalWall = Math.min(element1
 								.getTimeToHorizontalWallCollision(0), element1
 								.getTimeToHorizontalWallCollision(getHeight()));
@@ -429,14 +477,14 @@ public class World {
 					involvedWall= element1;
 					horizontal = ( collisionTimeHorizontalWall < collisionTimeVerticalWall);
 				}
-
-				for (SpatialElement element2: elements) {
-					double collisionTimeElement = element1.getTimeToCollision(element2);
-					if (collisionTimeElement < minCollisionTimeElement && collisionTimeElement > 0) {
-						minCollisionTimeElement = collisionTimeElement;
-						involved1 = element1;
-						involved2 = element2;
-					}
+			}
+			for (Set<SpatialElement> elementsInvolved: collisions) {
+				Object[] involved = elementsInvolved.toArray();
+				double collisionTimeElement = ((SpatialElement)involved[0]).getTimeToCollision((SpatialElement)involved[1]);
+				if (collisionTimeElement < minCollisionTimeElement && collisionTimeElement > 0) {
+					minCollisionTimeElement = collisionTimeElement;
+					involved1 = (SpatialElement)involved[0];
+					involved2 = (SpatialElement)involved[1];
 				}
 			}
 			
@@ -457,12 +505,13 @@ public class World {
 					if (element.isShip() && ((Ship) element).isThrusterActive()) {
 						Double acc = deltaT * 1.1E18 / element.getMass();
 						((Ship) element).thrust(acc);
+						this.removeCollision(element);
+						this.addCollision(element);
 					}				
 				}
 				timeLeft -= minCollisionTime;
 			}
 		} while (0 < timeLeft);
-		
-		
+		System.out.println(collisions.size());
 	}
 }

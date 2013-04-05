@@ -424,10 +424,10 @@ public class SpatialElement {
 		double timeToCollision = this.getTimeToCollision(otherElement);
 		if (timeToCollision != Double.POSITIVE_INFINITY) {
 			SpatialElement thisClone = new SpatialElement(this.getPosition(),
-					this.getRadius(), this.getVelocity(), this.getMaxSpeed());
+					this.getRadius(), this.getVelocity(), this.getMaxSpeed(),this.getMass());
 			SpatialElement otherClone = new SpatialElement(
 					otherElement.getPosition(), otherElement.getRadius(),
-					otherElement.getVelocity(), otherElement.getMaxSpeed());
+					otherElement.getVelocity(), otherElement.getMaxSpeed(), otherElement.getMass());
 
 			thisClone.move(timeToCollision);
 			otherClone.move(timeToCollision);
