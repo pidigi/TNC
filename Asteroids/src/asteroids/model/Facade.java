@@ -149,7 +149,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 	public Asteroid createAsteroid(double x, double y, double xVelocity,
 			double yVelocity, double radius) {
 		try{
-			return new Asteroid(new Vector2D(x,y), radius, new Vector2D(xVelocity,yVelocity), 300000);
+			return new Asteroid(new Vector2D(x,y), radius, new Vector2D(xVelocity,yVelocity));
 		} catch (Exception exc){
 			throw new ModelException(exc);
 		}
@@ -159,7 +159,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 	public Asteroid createAsteroid(double x, double y, double xVelocity,
 			double yVelocity, double radius, Random random) {
 		try{
-			return new Asteroid(new Vector2D(x,y), radius, new Vector2D(xVelocity,yVelocity), 300000);
+			return new Asteroid(new Vector2D(x,y), radius, new Vector2D(xVelocity,yVelocity));
 		} catch (Exception exc){
 			throw new ModelException(exc);
 		}

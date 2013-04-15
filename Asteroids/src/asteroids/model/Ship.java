@@ -233,8 +233,7 @@ public class Ship extends SpatialElement{
 		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));
 		Vector2D bulletVelocity = shootingDirection.multiply(250);
 		double bulletRadius = 3;
-		double bulletMass = 4/3*Math.PI*Math.pow(bulletRadius, 3)*Bullet.getMassDensity();
-		Bullet bullet = new Bullet(bulletPosition, 3, bulletVelocity, 300000, bulletMass, this);
+		Bullet bullet = new Bullet(bulletPosition, bulletRadius, bulletVelocity, 300000, this);
 		this.getWorld().addAsSpatialElement(bullet);
 		
 		// TODO hier checken of Bullet wel op legale plaats verschijnt????
