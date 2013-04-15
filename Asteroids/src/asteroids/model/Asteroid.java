@@ -31,23 +31,24 @@ public class Asteroid extends SpatialElement{
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
 	@Raw
-	public Asteroid(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass)
+	public Asteroid(Vector2D position, double radius, Vector2D velocity, double maxSpeed, Random random)
 			throws IllegalArgumentException, NullPointerException{
-		super(position,radius,velocity,maxSpeed,mass);
-		random = new Random();
+		super(position,radius,velocity,maxSpeed,4/3*Math.PI*Math.pow(radius,3)*massDensity);
+		this.random = random;
+	}
+	
+	@Raw
+	public Asteroid(Vector2D position, double radius, 
+			Vector2D velocity, Random random) {
+		this(position, radius, velocity);
 	}
 	
 	@Raw
 	public Asteroid(Vector2D position, double radius, Vector2D velocity)
 			throws IllegalArgumentException, NullPointerException{
-		this(position,radius,velocity,300000,4/3*Math.PI*Math.pow(radius, 3)*Asteroid.getMassDensity());
+		this(position,radius,velocity,300000,new Random());
 	}
 	
-	public Asteroid(Vector2D position, double radius, 
-			Vector2D velocity, Random random) {
-		this(position, radius, velocity);
-		this.random = random;
-	}
 	
 	public void terminate(){
 		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld()){
@@ -58,8 +59,8 @@ public class Asteroid extends SpatialElement{
 			Vector2D positionChild1 = getPosition().add(randomDirection.multiply(radiusChild));
 			Vector2D positionChild2 = getPosition().add(randomDirection.multiply(-radiusChild));
 			Vector2D velocityChild1 = randomDirection.multiply(getVelocity().getNorm()*1.5);
-			SpatialElement childAsteroid1 = new Asteroid(positionChild1, radiusChild, velocityChild1, random);
-			SpatialElement childAsteroid2 = new Asteroid(positionChild2, radiusChild, velocityChild1.multiply(-1), random);
+			SpatialElement childAsteroid1 = new Asteroid(positionChild1, radiusChild, velocityChild1,new Random());
+			SpatialElement childAsteroid2 = new Asteroid(positionChild2, radiusChild, velocityChild1.multiply(-1),new Random());
 			getWorld().addAsSpatialElement(childAsteroid1);
 			getWorld().addAsSpatialElement(childAsteroid2);
 		}

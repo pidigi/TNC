@@ -30,9 +30,9 @@ public class Bullet extends SpatialElement{
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
 	@Raw
-	public Bullet(Vector2D position, double radius, Vector2D velocity, double maxSpeed, double mass, Ship shooter)
+	public Bullet(Vector2D position, double radius, Vector2D velocity, double maxSpeed, Ship shooter)
 	throws IllegalArgumentException, NullPointerException{
-		super(position,radius,velocity,maxSpeed,mass);
+		super(position,radius,velocity,maxSpeed,4/3*Math.PI*Math.pow(radius,3)*massDensity);
 		if(shooter == null)
 			throw new IllegalArgumentException("Invalid bullet source.");
 		this.ship = shooter;

@@ -8,7 +8,8 @@ import be.kuleuven.cs.som.annotate.Raw;
 /**
  * A class of spatial elements for the game world of the game Asteroids.
  * 
- * @invar ... | hasProperWorld()
+ * @invar 	... 
+ * 			| hasProperWorld()
  * 
  * @version 1.1
  * @author Frederik Van Eeghem, Pieter Lietaert
@@ -19,25 +20,26 @@ public class SpatialElement {
 	 * Initialize this new spatial element with given position, radius,
 	 * velocity, maximum speed and mass.
 	 * 
-	 * @param position
-	 *            The 2D vector containing the position coordinates for this new
-	 *            spatial element.
-	 * @param radius
-	 *            The radius for this new spatial element.
-	 * @param velocity
-	 *            The 2D vector containing the velocity components for this new
-	 *            spatial element.
-	 * @param maxSpeed
-	 *            The maximum allowed speed for this new spatial element.
-	 * @param mass
-	 *            The mass for this new spatial element.
-	 * @post The radius of this new spatial element is equal to the given
-	 *       radius. | (new this).getRadius() == radius
-	 * @post If the maximum speed is a number that is positive and smaller than
-	 *       or equal to the speed of light, the maximum speed of this new
-	 *       spatial element is equal to the given maximum speed. |if
-	 *       ((!Double.isNaN(maxSpeed)) && (maxSpeed >=0) && (maxSpeed <=
-	 *       300000)) | then (new this).getMaxSpeed() == maxSpeed
+	 * @param	position
+	 *          The 2D vector containing the position coordinates for this new
+	 *          spatial element.
+	 * @param 	radius
+	 *          The radius for this new spatial element.
+	 * @param 	velocity
+	 *          The 2D vector containing the velocity components for this new
+	 *          spatial element.
+	 * @param 	maxSpeed
+	 *          The maximum allowed speed for this new spatial element.
+	 * @param 	mass
+	 *          The mass for this new spatial element.
+	 * @post 	The radius of this new spatial element is equal to the given
+	 *       	radius. 
+	 *       	| (new this).getRadius() == radius
+	 * @post 	If the maximum speed is a number that is positive and smaller than
+	 *       	or equal to the speed of light, the maximum speed of this new
+	 *       	spatial element is equal to the given maximum speed. 
+	 *       	| if ((!Double.isNaN(maxSpeed)) && (maxSpeed >=0) && (maxSpeed <= 300000)) 
+	 *       	| then (new this).getMaxSpeed() == maxSpeed
 	 * @post If the maximum speed is NaN, a negative number or larger than the
 	 *       speed of light, the maximum speed of this new spatial element is
 	 *       equal to the speed of light. |if (Double.isNaN(maxSpeed) ||
@@ -557,12 +559,16 @@ public class SpatialElement {
 	public double getMass() {
 		return mass;
 	}
+	
+//	public void setMass(double mass) {
+//		this.mass = mass;
+//	}
 
 	/**
 	 * Variable registering the mass of this spatial element. The mass is
 	 * expressed in kg.
 	 */
-	private final double mass;
+	protected final double mass;
 
 	/**
 	 * Check whether this world is already terminated.
