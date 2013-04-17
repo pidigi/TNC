@@ -157,12 +157,18 @@ public class WallCollision extends Collision{
 		
 	}
 
+	/**
+	 * Return all spatial elements involved in this collision
+	 * 
+	 * @return	...
+	 * 			| result.contains(getElement())
+	 * @return 	...
+	 * 			| result.size() == 1
+	 */
 	@Override
 	public Set<SpatialElement> getAllElements() {
 		Set<SpatialElement> allElements = new HashSet<SpatialElement>();
 		allElements.add(getElement());
 		return allElements;
 	}
-
-	
 }

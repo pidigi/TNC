@@ -100,8 +100,20 @@ public abstract class Collision implements Comparable<Collision>{
 		return this instanceof ObjectCollision;
 	}
 	
+	/**
+	 * Resolve the collision
+	 * 
+	 * @param 	collisionListener
+	 * 			The collisionlistener used to visualize the resolve.
+	 * @post 	...
+	 */
 	public abstract void resolve(CollisionListener collisionListener);
 	
+	/**
+	 * Return all spatial elements involved in this collision.
+	 * 
+	 * @return	...
+	 */
 	public abstract Set<SpatialElement> getAllElements();
 	
 }

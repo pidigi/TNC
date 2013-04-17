@@ -117,6 +117,7 @@ public class ObjectCollision extends Collision{
 	 * 			| in
 	 * 			|	result == getElement1().getPosition().add(unitDirection.multiply(getElement1().getRadius()))
 	 */
+	// TODO checken
 	@Override
 	public Vector2D getCollisionEdge() {
 		Vector2D unitDirection = getElement2().getPosition().subtract(getElement1().getPosition()).getDirection();
@@ -178,6 +179,15 @@ public class ObjectCollision extends Collision{
 			}
 	}
 	
+	/**
+	 * Return all spatial elements involved in this collision
+	 * 
+	 * @return	...
+	 * 			| result.contains(getElement1())
+	 * 			| && result.contains(getElement2())
+	 * @return 	...
+	 * 			| result.size() == 2
+	 */
 	@Override
 	public Set<SpatialElement> getAllElements() {
 		Set<SpatialElement> allElements = new HashSet<SpatialElement>();
