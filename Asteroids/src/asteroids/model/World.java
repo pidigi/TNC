@@ -27,6 +27,9 @@ import be.kuleuven.cs.som.annotate.*;
 // TODO: Within bounds is invar? En nog andere invars? Zoals nooit overlap, behalve met kogel van eigen ship?
 // TODO: Vraag assistent: terminate van asteroid.
 // TODO: Vraag assistent: betere manier dan instance of?
+// TODO: Vraag assistent: commentaar bij evolve?
+// TODO: Vraag assistent: Hoe louche is boolean teruggeven en iets veranderen? 
+// TODO: Vraag assistent: Exception gooien binnen checker ok?
 
 
 public class World {
@@ -66,6 +69,7 @@ public class World {
 	public boolean isTerminated() {
 		return this.isTerminated;
 	}
+	
 
 	/**
 	 * Terminate this world.
@@ -359,12 +363,10 @@ public class World {
 	 * 			illegally overlaps with or a non-effective element
 	 * 			if none of the other elements illegally overlap with 
 	 * 			the given element.
-	 * 			| ((result.overlap(element) == true) &&
-	 * 			| (isValidObjectCollision(result, element) == true)) || 
+	 * 			| ( result.overlap(element) && isValidObjectCollision(result, element)) || 
 	 * 			| ((result == null) &&
-	 * 			| (for (SpatialElement element: this.elemnts)
-	 * 			|	(result.overlap(element) != true) || 
-	 * 			|	(isValidObjectCollision(result, element) == false)))
+	 * 			| (for each element in this.elements)
+	 * 			|	(!result.overlap(element)) || (!isValidObjectCollision(result, element))))
 	 */
 	public SpatialElement getIllegalOverlap(SpatialElement element){
 		for (SpatialElement otherElement: elements){
@@ -404,8 +406,12 @@ public class World {
 	/**
 	 * Check whether the given element is within the bounds of this world.
 	 * 
-	 * @
-	 * 
+	 * @param	element
+	 * 			...
+	 * @return	...
+	 * 			| result = (element != null) &&
+	 * 			| (0+element.getRadius() < element.getXComponent() < width-element.getRadius()) &&
+	 * 			| (0+element.getRadius() < element.getYComponent() < heigth-element.getRadius())
 	 */
 	//TODO: Ook een algemene checker maken voor alle elementen als invar?
 	public boolean withinBounds(SpatialElement element){
@@ -435,10 +441,17 @@ public class World {
 	private final List<SpatialElement> elements = new ArrayList<SpatialElement>();
 	
 	/**
-	 * Remove all collisions where the given element is involved 
-	 * from the set of upcoming collisions of this world
+	 * Remove all collisions where the given element is involved in
+	 * from the set of upcoming collisions of this world.
+	 * 
+	 * @param	element
+	 * 			...
+	 * @post	...
+	 * 			| for each collision in collisions
+	 * 			|	!collision.contains(element)
 	 * 
 	 */
+	// Opmerking: element die null is kan geen kwaad, want gaat niet gevonden worden in de lijst.
 	public void removeCollision(SpatialElement element) {
 		List<Collision> collisionsRemoved = new ArrayList<Collision>();
 		for (Collision collision: collisions) {
@@ -452,11 +465,21 @@ public class World {
 	/**
 	 * Add all collisions whit the given element involved 
 	 * to the set of upcoming collisions of this world.
+	 * 
+	 * @param	element
+	 * 			...
+	 * @post	...
+	 * 			|
+	 * @throws	IllegalArgumentException
+	 * 			...
+	 * 			| !this.hasAsSpatialElement(element1)
 	 */
 	// TODO: Only save the first collision, instead of all the elements? Doesn't gain so much.
-	public void addCollision(SpatialElement element1) {
+	public void addCollision(SpatialElement element1) throws IllegalArgumentException{
+		if (this.hasAsSpatialElement(element1)) {
+			throw new IllegalArgumentException("Element for collision does not belong to this world.");
+		}
 		collisions.add(new WallCollision(element1));
-		
 		for (SpatialElement element2: elements) {
 			if (element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY
 					&& isValidObjectCollision(element1, element2)) {
@@ -468,16 +491,28 @@ public class World {
 	/**
 	 * A set containing all upcoming collisions in this world.
 	 */
+	// TODO: invariants
 	private final PriorityQueue<Collision> collisions = new PriorityQueue<Collision>();
 	
 	/**
 	 * Check if the collision between the given spatial element 1 and 
 	 * spatial element 2 is a valid object collision.
+	 * 
+	 * @return	...
+	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
+				| (element1.getWorld() != element2.getWorld()))
+				| then result == false
+	 * @return	...
+	 * 			| result == !(((element1.isBullet() && element2.isShip())
+	 *			| && (element1.getShip() == element2)
+	 *			| || ((element2.isBullet() && element1.isShip())
+	 *			| && element2).getShip() == element1))
 	 */
-	// TODO: had hier eigenlijk eerst nog check of ze allebei tot deze wereld behoren
-	// maar problemen want initial conditions worden resolved voor ze tot deze wereld
-	// worden toegevoegd...
 	public boolean isValidObjectCollision(SpatialElement element1, SpatialElement element2){
+			if ((element1.getWorld() != null) && (element1.getWorld() != null) && 
+			(element1.getWorld() != element2.getWorld())){
+				return false;
+			}	
 			return !(((element1.isBullet() && element2.isShip())
 				&& ((Bullet) element1).getShip() == ((Ship) element2))
 				|| ((element2.isBullet() && element1.isShip())
@@ -487,8 +522,24 @@ public class World {
 	/**
 	 * Update the set of collisions of this world, so that all 
 	 * collisions involving the given spatial element are up to date.
+	 * 
+	 * @pre		...
+	 * 			| elementsToUpdat != null
+	 * @pre		...
+	 * 			| for each element in elementsToUpdat
+	 * 			|	element != null
+	 * 
+	 * @effect	...
+	 * 			| for each element in elementsToUpdate
+	 * 			| if !element.isTerminated()
+	 * 			| then this.removeCollision(element)
+	 * 			| 	   this.addCollisoin(element)
 	 */
 	public void updateElementCollisions(Set<SpatialElement> elementsToUpdate){
+		assert elementsToUpdate != null;
+		for(SpatialElement element: elementsToUpdate){
+			 assert element != null;
+		}	
 		for(SpatialElement element: elementsToUpdate){
 			if(!element.isTerminated()){
 				this.removeCollision(element);
