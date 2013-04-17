@@ -1,44 +1,108 @@
 package asteroids.model;
 
-public class Collision implements Comparable<Collision>{
+import java.util.Set;
 
-	public Collision(SpatialElement element1, SpatialElement element2){
-		this.element1 = element1;
-		this.element2 = element2;
-		collisionTime = element1.getTimeToCollision(element2);
-	}
-	
-		
-	public boolean contains(SpatialElement otherElement){
-		return (getElement1() == otherElement || getElement2() == otherElement);
-	}
-	
-	public SpatialElement getElement1(){
-		return element1;
-	}
-	
-	private final SpatialElement element1;
-	
-	public SpatialElement getElement2(){
-		return element2;
-	}
-	
-	private final SpatialElement element2;
-	
-	public double getCollisionTime(){
-		return collisionTime;
-	}
-	
-	private double collisionTime;
+import asteroids.CollisionListener;
 
+/**
+ * An abstract class of collisions for the game world of the game Asteroids.
+ * 
+ * @version 1.0
+ * @author Frederik Van Eeghem, Pieter Lietaert
+ */
+
+// TODO van alle var getters / checkers / setters nagaan.
+// TODO ook intern alles via setters aanpassen, niet rechtstreeks...
+
+public abstract class Collision implements Comparable<Collision>{
+
+	/**
+	 * Check whether this collision is equal to the given collision.
+	 * 
+	 * @param 	otherCollision
+	 * 			The given collision to check equality with
+	 * @return	...
+	 */
+	public abstract boolean equals(Collision otherCollision);
+	
+	
+	/**
+	 * Check whether this collision contains the given spatial element.
+	 * 
+	 * @param 	otherElement
+	 * 			The given element to check.
+	 * @return	...
+	 */
+	public abstract boolean contains(SpatialElement otherElement);
+	
+	
+	/**
+	 * Get the time to collision of this collision.
+	 * 
+	 * @return	...
+	 */
+	public abstract double getCollisionTime();
+	
+	
+	/**
+	 * Get the vector containing the position of impact on 
+	 * the edge of an element involved in the collision
+	 * if the collision would happen instantly.
+	 * 
+	 * @return	...
+	 */
+	public abstract Vector2D getCollisionEdge();
+	
+	/**
+	 * Compare this collision to the other collision to see if it is smaller, equal or larger.
+	 * 
+	 * @param	otherCollision
+	 * 			The collision to compare this collision with.
+	 * @return	...
+	 * 			| if(this.getCollisionTime() < otherCollision.getCollisionTime())
+	 * 			|	result == -1
+	 * 			| else if(this.getCollisionTime() == otherCollision.getCollisionTime())
+	 * 			|			result == 0
+	 * 			| 	   else 
+	 * 			|			result == 1
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			| otherCollision == null
+	 */
 	@Override
 	public int compareTo(Collision otherCollision) {
-		if(this.getCollisionTime() > otherCollision.getCollisionTime())
-			return 1;
-		else if(this.getCollisionTime() == otherCollision.getCollisionTime())
-			return 0;
-		else
+		if(otherCollision == null)
+			throw new NullPointerException("Non-effective collision");
+		if(this.getCollisionTime() < otherCollision.getCollisionTime())
 			return -1;
+		if(this.getCollisionTime() == otherCollision.getCollisionTime())
+			return 0;
+		return 1;
 	}
 	
+	/**
+	 * Check whether this collision is a wallcollision
+	 * 
+	 * @return	...
+	 * 			| result == (this instanceof WallCollision)
+	 */
+	public boolean isWallCollision(){
+		return this instanceof WallCollision;
+	}
+	
+	/**
+	 * Check whether this collision is an objectcollision
+	 * 
+	 * @return	...
+	 * 			| result == (this instanceof ObjectCollision)
+	 */
+	public boolean isObjectCollision(){
+		return this instanceof ObjectCollision;
+	}
+	
+	public abstract void resolve(CollisionListener collisionListener);
+	
+	public abstract Set<SpatialElement> getAllElements();
+	
 }
+

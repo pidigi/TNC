@@ -8,16 +8,13 @@ import be.kuleuven.cs.som.annotate.Raw;
  * @invar	The angle of each ship must be a valid angle for a ship.
  *			| isValidAngle(getAngle())
  * 
- * @version  3.1
+ * @version  3.2
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
 			 Pieter Lietaert (1st master Mathematical engineering)
  */
-// Link to dropbox folder with files: https://www.dropbox.com/sh/tp0rjutudne3vji/hyFRz4TEUn
 
-// GENERAL REMARK:
-// The setters setPosition, setVelocity and setAngle have been made private because 
-// changing the position, velocity or angle of the ship directly in other places makes little sense.
-// The methods move, thrust and turn can be used to indirectly change these attributes.
+// TODO: Strategy
+// Direction (angle): Nominally
 
 public class Ship extends SpatialElement{
 	/**
@@ -38,8 +35,8 @@ public class Ship extends SpatialElement{
 	 * @pre		The given angle must be a valid angle.
 	 * 			| (new this).isValidAngle(angle)
 	 * @post	The angle of this new ship is equal to the given angle.
-	 * 			| (new this).getRadius() == radius
-	 * @effect	This new ship is initialized as a spatial element with the given position,
+	 * 			| (new this).getAngle() == angle
+	 * @effect	This new ship is initialized as a new spatial element with the given position,
 	 * 			radius, velocity, maximum speed and mass.
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
@@ -91,19 +88,20 @@ public class Ship extends SpatialElement{
 	@Raw
 	public Ship() 
 			throws IllegalArgumentException, NullPointerException{
-		this(new Vector2D(0,0),0,10,new Vector2D(0,0),100);
+		this(new Vector2D(0,0),0,10,new Vector2D(0,0),1E5);
 	}
 		
 	/**
 	 * Return the angle of this ship.
 	 */
-	@Basic @Raw
+	@Basic 
+	@Raw
 	public double getAngle(){
 		return this.angle;
 	}
 	
 	/**
-	 * Check whether the given angle is a valid angle for a ship.
+	 * Check whether the given angle is a valid angle for this ship.
 	 * 
 	 * @param	angle
 	 * 			The angle to check.
@@ -129,7 +127,7 @@ public class Ship extends SpatialElement{
 	}
 	
 	/**
-	 * Variable registering the angle of the ship.
+	 * Variable registering the angle of this ship.
 	 * The angle is measured in Radians. The positive direction is taken to be counterclockwise. 
 	 * Zero angle coincides with the positive x-direction.
 	 */
@@ -198,18 +196,18 @@ public class Ship extends SpatialElement{
 	/** 
 	 * Boolean indicating if the thruster of this ship is active.
 	 */
-	private boolean thrusterActive;
+	private boolean thrusterActive = false;
 	
 	/** 
 	 * Fire a bullet from this ship and add this to the world that contains this ship.
 	 * 
 	 * @post	A new bullet is created with position equal to the position of this ship 
-	 * 			added to the radius in the direction of angle, radius equal to 3, 
-	 * 			velocity equal to 250 in the direction of angle, 
-	 * 			maximum speed equal to the speed of light, mass derived from the density and size,
-	 * 			added as a spatial element to the world containing ship and this ship is appointed 
-	 * 			as the owner of the bullet.
-	 * 			| let Bullet newBullet == new Bullet
+	 * 			added to the sum of the radius of this ship and the bullet, in the direction of angle, 
+	 * 			radius equal to 3, velocity equal to 250 in the direction of angle, 
+	 * 			maximum speed equal to the speed of light and
+	 * 			added as a spatial element to the world containing ship and 
+	 * 			this ship is appointed as the owner of the bullet.
+	 * 			| let Bullet newBullet
 	 * 			| in
 	 * 			| (newBullet.getPosition().subtract(this.getPosition()).getDirection().getXComponent() 
 	 * 			| 	== Math.cos(this.getAngle())
@@ -235,8 +233,5 @@ public class Ship extends SpatialElement{
 		double bulletRadius = 3;
 		Bullet bullet = new Bullet(bulletPosition, bulletRadius, bulletVelocity, 300000, this);
 		this.getWorld().addAsSpatialElement(bullet);
-		
-		// TODO hier checken of Bullet wel op legale plaats verschijnt????
-		// vb als je exact naast tegenstander staat en in zijn richting schiet gaat kogel erdoor...
 	}
 }

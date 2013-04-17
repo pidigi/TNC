@@ -5,7 +5,6 @@ import static asteroids.Util.*;
 /**
  * A value class of geometric vectors of length 2.
  * 
- * 
  * @version  3.0
  * @author   Frederik Van Eeghem, Pieter Lietaert
  */

@@ -1,5 +1,6 @@
 package asteroids.test;
 
+import java.util.*;
 import static org.junit.Assert.*;
 import org.junit.*;
 import static asteroids.Util.*;
@@ -20,7 +21,7 @@ public class ShipTest {
 		standardShip = new Ship(new Vector2D(0,0),0,10,new Vector2D(0,0),300000);
 	}
 	
-	private Ship ship100, ship100PiD4;
+	private Ship ship100, ship100PiD4, shipWorld;
 	
 	/**
 	 * Set up a mutable test fixture
@@ -33,13 +34,17 @@ public class ShipTest {
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception{
-		ship100 = new Ship(new Vector2D(100,0),0,10,new Vector2D(-10,0),300000);
-		ship100PiD4 = new Ship(new Vector2D(100,0),Math.PI/4,10,new Vector2D(0,0),300000);
+		ship100 = new Ship(new Vector2D(100,0),0,10,new Vector2D(-10,0),300000,1E5);
+		ship100PiD4 = new Ship(new Vector2D(100,0),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
+		shipWorld = new Ship(new Vector2D(100,0),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
+		World newWorld = new World(1000,1000);
+		newWorld.addAsSpatialElement(shipWorld);
+		shipWorld.setWorld(newWorld);
 	}
 	
 	@Test
 	public final void constructor1_NormalCase() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),300000);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),300000,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -47,11 +52,13 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
 	public final void constructor2_NormalCase() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000));
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -59,6 +66,8 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
@@ -71,29 +80,32 @@ public class ShipTest {
 		assertEquals(0, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	// Since all constructors have the same effect as the most extended constructor,
 	// only the latter will be tested for all exceptional cases.
 	
+	// Nog steeds nodig om alle speciale gevallen te testen als super gebruikt?
 	@Test(expected = IllegalArgumentException.class)
 	public final void constructor_NaNRadius() throws Exception{
-		new Ship(new Vector2D(50,100),Math.PI/2,Double.NaN,new Vector2D(2000,10000),300000);
+		new Ship(new Vector2D(50,100),Math.PI/2,Double.NaN,new Vector2D(2000,10000),300000,1E5);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public final void constructor_TooLowRadius() throws Exception{
-		new Ship(new Vector2D(50,100),Math.PI/2,5,new Vector2D(2000,10000),300000);
+		new Ship(new Vector2D(50,100),Math.PI/2,-5,new Vector2D(2000,10000),300000,1E5);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public final void constructor_TooHighRadius() throws Exception{
-		new Ship(new Vector2D(50,100),Math.PI/2,Double.POSITIVE_INFINITY,new Vector2D(2000,10000),300000);
+		new Ship(new Vector2D(50,100),Math.PI/2,Double.POSITIVE_INFINITY,new Vector2D(2000,10000),300000,1E5);
 	}
 			
 	@Test(expected = IllegalArgumentException.class)
 	public final void constructor_NaNPosition() throws Exception{
-		new Ship(new Vector2D(Double.NaN,100),Math.PI/2,15,new Vector2D(2000,10000),300000);
+		new Ship(new Vector2D(Double.NaN,100),Math.PI/2,15,new Vector2D(2000,10000),300000,1E5);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -103,7 +115,7 @@ public class ShipTest {
 	
 	@Test
 	public final void constructor_NaNMaxSpeed() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),Double.NaN);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),Double.NaN,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -111,11 +123,13 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
 	public final void constructor_TooLowMaxSpeed() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),-50);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),-50,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -123,11 +137,12 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
 	public final void constructor_TooHighMaxSpeed() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),400000);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(2000,10000),400000,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -135,11 +150,12 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
 	public final void constructor_NaNVelocity() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(Double.NaN,10000),300000);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(Double.NaN,10000),300000,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -147,11 +163,12 @@ public class ShipTest {
 		assertEquals(0, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
 	public final void constructor_NullVelocity() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,null,300000);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,null,300000,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -159,11 +176,12 @@ public class ShipTest {
 		assertEquals(0, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	@Test
 	public final void constructor_TooHighVelocity() throws Exception{
-		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(300000,300000),300000);
+		Ship newShip = new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(300000,300000),300000,1E5);
 		assertEquals(50, newShip.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newShip.getPosition().getYComponent(),EPSILON);
 		assertEquals(Math.PI/2, newShip.getAngle(),EPSILON);
@@ -171,47 +189,12 @@ public class ShipTest {
 		assertEquals(300000/Math.sqrt(2), newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(300000/Math.sqrt(2), newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertFalse(newShip.isThrusterActive());
 	}
 	
 	// Checkers are tested because they are public methods, 
 	// although you could say that they already have been tested through 
 	// the tests for the constructor.
-	
-	@Test
-	public final void isValidPosition_TrueCase(){
-		assertTrue(ship100.isValidPosition(new Vector2D(5,10)));
-	}
-	
-	@Test
-	public final void isValidPosition_FalseCaseNull(){
-		assertFalse(ship100.isValidPosition(null));
-	}
-	
-	@Test
-	public final void isValidPosition_FalseCaseNaN(){
-		assertFalse(ship100.isValidPosition(new Vector2D(Double.NaN,10)));
-	}	
-	
-	@Test
-	public final void move_NormalCase() throws Exception{
-		ship100.move(1);
-		assertEquals(90,ship100.getPosition().getXComponent(),EPSILON);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void move_NegativeTime() throws Exception{
-		ship100.move(-1);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void move_InfTime() throws Exception{
-		ship100.move(Double.POSITIVE_INFINITY);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void move_NaNTime() throws Exception{
-		ship100.move(Double.NaN);
-	}
 	
 	@Test
 	public final void isValidAngle_TrueCase() {
@@ -260,116 +243,32 @@ public class ShipTest {
 		assertEquals(0,ship100PiD4.getVelocity().getYComponent(),EPSILON);
 	}
 	
-	@Test
-	public final void getDistanceBetween_NormalCase() throws Exception{
-		double newDistance = ship100.getDistanceBetween(standardShip);
-		assertEquals(80,newDistance,EPSILON);
+	public final void setThrusterActive_activeCase(){
+		standardShip.setThrusterActive(true);
+		assertTrue(standardShip.isThrusterActive());
 	}
 	
 	@Test
-	public final void getDistanceBetween_SameShip() throws Exception{
-		double newDistance = standardShip.getDistanceBetween(standardShip);
-		assertEquals(0,newDistance,EPSILON);
-	}
-	
-	@Test
-	public final void getDistanceBetween_CompleteOverlap() throws Exception{
-		double newDistance = ship100.getDistanceBetween(ship100PiD4);
-		assertEquals(-20,newDistance,EPSILON);
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public final void getDistanceBetween_NullShip() throws Exception{
-		ship100.getDistanceBetween(null);
-	}
-	
-	@Test
-	public final void overlap_TrueCase() throws Exception{
-		ship100.overlap(ship100PiD4);
-	}
-	
-	@Test
-	public final void overlap_FalseCase() throws Exception{
-		ship100.overlap(standardShip);
-	}
-	
-	@Test
-	public final void overlap_TrueCaseSameShip() throws Exception{
-		ship100.overlap(ship100);
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public final void overlap_NullCase() throws Exception{
-		ship100.overlap(null);
-	}
-	
-	@Test
-	public final void getTimeToCollision_NormalCase() throws Exception{
-		double newCollisionTime = ship100.getTimeToCollision(standardShip);
-		assertEquals(8,newCollisionTime,EPSILON);
-	}
-	
-	@Test
-	public final void getTimeToCollision_NoCollisionCase() throws Exception{
-		double newCollisionTime = ship100PiD4.getTimeToCollision(standardShip);
-		assertTrue(newCollisionTime == Double.POSITIVE_INFINITY);
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public final void getTimeToCollision_NullCase()throws Exception{
-		ship100PiD4.getTimeToCollision(null);
-	}
-	
-	@Test
-	public final void getCollisionPosition_NormalCase(){
-		Vector2D newCollisionPosition = ship100.getCollisionPosition(standardShip);
-		assertEquals(10,newCollisionPosition.getXComponent(),EPSILON);
-		assertEquals(0,newCollisionPosition.getYComponent(),EPSILON);
-	}
-	
-	@Test
-	public final void getCollisionPosition_NoCollision(){
-		Vector2D newCollisionPosition = ship100PiD4.getCollisionPosition(standardShip);
-		assertTrue(newCollisionPosition == null);
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public final void getCollisionPosition_NullCase(){
-		ship100PiD4.getCollisionPosition(null);
-	}
-	
-	@Test
-	public final void isValidRadius_TrueCase(){
-		assertTrue(ship100.isValidRadius(20));
-	}
-	
-	@Test
-	public final void isValidRadius_FalseCaseNaN(){
-		assertFalse(ship100.isValidRadius(Double.NaN));
-	}
-	
-	@Test
-	public final void isValidRadius_FalseCaseTooLow(){
-		assertFalse(ship100.isValidRadius(9.99));
-	}
-	
-	@Test
-	public final void isValidRadius_FalseCaseInf(){
-		assertFalse(ship100.isValidRadius(Double.POSITIVE_INFINITY));
-	}
-	
-	@Test
-	public final void isValidTime_TrueCase(){
-		assertTrue(Ship.isValidTime(8.0));
-	}
-	
-	@Test
-	public final void isValidTime_FalseCaseNaN(){
-		assertFalse(Ship.isValidTime(Double.NaN));
-	}
-	
-	@Test
-	public final void isValidTime_FalseCaseNegative(){
-		assertFalse(Ship.isValidTime(-8.0));
+	public final void fireBullet_NormalCase() throws Exception {
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		assertTrue(bullets.size() == 1);
+		for (Bullet bullet: bullets) {
+			assertEquals(bullet.getPosition().subtract(shipWorld.getPosition()).getDirection().getXComponent(), 
+					Math.cos(shipWorld.getAngle()),EPSILON);
+			assertEquals(bullet.getPosition().subtract(shipWorld.getPosition()).getDirection().getYComponent(), 
+					Math.sin(shipWorld.getAngle()),EPSILON);
+			assertEquals(bullet.getPosition().subtract(shipWorld.getPosition()).getNorm(), 
+					shipWorld.getRadius(),EPSILON);
+			assertEquals(bullet.getRadius(),3,EPSILON);
+			assertEquals(bullet.getVelocity().getNorm(),250,EPSILON);
+			assertEquals(bullet.getVelocity().getDirection().getXComponent(),
+					Math.cos(shipWorld.getAngle()),EPSILON);
+			assertEquals(bullet.getVelocity().getDirection().getYComponent(),
+					Math.sin(shipWorld.getAngle()),EPSILON);
+			assertEquals(bullet.getMaxSpeed(),300000,EPSILON);
+			assertEquals(bullet.getMass(),4/3*Math.PI*Math.pow(3,3)*Bullet.getMassDensity(),EPSILON);
+			assertTrue(bullet.getShip() == shipWorld);
+		}
 	}
 }

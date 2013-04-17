@@ -4,9 +4,12 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
- * A class of ships for the game asteroids.
+ * A class of bullets for the game asteroids.
  * 
- * @version  1.1
+ * @invar	The ship associated with this bullet must be a valid ship.
+ * 			| hasProperShip()
+ * 
+ * @version  1.2
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
  *		 	 Pieter Lietaert (1st master Mathematical engineering)
  */
@@ -25,8 +28,15 @@ public class Bullet extends SpatialElement{
 	 * 			The maximum allowed speed for this new bullet.
 	 * @param	mass
 	 * 			The mass for this new bullet.
+	 * @param	ship
+	 * 			The ship that is the source of the bullet.
+	 * @post	The given ship is set as the source of this bullet.
+	 * 			| this.getShip() == ship
 	 * @effect	This new bullet is initialized as a spatial element with the given position,
-	 * 			radius, velocity, maximum speed and mass.
+	 * 			radius, velocity, maximum speed and mass derived from the size and density 
+	 * 			of the bullet.
+	 * 			| let mass= 4/3*PI*radius^3*getMassDensity()
+	 * 			| in 
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
 	@Raw
@@ -39,32 +49,7 @@ public class Bullet extends SpatialElement{
 	}
 	
 	/**
-	 * Check whether this bullet can have the given ship as its owner. 
-	 * 
-	 * @param  ship
-	 * 		   The ship to check.
-	 * @return  | ship != null
-	 */
-	// Maar je zet ship wel op null als je element dood gaat? Je zou dit toch moete checke in setAsShip maar dan gaat die niet meer?
-	// Tenzij je ook checked of isTerminated in setAsShip (zoals nu geïmplementeerd.)
-	public boolean canHaveAsShip(Ship ship){
-		return ship != null;
-	}
-
-	// Deze methode niet nodig?
-//	/**
-//     * Check whether this bullet has a proper ship.
-//     * 
-//     * @return  | this.ship != null
-//     */
-//	public boolean hasProperShip() {
-//		return this.ship != null;
-//	}
-	
-	/**
-     * Return the ship that is the owner of this bullet.
-     * 
-     * @return  | this.ship
+     * Get the ship that is the owner of this bullet.
      */
 	// TODO Probleem is dat je eigenlijk Ship moeten teruggeven, maar dan zouden
 	// externen hiervan eigenschappen kunnen veranderen terwijl ze wel nog in
@@ -74,13 +59,40 @@ public class Bullet extends SpatialElement{
 	// 'isSource(Ship)' die in deze klasse checkt of het inderdaad om de source
 	// gaat... Probleem is dat dat deze methode toch public (of default) moet zijn
 	// om ze te kunnen meegeven in Facade
+	// => Niet erg, alleen rekening houden met fouten die de gebruiker zou kunnen maken,
+	// niet met dingen die ze express mis zouden doen.
+	// Als de methodes van ship duidelijk zijn in wat ze doen is dit geen probleem.
 	public Ship getShip() {
-//		Ship cloneShip = new Ship(ship.getPosition(), ship.getAngle(),
-//				ship.getRadius(), ship.getVelocity(), ship.getMaxSpeed(),
-//				ship.getMass());
 		return this.ship;
 	}
+	
+	/**
+	 * Check whether this bullet can have the given ship as its owner. 
+	 * 
+	 * @param  	ship
+	 * 		   	The ship to check.
+	 * @return  True if and only is the given ship is effective.
+	 * 			| result == (ship != null)
+	 */
+	// Maar je zet ship wel op null als je element dood gaat? Je zou dit toch moete checke in setAsShip maar dan gaat die niet meer?
+	// Tenzij je ook checked of isTerminated in setAsShip (zoals nu geïmplementeerd.)
+	// => Zet ship niet meer op null als dat dood gaat!
+	public boolean canHaveAsShip(Ship ship){
+		return ship != null;
+	}
 
+	// Deze methode niet nodig?
+	// => Voor de invariante van de klasse?
+	/**
+     * Check whether this bullet has a proper ship.
+     * 
+     * @return  True if and only if the ship associated with this bullet is effective.
+     * 			| this.ship != null
+     */
+	public boolean hasProperShip() {
+		return this.ship != null;
+	}
+	
 	// Niet meer nodig want in opgave duidelijk insinuatie dat het final moet zijn
 //	/**
 //     * Set the given ship as the owner for this bullet.
@@ -100,14 +112,6 @@ public class Bullet extends SpatialElement{
      * The ship that is the owner of this bullet.
      */
 	private final Ship ship;
-	
-	//TODO vragen aan assistent of bullet nog naar Ship mag verwijzen na death (zie niet in waarom niet)
-	// indien geen probleem mag heel deze methode weg want zit toch in SpatialElement
-	@Override
-	public void terminate(){
-		//this.setShip(null);
-		super.terminate();
-	}
 
 	/**
 	 * Get the mass density of this bullet.
@@ -135,22 +139,25 @@ public class Bullet extends SpatialElement{
 	 * 
 	 * @post	| (new this).hasBounced() == true
 	 */
+	// No setter necassary because physically not logical to set back to false 
+	// and private setter would only be used in this method.
 	public void bounce(){
-		setHasBounced(true);
+		hasBounced = true;
 	}
 	
-	/**
-	 * Set whether this bullet has already bounced of a wall.
-	 * 
-	 * @post	| (new this).hasBounced() == bounce
-	 */
-	private void setHasBounced(boolean bounce){
-		this.hasBounced = bounce;
-	}
+	// Niet nodig, zie bounce.
+//	/**
+//	 * Set whether this bullet has already bounced of a wall.
+//	 * 
+//	 * @post	| (new this).hasBounced() == bounce
+//	 */
+//	private void setHasBounced(boolean bounce){
+//		this.hasBounced = bounce;
+//	}
 	
 	/**
 	 * Variable registering whether or not this bullet
 	 * has bounced of wall.
 	 */
-	private boolean hasBounced;
+	private boolean hasBounced = false;
 }
