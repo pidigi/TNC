@@ -71,13 +71,14 @@ public class WallCollision extends Collision{
 	 * @return	...
 	 * 			| if(getElement().getWorld() == null)
 	 * 			| then result == Double.POSITIVE_INFINITY
-	 * 			| else let times == {time in double | when (getElement().move(time)) then
-     *      	|				 	(this.getElement().getXComponent() == this.getElement().getRadius()
-	 * 			|					|| this.getElement().getXComponent() == this.getElement().getWorld().
-	 * 			|					getWidth()-this.getElement().getRadius()
-	 * 			|   				|| this.getElement().getYComponent() == this.getElement().getRadius()
-	 * 			|					|| this.getElement().move(time).getYComponent() == this.getElement().
-	 * 			|					getWorld().getHeigth()-getElement().getRadius())}
+	 * @return	...
+	 * 			| if(getElement().getWorld() != null)
+	 * 			| then element = this.getElement()
+	 * 			| 	   let times == {time in double | when (element.move(time)) then
+     *      	|		(element.getXComponent() == element.getRadius()
+	 * 			|		|| element.getXComponent() == element.getWorld().getWidth()-element.getRadius()
+	 * 			|   	|| element.getYComponent() == element.getRadius()
+	 * 			|		|| element.getYComponent() == element.getWorld().getHeigth()-getElement().getRadius())}
 	 * 			| 	   in result == minimum(times)
 	 */
 	@Override
@@ -93,22 +94,25 @@ public class WallCollision extends Collision{
 	}
 	
 	/**
-	 * Get the point on the edge of the element of this collision in the 
-	 * direction perpendicular to the wall the element will collide with.
+	 * Get the point on the edge of the walls of this collision 
+	 * closest to the element of this wall collision object.
 	 * 
 	 * @return	...
-	 * 			| boundaryPoints == {point in Vector2D | 
-     *      	|				 	(norm(point.getDifference(getElement().getPosition())) 
-     *      	|   				== getElement().getRadius())}
-	 * 			| for each point in boundaryPoints:
-	 * 			| 	if point minimizes (minimum(point.getXComponent,getElement().getWorld().
-	 * 			|						getWidth()-point.getXComponent,result.getYComponent,
-	 * 			|						getElement().getWorld().getHeigth()-result.getYComponent))
-	 * 			|	then result == point
+	 * 			| let
+	 * 			|	height = getElement().getWorld().getHeight()
+	 * 			|	width = getElement().getWorld().getWidth()
+	 * 			| in boundaryPoints == {point in Vector2D | (point.getXComponent() == 0 || 
+	 * 			|	point.getXComponent() == width || point.getYComponent() == 0 ||
+	 * 			|	point.getYComponent() == height)}
+     *      	|
+     *      	| find result in boundaryPoints so that
+     *      	|   minimum(abs(point.getXComponent()), abs(result.getYComponent()),
+     *      	|			abs(width-point.getXComponent()), abs(height-result.getYComponent()))
+     *      	| is minimized
 	 */
 	@Override
 	public Vector2D getConnectingEdgePoint(){
-		Vector2D posAtColl = getElement().getPosition();//.add(getElement().getVelocity().multiply(getCollisionTime()));
+		Vector2D posAtColl = getElement().getPosition();
 		double xComp, yComp, height, width;
 		xComp = posAtColl.getXComponent();
 		yComp = posAtColl.getYComponent();
@@ -145,7 +149,7 @@ public class WallCollision extends Collision{
 	 * @return	True if and only if the element is effective.
 	 * 			| result == (element != null)
 	 */
-	public boolean isValidElement(SpatialElement Element) {
+	public boolean isValidElement(SpatialElement element) {
 		return (element != null);
 	}
 	
@@ -168,18 +172,14 @@ public class WallCollision extends Collision{
 	 * 			else the y-component is reversed.
 	 * 			| let yPos == getConnectingEdgePoint().getYComponent()
 	 * 			| in 
-	 * 			| if(fuzzyEquals(yPos, 0) || fuzzyEquals(yPos, getElement().
-	 * 			| getWorld().getHeight()))
+	 * 			| if(fuzzyEquals(yPos, 0) || 
+	 * 			|	fuzzyEquals(yPos, getElement().getWorld().getHeight()))
 	 * 			| then 
-	 * 			| ((new this).getVelocity().getXComponent() == 
-	 * 			| this.getVelocity().getXComponent) &&
 	 * 			| ((new this).getVelocity().getYComponent() == 
-	 * 			| this.getVelocity().getYComponent*-1) 
+	 * 			| 		this.getVelocity().getYComponent*-1)
 	 * 			| else 
 	 * 			| ((new this).getVelocity().getXComponent() == 
-	 * 			| this.getVelocity().getXComponent*-1) &&
-	 * 			| ((new this).getVelocity().getYComponent() == 
-	 * 			| this.getVelocity().getYComponent*-1)
+	 * 			| 		this.getVelocity().getXComponent*-1) &&
 	 */
 	@Override
 	public void resolve(CollisionListener collisionListener) {
@@ -189,7 +189,6 @@ public class WallCollision extends Collision{
 		
 		double xComp = getElement().getVelocity().getXComponent();
 		double yComp = getElement().getVelocity().getYComponent();
-//		double xPos = getCollisionEdge().getXComponent();
 		double yPos = getConnectingEdgePoint().getYComponent();
 		
 		if(fuzzyEquals(yPos, 0) || fuzzyEquals(yPos, getElement().getWorld().getHeight())){

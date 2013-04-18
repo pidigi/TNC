@@ -11,9 +11,6 @@ import asteroids.CollisionListener;
  * @author Frederik Van Eeghem, Pieter Lietaert
  */
 
-// TODO van alle var getters / checkers / setters nagaan.
-// TODO ook intern alles via setters aanpassen, niet rechtstreeks...
-
 public abstract class Collision implements Comparable<Collision>{
 	/**
 	 * Check whether this collision is equal to the given collision.
@@ -41,8 +38,8 @@ public abstract class Collision implements Comparable<Collision>{
 	public abstract double getCollisionTime();
 	
 	/**
-	 * Get the point of collision on the edge of an element of this collision 
-	 * presuming the collision takes place at this instant.
+	 * Get the point on the edge of an object involved in the collision
+	 * closest to the other object involved in the collision.
 	 * 
 	 * @return	...
 	 */

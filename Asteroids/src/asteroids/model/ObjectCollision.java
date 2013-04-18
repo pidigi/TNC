@@ -15,7 +15,7 @@ import be.kuleuven.cs.som.annotate.*;
  * 			| isValidElement(getElement2())
  * 
  * @version 1.1
- * @author Frederik Van Eeghem, Pieter Lietaert
+ * @author 	Frederik Van Eeghem, Pieter Lietaert
  */
 public class ObjectCollision extends Collision{
 	/**
@@ -46,11 +46,11 @@ public class ObjectCollision extends Collision{
 	 * @param	otherCollision
 	 * 			The other collision to check equality with.
 	 * @return	...
-	 * 			| result == ((otherCollision != null  && otherCollision.isObjectCollision())
-	 *			| && ((getElement1() == otherCollision.getElement1() 
+	 * 			| result == (otherCollision != null  && otherCollision.isObjectCollision()
+	 *			| && (getElement1() == otherCollision.getElement1() 
 	 *			| || getElement1() == otherCollision.getElement2())
 	 *			| && (getElement2() == otherCollision.getElement1() 
-	 *			| || getElement2() == otherCollision.getElement2())))
+	 *			| || getElement2() == otherCollision.getElement2()))
 	 */
 	public boolean equals(Collision otherCollision){
 		return  (otherCollision != null  && otherCollision.isObjectCollision()) &&
@@ -126,13 +126,10 @@ public class ObjectCollision extends Collision{
 	 * connecting line between the positions of element1 and element2 of this collision.
 	 * 
 	 * @return	...
-	 * 			| let
-	 * 			| 	Vector2D unitDirection = 
-	 * 			|		this.getElement2().getPosition().
-	 * 			|		subtract(getElement1().getPosition()).getDirection()
-	 * 			| in
-	 * 			|	result == this.getElement1().getPosition().
-	 * 			|			  add(unitDirection.multiply(this.getElement1().getRadius()))
+	 * 			| fuzzyEquals(result.getNorm(),getElement1().getRadius())
+	 * @return	...
+	 * 			| result.getDirection().equals(getElement2().getPosition()
+	 * 			| .subtract(getElement1().getPosition()).getDirection())
 	 */
 	@Override
 	public Vector2D getConnectingEdgePoint() {
@@ -143,22 +140,22 @@ public class ObjectCollision extends Collision{
 	/**
 	 * Resolve this collision using the given collisionListener.
 	 * 
-	 * @post	...
+	 * @effect	...
 	 * 			| collisionListener.objectCollision(getElement1(), getElement2(), 
 	 *			| this.getConnectingEdgePoint().getXComponent(),
 	 *			| this.getConnectingEdgePoint().getYComponent())
-	 * @post	If element1 and element2 of this collision are both ships or both asteroids
+	 * @effect	If element1 and element2 of this collision are both ships or both asteroids
 	 * 			they bounce against each other.
 	 * 			| if ((getElement1().isShip() && getElement2().isShip()) 
 	 * 			| || (getElement1().isAsteroid() && getElement2().isAsteroid()))
 	 * 			| then resolveBounce(getElement1(),getElement2())
-	 * @post	If one of the elements in this collision is a ship and 
+	 * @effect	If one of the elements in this collision is a ship and 
 	 * 			the other one is an asteroid, the ship is terminated.
 	 * 			| if ((getElement1().isShip() && getElement2().isAsteroid()) 
 	 * 			| then getElement1().terminate()
 	 * 			| else if (getElement1().isAsteroid() && getElement2().isShip()))
 	 * 			| then getElement2().terminate()
-	 * @post	If one of the elements in this collision is a bullet, the collision
+	 * @effect	If one of the elements in this collision is a bullet, the collision
 	 * 			with the bullet is resolved.
 	 * 			| if ((getElement1().isBullet() || getElement2().isBullet()) 
 	 * 			| then resolveBullet(getElement1(),getElement2())
@@ -187,37 +184,31 @@ public class ObjectCollision extends Collision{
 	 * Resolve the bouncing of given spatial elements.
 	 * 
 	 * @effect	...
-	 * 			| let Vector2D unitNormal = (element1.getPosition().
-	 *			| 	  subtract(element2.getPosition())).getDirection()
-	 *			| 	  Vector2D unitTangent = new Vector2D(
-	 *			| 	  -unitNormal.getYComponent(), unitNormal.getXComponent())
-	 *			| in let element1NormalComponent = v.getVelocity().
-	 *			| 		 getDotProduct(unitNormal)
-	 * 			|		 element1TangentComponent = element1.getVelocity().
-	 *			|		 getDotProduct(unitTangent)
-	 *			|		 element2NormalComponent = element2.getVelocity().
-	 *			|		 getDotProduct(unitNormal)
-	 *			|		 element2TangentComponent = element2.getVelocity().
-	 *			|		 getDotProduct(unitTangent)
+	 * 			| let unitNormal = (element1.getPosition().
+	 *			| 	  	subtract(element2.getPosition())).getDirection()
+	 *			| 	  unitTangent = new Vector2D(-unitNormal.getYComponent(),
+	 *			|		unitNormal.getXComponent())
+	 *			|	  velocity1 = element1.getVelocity()
+	 *			|	  velocity2 = element2.getVelocity()
+	 *			|    
+	 *			|	  element1Normal = velocity1.getDotProduct(unitNormal)
+	 * 			|	  element1Tangent = velocity1.getDotProduct(unitTangent)
+	 *			|	  element2Normal = velocity2.getDotProduct(unitNormal)
+	 *			|	  element2Tangent = velocity2.getDotProduct(unitTangent)
 	 *			|		 
-	 *			|		 element1NormalComponentUpdated = (element1NormalComponent*
-	 *		 	|		 (massInvolved1 - massInvolved2) + 2 * massInvolved2 *
-	 *		 	|		 element2NormalComponent)/
-	 *		    |        (massInvolved1 + massInvolved2)
-	 *		    |         element2NormalComponentUpdated = (element2NormalComponent*
-	 *		 	|		 (massInvolved2 - massInvolved1) + 2 * massInvolved1 *
-	 *		 	|		 element1NormalComponent)/
-	 *		    |         (massInvolved1 + massInvolved2)
+	 *			|	  element1NormalUpdated = (element1Normal*(massInvolved1 -
+	 *			|		massInvolved2) + 2 * massInvolved2 * element2Normal)/
+	 *		    |       (massInvolved1 + massInvolved2)
+	 *		    |     element2NormalUpdated = (element2Normal*(massInvolved2 - 
+	 *			|		massInvolved1) + 2 * massInvolved1 * element1Normal)/
+	 *		    |       (massInvolved1 + massInvolved2)
 	 *		    |
-	 *		    |     in element1.setVelocity(unitNormal.multiply(
-	 *			|		 element1NormalComponentUpdated).add(
-	 *			|		 unitTangent.multiply(element1TangentComponent)))
+	 *		    | in element1.setVelocity(unitNormal.multiply(element1NormalUpdated)
+	 *			|		.add(unitTangent.multiply(element1Tangent)))
 	 *			|		 
-	 *			|		 element2.setVelocity(unitNormal.multiply(
-	 *			|		 element2NormalComponentUpdated).add(
-	 *			|		 unitTangent.multiply(element2TangentComponent)))
+	 *			|	 element2.setVelocity(unitNormal.multiply(element2NormalUpdated)
+	 *			|		.add(unitTangent.multiply(element2Tangent)))
 	 */
-	// TODO: Nog betere commentaar
 	void resolveBounce(SpatialElement element1,
 			SpatialElement element2) {
 		double sumOfRadius = element1.getRadius() + element2.getRadius();
@@ -245,6 +236,8 @@ public class ObjectCollision extends Collision{
 	/**
 	 * Resolve the collision between at least one bullet.
 	 * 
+	 * @pre		...
+	 * 			| (element1.isBullet() || element2.isBullet())
 	 * @post	...
 	 * 			| if(element1.isBullet())
 	 * 			| then  element1.terminate
