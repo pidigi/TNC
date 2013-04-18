@@ -7,7 +7,7 @@ import asteroids.CollisionListener;
 import be.kuleuven.cs.som.annotate.*;
 
 /**
- * A class of objectcollisions for the game world of the game Asteroids.
+ * A class of object collisions for the game world of the game Asteroids.
  * 
  * @version 1.0
  * @author Frederik Van Eeghem, Pieter Lietaert
@@ -16,12 +16,13 @@ import be.kuleuven.cs.som.annotate.*;
 public class ObjectCollision extends Collision{
 
 	/**
-	 * Initialize this new objectcollision with the given elements.
+	 * Initialize this new object collision with the given 
+	 * spatial elements element1 and element2 as the involved elements.
 	 * 
 	 * @param 	element1
-	 * 			The first given spatial element for this objectcollision.
+	 * 			The first spatial element involved in this object collision.
 	 * @param 	element2
-	 * 			The second given spatial element for this objectcollision.
+	 * 			The second spatial element involved in this object collision.
 	 * @post	...
 	 * 			| (new this).getElement1() == element1
 	 * 			| (new this).getElement2() == element2
@@ -31,13 +32,13 @@ public class ObjectCollision extends Collision{
 	 */
 	public ObjectCollision(SpatialElement element1, SpatialElement element2){
 		if(element1 == null || element2 == null)
-			throw new NullPointerException("Non-effective element(s)");
+			throw new NullPointerException("Non-effective element(s) while constructing new object collision.");
 		this.element1 = element1;
 		this.element2 = element2;
 	}
 	
 	/**
-	 * Check whether this objectcollision is equal to the given collision.
+	 * Check whether this object collision is equal to the given collision.
 	 * 
 	 * @param	otherCollision
 	 * 			The other collision to check equality with.
@@ -106,8 +107,7 @@ public class ObjectCollision extends Collision{
 	}
 	
 	/**
-	 * Get the vector containing the position of impact on 
-	 * the edge of element1 if the collision would happen instantly.
+	 * Get the point on the edge of element1 in the direction of element2.
 	 * 
 	 * @return	...
 	 * 			| let
@@ -119,16 +119,35 @@ public class ObjectCollision extends Collision{
 	 */
 	// TODO checken
 	@Override
-	public Vector2D getCollisionEdge() {
+	public Vector2D getConnectingEdgePoint() {
 		Vector2D unitDirection = getElement2().getPosition().subtract(getElement1().getPosition()).getDirection();
 		return getElement1().getPosition().add(unitDirection.multiply(getElement1().getRadius()));
 	}
 
+	/**
+	 * Resolve this collision using the given collisionListener.
+	 * 
+	 * @post	If element1 and element2 of this collision are both ships or both asteroids
+	 * 			they bounce against each other.
+	 * 			| if ((getElement1().isShip() && getElement2().isShip()) 
+	 * 			| || (getElement1().isAsteroid() && getElement2().isAsteroid()))
+	 * 			| then resolveBounce(getElement1(),getElement2())
+	 * @post	If one of the elements in this collision is a ship and 
+	 * 			the other one is an asteroid, the ship is terminated.
+	 * 			| if ((getElement1().isShip() && getElement2().isAsteroid()) 
+	 * 			| then getElement1().terminate()
+	 * 			| else if (getElement1().isAsteroid() && getElement2().isShip()))
+	 * 			| then getElement2().terminate()
+	 * @post	If one of the elements in this collision is a bullet, the collision
+	 * 			with the bullet is resolved.
+	 * 			| if ((getElement1().isBullet() || getElement2().isBullet()) 
+	 * 			| then resolveBullet(getElement1(),getElement2())
+	 */
 	@Override
 	public void resolve(CollisionListener collisionListener) {
 		collisionListener.objectCollision(getElement1(), getElement2(), 
-				this.getCollisionEdge().getXComponent(),
-				this.getCollisionEdge().getYComponent());
+				this.getConnectingEdgePoint().getXComponent(),
+				this.getConnectingEdgePoint().getYComponent());
 		
 		if ((getElement1().isShip() && (getElement2().isShip()))
 				|| (getElement1().isAsteroid()) && (getElement2().isAsteroid())) {
@@ -144,7 +163,13 @@ public class ObjectCollision extends Collision{
 		}
 	}
 
-	private void resolveBounce(SpatialElement element1,
+	/**
+	 * Resolve the bouncing of given element1 and element2.
+	 * 
+	 * @post	...
+	 * 			| 
+	 */
+	void resolveBounce(SpatialElement element1,
 			SpatialElement element2) {
 		double sumOfRadius = element1.getRadius() + element2.getRadius();
 		double mass1 = element1.getMass();
@@ -168,7 +193,7 @@ public class ObjectCollision extends Collision{
 		
 	}
 
-	public void resolveBullet(SpatialElement element1,
+	void resolveBullet(SpatialElement element1,
 			SpatialElement element2) {
 			if(element1.isBullet()){ //TODO is overlap van nog te verdwijnen kogel met nieuwe asteroid mogelijk?
 				element1.terminate();
