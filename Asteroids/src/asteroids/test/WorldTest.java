@@ -216,11 +216,12 @@ public class WorldTest {
 		assertFalse(standardWorld.hasAsSpatialElement(newBullet));
 	}
 	
+	// TODO: extra testen als nieuwe canHaveAsSpatialElement
 	@Test
 	public final void canHaveAsSpatialElement_TrueCase() {
-		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
-		Asteroid newAsteroid = new Asteroid(new Vector2D(100,100), 50, new Vector2D(0,0), 300000, new Random());
-		Bullet newBullet = new Bullet(new Vector2D(100,100), 50, new Vector2D(0,0), 300000, newShip);
+		Ship newShip = new Ship(new Vector2D(700,700), 0, 50, new Vector2D(0,0), 300000, 50);
+		Asteroid newAsteroid = new Asteroid(new Vector2D(800,800), 50, new Vector2D(0,0), 300000, new Random());
+		Bullet newBullet = new Bullet(new Vector2D(900,900), 50, new Vector2D(0,0), 300000, newShip);
 		standardWorld.canHaveAsSpatialElement(newShip);
 		assertTrue(standardWorld.canHaveAsSpatialElement(newShip));
 		assertTrue(standardWorld.canHaveAsSpatialElement(newAsteroid));
@@ -308,4 +309,81 @@ public class WorldTest {
 //	public final void hasProperSpatialElement_FalseCase() {
 //		assertFalse(standardWorld.hasProperSpatialElements());
 //	}
+	
+	@Test
+	public final void withinBounds_TrueCase() {
+		for(Ship ship : standardShips) {
+			assertTrue(standardWorld.withinBounds(ship));
+		}
+		for(Asteroid asteroid : standardAsteroids) {
+			assertTrue(standardWorld.withinBounds(asteroid));
+		}
+		for(Bullet bullet : standardBullets) {
+			assertTrue(standardWorld.withinBounds(bullet));
+		}
+		Ship ShipOnBoundary = new Ship(new Vector2D(900,900), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertTrue(standardWorld.withinBounds(ShipOnBoundary));
+	}
+	
+	@Test
+	public final void withinBounds_NullCase() {
+		assertFalse(standardWorld.withinBounds(null));
+	}
+	
+	@Test
+	public final void withinBounds_OutsideBounds() {
+		Ship ShipOutOfBoundary = new Ship(new Vector2D(2000,2000), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.withinBounds(ShipOutOfBoundary));
+	}
+	
+	@Test
+	public final void withinBounds_OnBounds() {
+		Ship ShipOnBoundary = new Ship(new Vector2D(1000,1000), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.withinBounds(ShipOnBoundary));
+	}
+	
+	// TODO: Kunnen niet echt addCollision en removeCollision testen want kunnen niet aan de lijst.
+	
+	@Test
+	public final void isValidObjectCollision_TrueCase() {
+		for (Ship ship: standardShips) {
+			assertTrue(standardWorld.isValidObjectCollision(ship,ship));
+			for (Asteroid asteroid: standardAsteroids) {
+				assertTrue(standardWorld.isValidObjectCollision(ship,asteroid));
+			}
+			for (Bullet bullet: standardBullets) {
+				if (bullet.getShip() != ship) {
+					assertTrue(standardWorld.isValidObjectCollision(ship,bullet));
+				}
+			}
+		}
+		for (Asteroid asteroid: standardAsteroids) {
+			assertTrue(standardWorld.isValidObjectCollision(asteroid,asteroid));
+		}
+		for (Bullet bullet: standardBullets) {
+			assertTrue(standardWorld.isValidObjectCollision(bullet,bullet));
+		}
+	}
+
+	public final void isValidObjectCollision_BulletFromSameShip() {
+		for (Ship ship: standardShips) {
+			assertTrue(standardWorld.isValidObjectCollision(ship,ship));
+			for (Bullet bullet: standardBullets) {
+				if (bullet.getShip() == ship) {
+					assertFalse(standardWorld.isValidObjectCollision(ship,bullet));
+				}
+			}
+		}
+	}
+	
+	public final void isValidObjectCollision_NotSameWorld() {
+		World newWorld = new World(1000,1000);
+		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
+		newWorld.addAsSpatialElement(newShip);
+		for (Asteroid asteroid: standardAsteroids) {
+			assertFalse(standardWorld.isValidObjectCollision(asteroid,newShip));
+		}
+	}
+	
+	
 }
