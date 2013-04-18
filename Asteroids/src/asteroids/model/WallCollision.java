@@ -8,51 +8,50 @@ import asteroids.CollisionListener;
 import be.kuleuven.cs.som.annotate.*;
 
 /**
- * A class of wallcollisions for the game world of the game Asteroids.
+ * A class of wall collisions for the world of the game Asteroids.
  * 
- * @version 1.0
- * @author Frederik Van Eeghem, Pieter Lietaert
+ * @invar	...
+ * 			| isValidElement()
+ * 
+ * @version 1.1
+ * @author  Frederik Van Eeghem, Pieter Lietaert
  */
-
 public class WallCollision extends Collision{
-	
-	
 	/**
-	 * Initialize this new wallcollision with the given element.
+	 * Initialize this new wall collision with the given element.
 	 * 
 	 * @param	element
-	 * 			The given spatial element for this wallcollision.
+	 * 			The given spatial element for this wall collision.
 	 * @post	...
 	 * 			| (new this).getElement() == element
-	 * @throws	NullPointerException
+	 * @throws	IllegalArgumentException
 	 * 			...
-	 * 			| element == null
+	 * 			| !isValidElement(element)
 	 */
-	public WallCollision(SpatialElement element){
-		if (element == null)
-			throw new NullPointerException("Non-effective element");
+	public WallCollision(SpatialElement element) throws IllegalArgumentException{
+		if (!isValidElement(element))
+			throw new IllegalArgumentException("Non-valid element given while constructing wall collision.");
 		this.element = element;
 	}
 	
 	/**
-	 * Check whether this wallcollision is equal to the given collision.
+	 * Check whether this wall collision is equal to the given collision.
 	 * 
 	 * @param	otherCollision
 	 * 			The collision to check equality with.
 	 * @return	...
-	 * 			| result == (otherCollision != null && otherCollision.isWallCollision()
-	 * 			|	&& this.getElement() == otherCollision.getElement()
-	 * 			|  	&& this.getWallPosition() == otherCollision.getWallPosition())
+	 * 			| result == (otherCollision != null && otherCollision.isWallCollision())
+	 * 			|	&& (this.getElement() == otherCollision.getElement())
 	 */
 	@Override
 	public boolean equals(Collision otherCollision) {
-		return (otherCollision != null && otherCollision.isWallCollision()) &&
+		return (otherCollision != null) && otherCollision.isWallCollision() &&
 				(getElement() == ((WallCollision) otherCollision).getElement());
 	}
 
 	
 	/**
-	 * Check whether this wallcollision contains the given spatial element.
+	 * Check whether this wall collision contains the given spatial element.
 	 * 
 	 * @param	otherElement
 	 * 			The element to be checked.
@@ -71,9 +70,15 @@ public class WallCollision extends Collision{
 	 * 			| //TODO setWallPosition
 	 * @return	...
 	 * 			| if(getElement().getWorld() == null)
-	 * 			|	result == Double.POSITIVE_INFINITY
-	 * 			| else
-	 * 			|	//TODO
+	 * 			| then result == Double.POSITIVE_INFINITY
+	 * 			| else let times == {time in double | when (getElement().move(time)) then
+     *      	|				 	(this.getElement().getXComponent() == this.getElement().getRadius()
+	 * 			|					|| this.getElement().getXComponent() == this.getElement().getWorld().
+	 * 			|					getWidth()-this.getElement().getRadius()
+	 * 			|   				|| this.getElement().getYComponent() == this.getElement().getRadius()
+	 * 			|					|| this.getElement().move(time).getYComponent() == this.getElement().
+	 * 			|					getWorld().getHeigth()-getElement().getRadius())}
+	 * 			| 	   in result == minimum(times)
 	 */
 	@Override
 	public double getCollisionTime() {
@@ -88,15 +93,21 @@ public class WallCollision extends Collision{
 	}
 	
 	/**
-	 * Get the vector containing the position of impact on 
-	 * the edge of element if the collision would happen instantly.
+	 * Get the point on the edge of the element of this collision in the 
+	 * direction perpendicular to the wall the element will collide with.
 	 * 
 	 * @return	...
-	 * 			| let
-	 * 			|	TODO	
+	 * 			| boundaryPoints == {point in Vector2D | 
+     *      	|				 	(norm(point.getDifference(getElement().getPosition())) 
+     *      	|   				== getElement().getRadius())}
+	 * 			| for each point in boundaryPoints:
+	 * 			| 	if point minimizes (minimum(point.getXComponent,getElement().getWorld().
+	 * 			|						getWidth()-point.getXComponent,result.getYComponent,
+	 * 			|						getElement().getWorld().getHeigth()-result.getYComponent))
+	 * 			|	then result == point
 	 */
 	@Override
-	public Vector2D getCollisionEdge(){
+	public Vector2D getConnectingEdgePoint(){
 		Vector2D posAtColl = getElement().getPosition();//.add(getElement().getVelocity().multiply(getCollisionTime()));
 		double xComp, yComp, height, width;
 		xComp = posAtColl.getXComponent();
@@ -127,20 +138,59 @@ public class WallCollision extends Collision{
 	}
 	
 	/**
+	 * Check if the element is a valid spatial element.
+	 * 
+	 * @param 	Element
+	 * 			The spatial element to check.
+	 * @return	True if and only if the element is effective.
+	 * 			| result == (element != null)
+	 */
+	public boolean isValidElement(SpatialElement Element) {
+		return (element != null);
+	}
+	
+	/**
 	 * Variable registering the element involved in this collision.
 	 */
 	private final SpatialElement element;
 
+	/**
+	 * Resolve this wall collision by bouncing the element of this
+	 * collision against one of the walls and using the 
+	 * given collision listener.
+	 * 
+	 * @post	...
+	 * 			| collisionListener.boundaryCollision(getElement(),
+	 *			| this.getConnectingEdgePoint().getXComponent(),
+	 *			| this.getConnectingEdgePoint().getYComponent())
+	 * @post	The x-component of the velocity of the element of this wall collision
+	 * 			is reversed if the element collides with a vertical wall,
+	 * 			else the y-component is reversed.
+	 * 			| let yPos == getConnectingEdgePoint().getYComponent()
+	 * 			| in 
+	 * 			| if(fuzzyEquals(yPos, 0) || fuzzyEquals(yPos, getElement().
+	 * 			| getWorld().getHeight()))
+	 * 			| then 
+	 * 			| ((new this).getVelocity().getXComponent() == 
+	 * 			| this.getVelocity().getXComponent) &&
+	 * 			| ((new this).getVelocity().getYComponent() == 
+	 * 			| this.getVelocity().getYComponent*-1) 
+	 * 			| else 
+	 * 			| ((new this).getVelocity().getXComponent() == 
+	 * 			| this.getVelocity().getXComponent*-1) &&
+	 * 			| ((new this).getVelocity().getYComponent() == 
+	 * 			| this.getVelocity().getYComponent*-1)
+	 */
 	@Override
 	public void resolve(CollisionListener collisionListener) {
 		collisionListener.boundaryCollision(getElement(),
-				this.getCollisionEdge().getXComponent(),
-				this.getCollisionEdge().getYComponent());
+				this.getConnectingEdgePoint().getXComponent(),
+				this.getConnectingEdgePoint().getYComponent());
 		
 		double xComp = getElement().getVelocity().getXComponent();
 		double yComp = getElement().getVelocity().getYComponent();
 //		double xPos = getCollisionEdge().getXComponent();
-		double yPos = getCollisionEdge().getYComponent();
+		double yPos = getConnectingEdgePoint().getYComponent();
 		
 		if(fuzzyEquals(yPos, 0) || fuzzyEquals(yPos, getElement().getWorld().getHeight())){
 			getElement().setVelocity(new Vector2D(xComp, -1*yComp));
@@ -158,7 +208,7 @@ public class WallCollision extends Collision{
 	}
 
 	/**
-	 * Return all spatial elements involved in this collision
+	 * Return all spatial elements involved in this wall collision.
 	 * 
 	 * @return	...
 	 * 			| result.contains(getElement())

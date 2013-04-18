@@ -5,9 +5,9 @@ import java.util.Set;
 import asteroids.CollisionListener;
 
 /**
- * An abstract class of collisions for the game world of the game Asteroids.
+ * An abstract class of collisions for the world of the game Asteroids.
  * 
- * @version 1.0
+ * @version 1.1
  * @author Frederik Van Eeghem, Pieter Lietaert
  */
 
@@ -15,7 +15,6 @@ import asteroids.CollisionListener;
 // TODO ook intern alles via setters aanpassen, niet rechtstreeks...
 
 public abstract class Collision implements Comparable<Collision>{
-
 	/**
 	 * Check whether this collision is equal to the given collision.
 	 * 
@@ -24,7 +23,6 @@ public abstract class Collision implements Comparable<Collision>{
 	 * @return	...
 	 */
 	public abstract boolean equals(Collision otherCollision);
-	
 	
 	/**
 	 * Check whether this collision contains the given spatial element.
@@ -35,7 +33,6 @@ public abstract class Collision implements Comparable<Collision>{
 	 */
 	public abstract boolean contains(SpatialElement otherElement);
 	
-	
 	/**
 	 * Get the time to collision of this collision.
 	 * 
@@ -43,10 +40,9 @@ public abstract class Collision implements Comparable<Collision>{
 	 */
 	public abstract double getCollisionTime();
 	
-	
 	/**
-	 * Get the vector containing the position of the upcoming collisions' 
-	 * point of contact on the edge of an element involved in the collision.
+	 * Get the point of collision on the edge of an element of this collision 
+	 * presuming the collision takes place at this instant.
 	 * 
 	 * @return	...
 	 */
@@ -58,14 +54,13 @@ public abstract class Collision implements Comparable<Collision>{
 	 * it is smaller, equal or larger.
 	 * 
 	 * @param	otherCollision
-	 * 			The collision to compare this collision with.
+	 * 			The collision to compare the time to collision to.
 	 * @return	...
 	 * 			| if(this.getCollisionTime() < otherCollision.getCollisionTime())
-	 * 			|	result == -1
+	 * 			| then result == -1
 	 * 			| else if(this.getCollisionTime() == otherCollision.getCollisionTime())
-	 * 			|			result == 0
-	 * 			| 	   else 
-	 * 			|			result == 1
+	 * 			| then result == 0
+	 * 			| else result == 1
 	 * @throws	NullPointerException
 	 * 			...
 	 * 			| otherCollision == null
@@ -82,7 +77,7 @@ public abstract class Collision implements Comparable<Collision>{
 	}
 	
 	/**
-	 * Check whether this collision is a wallcollision.
+	 * Check whether this collision is a wall collision.
 	 * 
 	 * @return	...
 	 * 			| result == (this instanceof WallCollision)
@@ -92,7 +87,7 @@ public abstract class Collision implements Comparable<Collision>{
 	}
 	
 	/**
-	 * Check whether this collision is an objectcollision.
+	 * Check whether this collision is an object collision.
 	 * 
 	 * @return	...
 	 * 			| result == (this instanceof ObjectCollision)
