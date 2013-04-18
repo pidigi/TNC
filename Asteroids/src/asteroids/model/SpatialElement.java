@@ -32,9 +32,9 @@ import be.kuleuven.cs.som.annotate.Raw;
 // Mass: Undetermined (Chosen: Defensively)
 
 // GENERAL REMARKS:
-// The setters setPosition and setVelocity have been made private because 
-// changing the position or velocity of the spatial element directly other than within spatial elements
-// makes little sense. The methods move can be used to indirectly change the position attribute.
+// The setter setPosition has been made private because 
+// changing the position the spatial element directly other than within spatial element
+// makes little sense. The method move can be used to indirectly change the position attribute.
 
 // TODO: Checken welke methodes package afh. moet maken? Acces rights van alle methodes in het algemeen.
 // TODO: Check de bidirectionele conection nog een laatste keer.
@@ -110,7 +110,6 @@ public class SpatialElement {
 		}
 		setVelocity(velocity);
 		this.mass = mass;
-		this.isTerminated = false;
 	}
 	
 	/**
@@ -139,22 +138,6 @@ public class SpatialElement {
 		this(position, radius, velocity, 300000, mass);
 	}
 	
-	// TODO: Niet nodig nu? Alleen als het ook echt gebruikt werd (p. 26).
-	/**
-	 * Initialize this new spatial element.
-	 * 
-	 * @effect The new spatial element is initialized with the components of
-	 *         position equal to 0, the radius equal to the minimum radius plus 1,
-	 *         the velocity components equal to 0, the maximum speed equal to the
-	 *         speed of light and the mass equal to 1E15. 
-	 *         | this(new Vector(0,0), 0, getMinRadius()+1, new Vector(0,0), 1E15)
-	 */
-	@Raw
-	public SpatialElement() throws IllegalArgumentException,
-			NullPointerException {
-		this(new Vector2D(0, 0), minRadius+1, new Vector2D(0, 0), 1E15);
-	}
-	
 	/**
 	 * Check whether this world is already terminated.
 	 */
@@ -174,8 +157,10 @@ public class SpatialElement {
 	 * 			| (new this).getWorld() == null
 	 * @post	This spatial element is no longer one of the spatial
 	 * 			elements for the world to which this spatial element
-	 * 			belonged.
-	 * 		    | this.getWorld().hasAsSpatialElement(this)
+	 * 			belonged, if this element was associated with an 
+	 * 			effective world.
+	 * 			| if (this.getWorld() != null)
+	 * 		    | then this.getWorld().hasAsSpatialElement(this)
 	 */
 	// TODO check whether (new this).isTerminated() is legitimate
 	// & whether the 'if' is necessary
@@ -197,7 +182,7 @@ public class SpatialElement {
 	private boolean isTerminated = false;	
 	
 	/**
-	 * Get the world this spatial element resides in.
+	 * Get the world this spatial element is associated with.
 	 */
 	@Basic
 	@Raw
@@ -249,8 +234,8 @@ public class SpatialElement {
 	 * 			| ((world != null) && !world.hasAsSpatialElement(this))
 	 * @throws	IllegalArgumentException
 	 * 			Check if the given world is not effective and this spatial 
-	 * 			element has a world attached to it and that world does 
-	 * 			not reference this spatial element.
+	 * 			element has a world attached to it and this attached world 
+	 * 			references this spatial element.
 	 * 			| ((world == null) && (getWorld() != null)
 	 *			| && getWorld().hasAsSpatialElement(this))
 	 */
@@ -354,16 +339,16 @@ public class SpatialElement {
 	 *         	the one hand the position of this spatial element, and on the
 	 *         	other hand the product of the given time with the velocity of
 	 *         	this spatial element. 
-	 *          | (new this).getPosition() == this.getPosition().
+	 *          | setPosition(this.getPosition().
 	 *          | add(this.getVelocity().multiply(deltaT)))
 	 * @throws 	IllegalArgumentException
 	 *          The given time period is not a valid time period. 
 	 *          | !isValidTime(deltaT)
+	 * @note	Note that there is no explicit check for an infinite time. This would
+	 *			either lead to an infinite position or a NaN position,
+	 * 			which are both cases that can be handled within setPosition (either
+	 * 			without problems or by throwing an exception).
 	 */
-	// Note that we do not check explicitly for an infinite time. This would
-	// either lead to an infinite position or a NaN position,
-	// which are both cases that can be handled within setPosition (either
-	// without problems or by throwing an exception).
 	public void move(double deltaT) throws IllegalArgumentException {
 		if (!isValidTime(deltaT))
 			throw new IllegalArgumentException(
@@ -409,14 +394,13 @@ public class SpatialElement {
 	 *       	| if ((velocity == null) || (velocity.containsNaN()) 
 	 *       	| then (new this).getVelocity == new Vector2D(0,0)
 	 */
-	public void setVelocity(Vector2D velocity) {
+	void setVelocity(Vector2D velocity) {
 		if (velocity == null || velocity.containsNaN()) {
 			this.velocity = new Vector2D(0, 0);
 		} else {
 			// Use of fuzzyLessThanOrEqualTo to save on calculation time when
 			// the given velocity is only slightly higher than the maximum
-			// speed.
-			// The effect will be the same as when the speed is reset to the
+			// speed. The effect will be the same as when the speed is reset to the
 			// maximum speed.
 			if (fuzzyLessThanOrEqualTo(velocity.getNorm(), this.getMaxSpeed())) {
 				this.velocity = velocity;
@@ -459,12 +443,12 @@ public class SpatialElement {
 	 * @return 	The distance between this spatial element and the given spatial
 	 *         	element if the given spatial element is effective. 
 	 *         	| if(this != otherElement) 
-	 *         	| result == this.getPosition().subtract(otherElement.getPosition()).getNorm()
-	 *         	| - (this.getRadius()+otherElement.getRadius())
+	 *         	| 	result == this.getPosition().subtract(otherElement.getPosition()).getNorm()
+	 *         	| 	- (this.getRadius()+otherElement.getRadius())
 	 * @return 	Zero if this spatial element and the given spatial element are
 	 *         	the same.
 	 *          | if(this == otherElement) 
-	 *          | result == 0
+	 *          | 	result == 0
 	 * @throws 	NullPointerException
 	 *          The other element is non existent. 
 	 *          | otherElement == null
@@ -491,7 +475,7 @@ public class SpatialElement {
 	 *         	the same or if this spatial element and the given spatial element
 	 *         	overlap. 
 	 *          | result == ((this == otherElement) ||
-	 *          | (this.getDistanceBetween(otherElement) < 0))
+	 *          | (this.getDistanceBetween(otherElement) < -Util.EPSILON))
 	 */
 	public boolean overlap(SpatialElement otherElement)
 			throws NullPointerException {
@@ -510,14 +494,14 @@ public class SpatialElement {
 	 *          ships would be fuzzy equal to zero if they would both move
 	 *          during the resulting time.
 	 *        	| if (result < Double.POSITIVE_INFINITY) then
-	 *        	|   Util.fuzzyEquals(this.distanceBetween(other,result),0.0)
+	 *        	|   Util.fuzzyEquals(this.getDistanceBetween(other,result),0.0)
 	 * @return  If the resulting distance is finite, the distance between both ships
 	 *          would be fuzzy different from zero if they would move for a time shorter than the
 	 *          resulting time.
 	 *        	| if (result < Double.POSITIVE_INFINITY) then
 	 *        	|   for each time in 0.0..result:
 	 *        	|     if (time < result)
-	 *        	|       then ! Util.fuzzyEquals(this.distanceBetween(other,time),0.0)
+	 *        	|       then ! Util.fuzzyEquals(this.getDistanceBetween(other,time),0.0)
 	 * @return  If the resulting time is infinite, this ship is the same as the
 	 *          other ship or the distance between both
 	 *          ships would be different from zero for each finite time they would move.
@@ -525,7 +509,7 @@ public class SpatialElement {
 	 *        	|   (this == other) ||
 	 *        	|   (for each time in 0.0..Double.POSITIVE_INFINITY:
 	 *        	|     if (! Double.isInfinite(time)) then
-	 *        	|       (! Util.fuzzyEquals(this.distanceBetween(other,time),0.0))
+	 *        	|       (! Util.fuzzyEquals(this.getDistanceBetween(other,time),0.0))
 	 * @throws  NullPointerException
 	 *          The other ship is not effective.
 	 *        	| other == null
@@ -618,17 +602,20 @@ public class SpatialElement {
 	 * Return the time to a collision of this spatial element with an infinitely
 	 * long vertical wall located at the y-coordinate yBound.
 	 * 
-	 * @param yBound
-	 *            The coordinate of the wall that this element could collide
-	 *            with.
-	 * @return | if((yBound - yComponent) * yVelocity <= 0) | then
-	 *         Double.POSITIVE_INFINITY
-	 * @return | if((yBound - yComponent) * yVelocity > 0) | then (yBound -
-	 *         this.getPosition().getYComponent -
-	 *         this.getRadius()*sign(this.getVelocity
-	 *         ().getYComponent()))/this.getVelocity().getYComponent()
+	 * @param 	yBound
+	 *          The coordinate of the wall that this element could collide
+	 *          with.
+	 * @return 	...
+	 * 			| if((yBound - yComponent - getRadius() * Math.signum(yVelocity)) 
+	 * 			|	* yVelocity <= 0) 
+	 * 			| then result == Double.POSITIVE_INFINITY
+	 * @return 	...
+	 * 			| if((yBound - yComponent - getRadius() * Math.signum(yVelocity)) 
+	 * 			|	* yVelocity > 0) 
+	 * 			| then fuzzyEquals(Math.abs(yBound - (getPosition().getYCoordinate 
+	 * 			|	+ getVelocity().getYComponent()*result)),getRadius())
+	 * @note	NaN case is implicitly excluded (returns Double.Double.POSITIVE_INFINITY).
 	 */
-	//TODO: Commentaar geven.
 	public double getTimeToHorizontalWallCollision(double yBound) {
 		double yVelocity = this.getVelocity().getYComponent();
 		double yComponent = this.getPosition().getYComponent();
@@ -646,14 +633,17 @@ public class SpatialElement {
 	 * @param	xBound
 	 *          The coordinate of the wall that this element could collide
 	 *          with.
-	 * @return | if((xBound - xComponent) * xVelocity <= 0) | then
-	 *         Double.POSITIVE_INFINITY
-	 * @return | if((xBound - xComponent) * xVelocity > 0) | then (xBound -
-	 *         this.getPosition().getXComponent -
-	 *         this.getRadius()*sign(this.getVelocity
-	 *         ().getXComponent()))/this.getVelocity().getXComponent()
+	 * @return 	...
+	 * 			| if((xBound - xComponent - getRadius() * Math.signum(xVelocity)) 
+	 * 			|	* xVelocity <= 0) 
+	 * 			| then result == Double.POSITIVE_INFINITY
+	 * @return 	...
+	 * 			| if((xBound - xComponent - getRadius() * Math.signum(xVelocity)) 
+	 * 			|	* xVelocity > 0) 
+	 * 			| then fuzzyEquals(Math.abs(xBound - (getPosition().getXCoordinate 
+	 * 			|	+ getVelocity().getXComponent()*result)),getRadius())
+	 * @note	NaN case is implicitly excluded (returns Double.Double.POSITIVE_INFINITY).
 	 */
-	//TODO: Commentaar geven.
 	public double getTimeToVerticalWallCollision(double xBound) {
 		double xVelocity = this.getVelocity().getXComponent();
 		double xComponent = this.getPosition().getXComponent();
@@ -683,7 +673,7 @@ public class SpatialElement {
 	 *         	minimum radius and smaller than or equal to the maximum double
 	 *         	value. 
 	 *         	| result == ((radius >= this.getMinRadius()) && (radius <= Double.MAX_VALUE))
-	 * @note	NaN is implicitly excluded.
+	 * @note	NaN is implicitly excluded (returns false).
 	 */
 	public boolean isValidRadius(double radius) {
 		return ((this.getMinRadius() < radius) && (radius <= Double.MAX_VALUE));
@@ -727,7 +717,7 @@ public class SpatialElement {
 	 *          Mass to check.
 	 * @return 	True if and only if the given mass is a number larger than 0. 
 	 * 			| result == (mass>0)
-	 * @note 	NaN is implicitly excluded.
+	 * @note 	NaN is implicitly excluded (returns false).
 	 */
 	@Basic
 	@Raw
@@ -741,15 +731,33 @@ public class SpatialElement {
 	 */
 	private final double mass;
 	
-	//TODO: Commentaar geven
+	/**
+	 * Check whether the this spatial element is a Ship object.
+	 * 
+	 * @return	...
+	 * 			| result == (this instanceof Ship)
+	 */
+	// Tried to combine the three methods but did not succeed.
 	public boolean isShip() {
 		return (this instanceof Ship);
 	}
 
+	/**
+	 * Check whether the this spatial element is an Asteroid object.
+	 * 
+	 * @return	...
+	 * 			| result == (this instanceof Asteroid)
+	 */
 	public boolean isAsteroid() {
 		return (this instanceof Asteroid);
 	}
 
+	/**
+	 * Check whether the this spatial element is a Bullet object.
+	 * 
+	 * @return	...
+	 * 			| result == (this instanceof Bullet)
+	 */
 	public boolean isBullet() {
 		return (this instanceof Bullet);
 	}

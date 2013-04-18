@@ -3,6 +3,7 @@ package asteroids.test;
 import java.util.*;
 import static org.junit.Assert.*;
 import org.junit.*;
+
 import static asteroids.Util.*;
 import asteroids.model.*;
 
@@ -36,7 +37,7 @@ public class ShipTest {
 	public void setUpMutableFixture() throws Exception{
 		ship100 = new Ship(new Vector2D(100,0),0,10,new Vector2D(-10,0),300000,1E5);
 		ship100PiD4 = new Ship(new Vector2D(100,0),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
-		shipWorld = new Ship(new Vector2D(100,0),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
+		shipWorld = new Ship(new Vector2D(100,100),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
 		World newWorld = new World(1000,1000);
 		newWorld.addAsSpatialElement(shipWorld);
 		shipWorld.setWorld(newWorld);
@@ -86,8 +87,7 @@ public class ShipTest {
 	
 	// Since all constructors have the same effect as the most extended constructor,
 	// only the latter will be tested for all exceptional cases.
-	
-	// Nog steeds nodig om alle speciale gevallen te testen als super gebruikt?
+
 	@Test(expected = IllegalArgumentException.class)
 	public final void constructor_NaNRadius() throws Exception{
 		new Ship(new Vector2D(50,100),Math.PI/2,Double.NaN,new Vector2D(2000,10000),300000,1E5);
@@ -137,6 +137,7 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
 		assertFalse(newShip.isThrusterActive());
 	}
 	
@@ -150,6 +151,7 @@ public class ShipTest {
 		assertEquals(2000, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
 		assertFalse(newShip.isThrusterActive());
 	}
 	
@@ -163,6 +165,7 @@ public class ShipTest {
 		assertEquals(0, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
 		assertFalse(newShip.isThrusterActive());
 	}
 	
@@ -176,6 +179,7 @@ public class ShipTest {
 		assertEquals(0, newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
 		assertFalse(newShip.isThrusterActive());
 	}
 	
@@ -189,7 +193,13 @@ public class ShipTest {
 		assertEquals(300000/Math.sqrt(2), newShip.getVelocity().getXComponent(),EPSILON);
 		assertEquals(300000/Math.sqrt(2), newShip.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newShip.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newShip.getMass(),EPSILON);
 		assertFalse(newShip.isThrusterActive());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void constructor_TooLowMass() throws Exception{
+		new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(300000,300000),300000,-10);
 	}
 	
 	// Checkers are tested because they are public methods, 
@@ -243,7 +253,7 @@ public class ShipTest {
 		assertEquals(0,ship100PiD4.getVelocity().getYComponent(),EPSILON);
 	}
 	
-	public final void setThrusterActive_activeCase(){
+	public final void setThrusterActive_SingleCase(){
 		standardShip.setThrusterActive(true);
 		assertTrue(standardShip.isThrusterActive());
 	}
@@ -269,6 +279,7 @@ public class ShipTest {
 			assertEquals(bullet.getMaxSpeed(),300000,EPSILON);
 			assertEquals(bullet.getMass(),4/3*Math.PI*Math.pow(3,3)*Bullet.getMassDensity(),EPSILON);
 			assertTrue(bullet.getShip() == shipWorld);
+			assertTrue(shipWorld.getWorld().hasAsSpatialElement(bullet));
 		}
 	}
 }

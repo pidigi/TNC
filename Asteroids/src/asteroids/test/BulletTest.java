@@ -11,18 +11,17 @@ public class BulletTest {
 	private static Ship standardShip;
 	
 	/**
-	 * Set up an immutable test fixture
+	 * Set up an mutable test fixture
 	 * 
 	 * @post 	The variable standard ship references a new ship at the origin with zero velocity,
 	 * 			an angle of 0, radius of 10 and maximum velocity of 300000.
 	 */
-	@BeforeClass
-	public static void setUpImmutableFixture() throws Exception{
+	@Before
+	public void setUpMutableFixture() throws Exception{
 		standardShip = new Ship();
-		standardBullet = new Bullet(new Vector2D(0,0),10,new Vector2D(0,0),300000,standardShip);
+		standardBullet = new Bullet(new Vector2D(10,10),10,new Vector2D(0,0),300000,standardShip);
 		World newWorld = new World(1000,1000);
 		newWorld.addAsSpatialElement(standardBullet);
-		standardBullet.setWorld(newWorld);
 	}
 	
 	@Test
@@ -40,13 +39,13 @@ public class BulletTest {
 		assertFalse(newBullet.getHasBounced());
 	}
 	
-	// Since all constructors have the same effect as the most extended constructor,
-	// only the latter will be tested for all exceptional cases.
-	
-	@Test
-	public final void getShip_NormalCase() {
-		assertTrue(standardBullet.getShip() == standardShip);
+	@Test(expected = IllegalArgumentException.class)
+	public final void constructor_NonEffectiveShip(){
+		new Bullet(new Vector2D(50,100),15,new Vector2D(2000,10000),300000,null);
 	}
+	
+	// Since all constructors have the same effect as the constructor of the super class,
+	// only the latter will be tested for all exceptional cases.
 	
 	@Test
 	public final void canHaveAsShip_TrueCase() {
@@ -59,7 +58,7 @@ public class BulletTest {
 	}
 	
 	@Test
-	public final void bounce_StandardCase() {
+	public final void bounce_SingleCase() {
 		standardBullet.bounce();
 		assertTrue(standardBullet.getHasBounced());
 	}

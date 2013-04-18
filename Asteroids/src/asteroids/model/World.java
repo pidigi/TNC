@@ -25,14 +25,9 @@ import be.kuleuven.cs.som.annotate.*;
 
 // TODO: Overflow checking.
 // TODO: Within bounds is invar? En nog andere invars? Zoals nooit overlap, behalve met kogel van eigen ship?
-// TODO: Vraag assistent: terminate van asteroid.
-// TODO: Vraag assistent: betere manier dan instance of?
-// TODO: Vraag assistent: commentaar bij evolve?
-// TODO: Vraag assistent: Hoe louche is boolean teruggeven en iets veranderen? 
-// TODO: Vraag assistent: Exception gooien binnen checker ok?
+// TODO: In facade alle exceptions catchen en vervangen door modelException.
 
-
-public class World {
+public class World{
 	/**
 	 * Initialize this new world with given width and height.
 	 * 
@@ -80,8 +75,7 @@ public class World {
 	 * 			| for each element in elements: 
 	 * 			| ((new element).isTerminated())
 	 */
-	// TODO: Element kan niet null zijn?
-	// TODO: Terminating asteorids.
+	// Element from elements cannot be null (invariant)
 	public void terminate() {
 		if (!isTerminated()) {
 			Set<SpatialElement> clonedSet = new HashSet<SpatialElement>(elements);
@@ -269,6 +263,9 @@ public class World {
 	 *         	terminated and the element can be an element of this world. 
 	 *         	|result == (element != null) && (element.canHaveAsWorld(this)) &&
 	 *          | (!element.isTerminated());
+	 * @note	All overlap with other elements or an element outside the boundaries is seen as
+	 * 			a case that should be resolved on appearing on screen, so canHaveAsSpatialElement
+	 * 			does not need to check such cases.
 	 */
 	@Raw
 	public boolean canHaveAsSpatialElement(SpatialElement element) {
@@ -294,7 +291,6 @@ public class World {
 	 *          | (element.getWorld() != null)
 	 */
 	// TODO: Documentatie aanpassen aan resolveInitialCondition
-	// TODO: collisionListener in verwerken...
 	// M.O. Als element niet mag, wordt hij gewoon niet toegevoegd aan de lijst 
 	// (vb bij slechte gestarte asteroids of outOfBounds)
 	public void addAsSpatialElement(SpatialElement element)
@@ -387,7 +383,8 @@ public class World {
 	 * @
 	 * 
 	 */
-	// TODO: What to do whit elements that are wrongly placed, except for bullets?
+	// Though it changes some aspects of elements, it returns a boolean to
+	// show that some elements have been altered.
 	public boolean resolveInitialCondition(SpatialElement element){
 		SpatialElement conflictingElement = this.getIllegalOverlap(element);
 		if (!withinBounds(element)) {
@@ -396,7 +393,8 @@ public class World {
 		} else if (conflictingElement != null) {
 			 if((element.isBullet()) || (conflictingElement.isBullet())){
 				 (new ObjectCollision(element, conflictingElement)).resolveBullet(element, conflictingElement);
-			 }
+			 } else
+				 element.terminate();
 			 return true;
 		}
 		return false;
@@ -407,7 +405,7 @@ public class World {
 	 * Check whether the given element is within the bounds of this world.
 	 * 
 	 * @param	element
-	 * 			...
+	 * 			The spacial element to check.
 	 * @return	...
 	 * 			| result = (element != null) &&
 	 * 			| (0+element.getRadius() < element.getXComponent() < width-element.getRadius()) &&
@@ -445,9 +443,9 @@ public class World {
 	 * from the set of upcoming collisions of this world.
 	 * 
 	 * @param	element
-	 * 			...
+	 * 			The elements to remove all the collisions of.
 	 * @post	...
-	 * 			| for each collision in collisions
+	 * 			| for each collision in collisions:
 	 * 			|	!collision.contains(element)
 	 * 
 	 */
@@ -463,18 +461,23 @@ public class World {
 	}
 	
 	/**
-	 * Add all collisions whit the given element involved 
+	 * Add all collisions with the given element involved 
 	 * to the set of upcoming collisions of this world.
 	 * 
 	 * @param	element
-	 * 			...
-	 * @post	...
-	 * 			|
+	 * 			The element to add collisions of.
+	 * @effect	...
+	 * 			| for each element2 in {element | element in elements && 
+	 * 			|		element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY
+	 * 			|		&& isValidObjectCollision(element1, element2)}
+	 * 			|	collisions.add(new ObjectCollision(element2,element1))
+	 * @effect	...
+	 * 			| collisions.add(new WallCollision(element1))
 	 * @throws	IllegalArgumentException
 	 * 			...
 	 * 			| !this.hasAsSpatialElement(element1)
 	 */
-	// TODO: Only save the first collision, instead of all the elements? Doesn't gain so much.
+	// TODO: comment
 	public void addCollision(SpatialElement element1) throws IllegalArgumentException{
 		if (!this.hasAsSpatialElement(element1)) {
 			throw new IllegalArgumentException("Element for collision does not belong to this world.");
@@ -528,7 +531,6 @@ public class World {
 	 * @pre		...
 	 * 			| for each element in elementsToUpdat
 	 * 			|	element != null
-	 * 
 	 * @effect	...
 	 * 			| for each element in elementsToUpdate
 	 * 			| if !element.isTerminated()
@@ -549,7 +551,29 @@ public class World {
 	}
 	
 	/**
-	 * Evolve.
+	 * Evolve the world by the time deltaT.
+	 * 
+	 * @effect	...
+	 * 			| timeLeft = deltaT
+	 * 			| do	
+	 * 			| 	minCollisionTime = Double.POSITIVE_INFINITY;
+	 *			| 	if(!collisions.isEmpty())
+	 *			|	then minCollisionTime = collisions.peek().getCollisionTime()
+	 *			| 
+	 *			| 	for each element in elements
+	 *			|		element.move(min(minCollisionTime, timeLeft))
+	 *			|
+	 *			|	if( minCollsionTime < timeLeft )
+	 *			|	then timeLeft -= minCollisionTime
+	 *			|		 firstCollision = collision.poll()
+	 * 			|		 firstCollision.resolve(collisionListener)
+	 * 			|		 updateElementCollision(firstCollision.getAllElements())
+	 * 			|	else
+	 * 			|		for each element in {element | element is in elements && element.isThrusterActive()}
+	 * 			|			element.thrust(deltaT * 1.1E18 / element.getMass())
+	 * 			|		element.updateElementCollisions({element | element is in elements && element.isThrusterActive()})
+	 * 			|		timeLeft -=	minCollisionTime
+	 * 			|	while(0 < timeLeft)
 	 */
 	public void evolve(Double deltaT, CollisionListener collisionListener) {
 		double timeLeft = deltaT;
@@ -558,8 +582,6 @@ public class World {
 			if(!collisions.isEmpty())
 				minCollisionTime = collisions.peek().getCollisionTime();
 			
-			//TODO hier of toch best binnen de else?
-			// evt ook met getAllShips?
 			Set<SpatialElement> thrusting = new HashSet<SpatialElement>();
 			for (SpatialElement element : elements) {
 				element.move(Math.min(minCollisionTime, timeLeft));

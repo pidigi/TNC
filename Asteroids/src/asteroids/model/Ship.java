@@ -156,8 +156,8 @@ public class Ship extends SpatialElement{
 	 * 
 	 * @param	acceleration
 	 * 			The acceleration of this ship.
-	 * @post	If the given acceleration is negative, the velocity of this ship remains unchanged.
-	 * 			| if(acceleration < 0)
+	 * @post	If the given acceleration is NaN or negative, the velocity of this ship remains unchanged.
+	 * 			| if(acceleration.isNaN || acceleration < 0)
 	 * 			|	then (new this).getVelocity() == this.getVelocity
 	 * @effect	If the given acceleration is positive, the given acceleration in the direction 
 	 * 			of angle is added to the velocity of this ship and set as the velocity of this ship.
@@ -179,6 +179,7 @@ public class Ship extends SpatialElement{
 	 * @return	The status of the thruster of this ship.
 	 * 			| result == thrusterActive
 	 */
+	@Basic
 	public boolean isThrusterActive() {
 		return thrusterActive;
 	}
@@ -221,7 +222,7 @@ public class Ship extends SpatialElement{
 	 * 			| newBullet.getMaxSpeed() == 300000
 	 * 			| newBullet.getMass() == 4/3*PI*3^3*Bullet.getMassDensity()
 	 * 			| newBullet.getShip() == this
-	 * 			| this.getWorld().hasAsSpatialElement(newBullet) == true
+	 * 			| this.getWorld().hasAsSpatialElement(newBullet)
 	 */
 	public void fireBullet() throws IllegalArgumentException {
 		if(!this.hasProperWorld())

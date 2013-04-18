@@ -1,12 +1,9 @@
 package asteroids.test;
 
 import static org.junit.Assert.*;
-
-
+import static asteroids.Util.*;
 
 import org.junit.*;
-
-import static asteroids.Util.*;
 import asteroids.model.*;
 
 public class SpatialElementTest {
@@ -18,14 +15,14 @@ public class SpatialElementTest {
 	 * 
 	 * @post 	The variable standardElement references a new spatial element
 	 * 			at the origin with zero velocity, radius of 10 and maximum velocity of 300000 
-	 * 			and mass of 200.
+	 * 			and mass of 1e10.
 	 */
 	@BeforeClass
 	public static void setUpImmutableFixture() throws Exception{
 		standardElement = new SpatialElement(new Vector2D(0,0),10,new Vector2D(0,0),300000,1E10);
 	}
 	
-	private SpatialElement element100, element1002, elementWorld, elementNoWorld;
+	private SpatialElement element100, element1002, elementWorld, elementNoWorld, elementVelocity;
 	
 	/**
 	 * Set up a mutable test fixture
@@ -40,14 +37,12 @@ public class SpatialElementTest {
 	public void setUpMutableFixture() throws Exception{
 		element100 = new SpatialElement(new Vector2D(100,0),10,new Vector2D(-10,0),300000,1E5);
 		element1002 = new SpatialElement(new Vector2D(100,0),10,new Vector2D(0,0),300000,1E5);
-		elementWorld = new SpatialElement();
+		elementWorld = new SpatialElement(new Vector2D(100,100),10,new Vector2D(0,0),300000,1E5);
 		World newWorld = new World(1000,1000);
 		newWorld.addAsSpatialElement(elementWorld);
 		elementWorld.setWorld(newWorld);
-		elementNoWorld = new SpatialElement();
-//		World newWorld2 = new World(1000,1000);
-//		newWorld.addAsSpatialElement(elementWorld);
-//		elementWorld2.setWorld(newWorld);
+		elementNoWorld = new SpatialElement(new Vector2D(100,100),10,new Vector2D(0,0),300000,1E5);
+		elementVelocity = new SpatialElement(new Vector2D(0,0),10,new Vector2D(10,10),300000,1E5);
 	}
 	
 	@Test
@@ -60,7 +55,6 @@ public class SpatialElementTest {
 		assertEquals(10000, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
 		assertEquals(1E5, newElement.getMass(),EPSILON);
-		assertFalse(newElement.isTerminated());
 	}
 	
 	@Test
@@ -73,20 +67,6 @@ public class SpatialElementTest {
 		assertEquals(10000, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
 		assertEquals(1E10, newElement.getMass(),EPSILON);
-		assertFalse(newElement.isTerminated());
-	}
-	
-	@Test
-	public final void constructor3_NormalCase() throws Exception{
-		SpatialElement newElement = new SpatialElement();
-		assertEquals(0, newElement.getPosition().getXComponent(),EPSILON);
-		assertEquals(0, newElement.getPosition().getYComponent(),EPSILON);
-		assertEquals(1, newElement.getRadius(),EPSILON);
-		assertEquals(0, newElement.getVelocity().getXComponent(),EPSILON);
-		assertEquals(0, newElement.getVelocity().getYComponent(),EPSILON);
-		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
-		assertEquals(1E15, newElement.getMass(),EPSILON);
-		assertFalse(newElement.isTerminated());
 	}
 	
 	// Since all constructors have the same effect as the most extended constructor,
@@ -126,6 +106,7 @@ public class SpatialElementTest {
 		assertEquals(2000, newElement.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newElement.getMass(),EPSILON);
 	}
 	
 	@Test
@@ -137,6 +118,7 @@ public class SpatialElementTest {
 		assertEquals(2000, newElement.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newElement.getMass(),EPSILON);
 	}
 	
 	@Test
@@ -148,6 +130,7 @@ public class SpatialElementTest {
 		assertEquals(2000, newElement.getVelocity().getXComponent(),EPSILON);
 		assertEquals(10000, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newElement.getMass(),EPSILON);
 	}
 	
 	@Test
@@ -159,6 +142,7 @@ public class SpatialElementTest {
 		assertEquals(0, newElement.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newElement.getMass(),EPSILON);
 	}
 	
 	@Test
@@ -170,6 +154,7 @@ public class SpatialElementTest {
 		assertEquals(0, newElement.getVelocity().getXComponent(),EPSILON);
 		assertEquals(0, newElement.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
+		assertEquals(1E5, newElement.getMass(),EPSILON);
 	}
 	
 	@Test
@@ -178,9 +163,16 @@ public class SpatialElementTest {
 		assertEquals(50, newElement.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newElement.getPosition().getYComponent(),EPSILON);
 		assertEquals(15, newElement.getRadius(),EPSILON);
-		assertEquals(300000/Math.sqrt(2), newElement.getVelocity().getXComponent(),EPSILON);
-		assertEquals(300000/Math.sqrt(2), newElement.getVelocity().getYComponent(),EPSILON);
+		assertEquals(1/Math.sqrt(2), newElement.getVelocity().getDirection().getXComponent(),EPSILON);
+		assertEquals(1/Math.sqrt(2), newElement.getVelocity().getDirection().getYComponent(),EPSILON);
 		assertEquals(300000, newElement.getMaxSpeed(),EPSILON);
+		assertEquals(300000, newElement.getVelocity().getNorm(),EPSILON);
+		assertEquals(1E5, newElement.getMass(),EPSILON);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void constructor_TooLowMass() throws Exception{
+		new SpatialElement(new Vector2D(50,100),15,new Vector2D(300000,300000),300000,-10);
 	}
 	
 	@Test
@@ -190,6 +182,13 @@ public class SpatialElementTest {
 		assertTrue(elementWorld.isTerminated());
 		assertTrue(elementWorld.getWorld() == null);
 		assertFalse(originalWorld.hasAsSpatialElement(elementWorld));
+	}
+	
+	@Test
+	public final void terminate_NormalCaseNonEffectiveWorld() {
+		element100.terminate();
+		assertTrue(element100.isTerminated());
+		assertTrue(element100.getWorld() == null);
 	}
 	
 	// In hoeverre moe ge dit testen, want canHaveAsSpatialElement is van world???
@@ -205,6 +204,8 @@ public class SpatialElementTest {
 		assertTrue(elementWorld.canHaveAsWorld(world));
 	}
 	
+	// For test of canHaveAsSpatialElement, see World testsuite.
+	
 	@Test
 	public final void hasProperWorld_NormalCase() {
 		assertTrue(elementWorld.hasProperWorld());
@@ -215,16 +216,17 @@ public class SpatialElementTest {
 		elementWorld.getWorld().removeAsSpatialElement(elementWorld);
 		assertTrue(elementWorld.hasProperWorld());
 	}
-	
-	// Hoe valse case testen van hasProperWorld, moeilijk om daar aan te graken?
+	// TODO
+	// For test of hasAsSpatialElement, see World testsuite.
 	
 	@Test
 	public final void setWorld_NormalCase() throws Exception {
 		World newWorld = new World(2000,2000);
 		newWorld.addAsSpatialElement(elementNoWorld);
-		elementNoWorld.setWorld(newWorld);
+//		elementNoWorld.setWorld(newWorld);
 		assertTrue(elementNoWorld.getWorld() == newWorld);
 	}
+	// TODO geeft nog problemen
 	
 	@Test(expected = IllegalArgumentException.class)
 	public final void setWorld_NotAdded() throws Exception {
@@ -289,6 +291,7 @@ public class SpatialElementTest {
 		assertEquals(0,newDistance,EPSILON);
 	}
 	
+	// Extra test to check if distances are indeed negative.
 	@Test
 	public final void getDistanceBetween_CompleteOverlap() throws Exception{
 		double newDistance = element100.getDistanceBetween(element1002);
@@ -302,17 +305,17 @@ public class SpatialElementTest {
 	
 	@Test
 	public final void overlap_TrueCase() throws Exception{
-		element100.overlap(element1002);
+		assertTrue(element100.overlap(element1002));
 	}
 	
 	@Test
 	public final void overlap_FalseCase() throws Exception{
-		element100.overlap(standardElement);
+		assertFalse(element100.overlap(standardElement));
 	}
 	
 	@Test
 	public final void overlap_TrueCaseSameElement() throws Exception{
-		element100.overlap(element100);
+		assertTrue(element100.overlap(element100));
 	}
 	
 	@Test(expected = NullPointerException.class)
@@ -324,6 +327,7 @@ public class SpatialElementTest {
 	public final void getTimeToCollision_NormalCase() throws Exception{
 		double newCollisionTime = element100.getTimeToCollision(standardElement);
 		assertEquals(8,newCollisionTime,EPSILON);
+		// TODO volgens hun methode testen?
 	}
 	
 	@Test
@@ -353,6 +357,46 @@ public class SpatialElementTest {
 	@Test(expected = NullPointerException.class)
 	public final void getCollisionPosition_NullCase(){
 		element1002.getCollisionPosition(null);
+	}
+	
+	@Test
+	public final void getTimeToHorizontalWallCollision_NormalCase(){
+		double time = elementVelocity.getTimeToHorizontalWallCollision(20);
+		assertEquals(elementVelocity.getRadius(), 
+				Math.abs(20 - (elementVelocity.getPosition().getYComponent()
+				+ elementVelocity.getVelocity().getYComponent()*time)),EPSILON);
+	}
+	
+	@Test
+	public final void getTimeToHorizontalWallCollision_NoCollision(){
+		double time = elementVelocity.getTimeToHorizontalWallCollision(10);
+		assertEquals(Double.POSITIVE_INFINITY,time,EPSILON);
+	}
+	
+	@Test
+	public final void getTimeToHorizontalWallCollision_NaNCase(){
+		double time = elementVelocity.getTimeToHorizontalWallCollision(Double.NaN);
+		assertEquals(Double.POSITIVE_INFINITY,time,EPSILON);
+	}
+	
+	@Test
+	public final void getTimeToVerticalWallCollision_NormalCase(){
+		double time = elementVelocity.getTimeToVerticalWallCollision(20);
+		assertEquals(elementVelocity.getRadius(), 
+				Math.abs(20 - (elementVelocity.getPosition().getYComponent()
+				+ elementVelocity.getVelocity().getYComponent()*time)),EPSILON);
+	}
+	
+	@Test
+	public final void getTimeToVerticalWallCollision_NoCollision(){
+		double time = elementVelocity.getTimeToVerticalWallCollision(10);
+		assertEquals(Double.POSITIVE_INFINITY,time,EPSILON);
+	}
+	
+	@Test
+	public final void getTimeToVerticalWallCollision_NaNCase(){
+		double time = elementVelocity.getTimeToVerticalWallCollision(Double.NaN);
+		assertEquals(Double.POSITIVE_INFINITY,time,EPSILON);
 	}
 	
 	@Test
@@ -388,6 +432,43 @@ public class SpatialElementTest {
 	@Test
 	public final void isValidTime_FalseCaseNegative(){
 		assertFalse(Ship.isValidTime(-8.0));
+	}
+	
+	@Test
+	public final void isShip_TrueCase(){
+		SpatialElement ship = new Ship(new Vector2D(100,0),10, 1 ,new Vector2D(-10,0),300000,1E5);
+		assertTrue(ship.isShip());
+	}
+	
+	@Test
+	public final void isShip_FalseCase(){
+		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,null);
+		assertFalse(asteroid.isShip());
+	}
+	
+	@Test
+	public final void isAsteroid_TrueCase(){
+		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,null);
+		assertTrue(asteroid.isAsteroid());
+	}
+	
+	@Test
+	public final void isAsteroid_FalseCase(){
+		SpatialElement asteroid = new Ship(new Vector2D(100,0),10, 1 ,new Vector2D(-10,0),300000,1E5);
+		assertFalse(asteroid.isAsteroid());
+	}
+	
+	@Test
+	public final void isBullet_TrueCase(){
+		Ship ship = new Ship(new Vector2D(100,0),10, 1 ,new Vector2D(-10,0),300000,1E5);
+		SpatialElement bullet = new Bullet(new Vector2D(100,0),10, new Vector2D(-10,0),300000,ship);
+		assertTrue(bullet.isBullet());
+	}
+	
+	@Test
+	public final void isBullet_FalseCase(){
+		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,null);
+		assertFalse(asteroid.isBullet());
 	}
 }
 

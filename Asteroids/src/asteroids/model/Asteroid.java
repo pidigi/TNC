@@ -3,7 +3,7 @@ package asteroids.model;
 import java.util.Random;
 import static asteroids.Util.*;
 
-import be.kuleuven.cs.som.annotate.Raw;
+import be.kuleuven.cs.som.annotate.*;
 
 /**
  * A class of asteroids for the game asteroids.
@@ -94,24 +94,20 @@ public class Asteroid extends SpatialElement{
 	/**
 	 * Terminate this asteroid and create two new smaller asteroids.
 	 * 
-	 * @post 	Two new asteroids are created, moving in opposite random direction.
-	 * 			| let 	Asteroid asteroid1
-	 * 			|		Asteroid asteroid2
-	 * 			|		Double RandomAngle = random.nextDouble()*2*PI
-	 * 			|		Vector2D randomDirection
-	 * 			| in	randomDirection.getDirection == new Vector2D(cos(RandomAngle),sin(RandomAngle))
-	 * 			| 		(asteroid1.getPosition-this.getPosition).getDirection() == randomDirection
-	 * 			|		(asteroid2.getPosition-this.getPosition).getDirection() == randomDirection.multiply(-1)
-	 * 			|		(asteroid1.getPosition-this.getPosition).getNorm() == this.getRadius()/2
-	 * 			|		(asteroid2.getPosition-this.getPosition).getNorm() == this.getRadius()/2
-	 * 			|		astroid1.getVelocity.getDirection() == randomDirection
-	 * 			|		astroid2.getVelocity.getDirection() == (astroid1.getVelocity.getDirection()).multiply(-1)
-	 * 			|		astroid1.getVelocity.getNorm() == this.getVelocity().getNorm()*1,5
-	 * 			|		astroid2.getVelocity.getNorm() == astroid1.getVelocity.getNorm()
-	 * 			|		astroid1.getRadius() == this.getRadius()
-	 * 			|		astroid2.getRadius() == this.getRadius()
-	 * 			|		(new this).getWorld().hasAsSpatialElement(asteroid1)
-	 * 			|		(new this).getWorld().hasAsSpatialElement(asteroid2)
+	 * @effect	Two new asteroids are created, moving in opposite random directions.
+	 * 			| if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated())
+	 * 			|		velocity1.equals(velocity2.multiply(-1))
+	 * 			|		fuzzyEquals(velocity1.getNorm(),this.getVelocity().getNorm()*1.5)
+	 * 			|		position1.minus(this.getPosition()).getDirection()
+	 * 			|			.equals(velocity1.getDirection())
+	 * 			|		fuzzyEquals(this.getPosition().minus(position1).getNorm(),
+	 * 			|			this.getPosition().minus(position2).getNorm())
+	 * 			| 		position1.minus(position2).getNorm() == this.getRadius()
+	 * 			|		newRadius = this.getRadius()/2
+	 * 			|		asteroid1 = new Asteroid(position1, newRadius, velocity1, new Random())
+	 * 			|		asteroid2 = new Asteroid(position2, newRadius, velocity2, new Random())
+	 * 			|		this.getWorld().addAsSpatialElement(asteroid1);
+	 *			|		this.getWorld().addAsSpatialElement(asteroid2);
 	 * @effect	The asteroid is terminated as a spatial element.
 	 * 		    | super.terminate();
 	 */
@@ -159,6 +155,26 @@ public class Asteroid extends SpatialElement{
 	 */
 	private static final double massDensity = 2.65*Math.pow(10,12);
 	
+	/**
+	 * Get the random object of this class.
+	 */
+	@Basic
+	public Random getRandom(){
+		return this.random;
+	}
+	
+	/**
+	 * Set the given Random object as the Random object of this class.
+	 * 
+	 * @param 	random
+	 * 			The given Random object to set.
+	 * @post	...
+	 * 			| (new this).getRandom() == random;
+	 */
+	@Basic
+	public void setRandom(Random random){
+		this.random = random;
+	}
 	/**
 	 * The random generator associated with this asteroid.
 	 */
