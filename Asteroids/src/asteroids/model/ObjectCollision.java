@@ -141,9 +141,10 @@ public class ObjectCollision extends Collision{
 	 * Resolve this collision using the given collisionListener.
 	 * 
 	 * @effect	...
-	 * 			| collisionListener.objectCollision(getElement1(), getElement2(), 
-	 *			| this.getConnectingEdgePoint().getXComponent(),
-	 *			| this.getConnectingEdgePoint().getYComponent())
+	 * 			| if(collisionListener != null)
+	 * 			| then collisionListener.objectCollision(getElement1(), getElement2(), 
+	 *			| 	   this.getConnectingEdgePoint().getXComponent(),
+	 *			| 	   this.getConnectingEdgePoint().getYComponent())
 	 * @effect	If element1 and element2 of this collision are both ships or both asteroids
 	 * 			they bounce against each other.
 	 * 			| if ((getElement1().isShip() && getElement2().isShip()) 
@@ -162,6 +163,7 @@ public class ObjectCollision extends Collision{
 	 */
 	@Override
 	public void resolve(CollisionListener collisionListener) {
+		if(collisionListener != null)
 		collisionListener.objectCollision(getElement1(), getElement2(), 
 				this.getConnectingEdgePoint().getXComponent(),
 				this.getConnectingEdgePoint().getYComponent());

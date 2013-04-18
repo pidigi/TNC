@@ -164,9 +164,10 @@ public class WallCollision extends Collision{
 	 * given collision listener.
 	 * 
 	 * @post	...
-	 * 			| collisionListener.boundaryCollision(getElement(),
-	 *			| this.getConnectingEdgePoint().getXComponent(),
-	 *			| this.getConnectingEdgePoint().getYComponent())
+	 * 			| if(collisionListener != null)
+	 * 			| then collisionListener.boundaryCollision(getElement(),
+	 *			| 	   this.getConnectingEdgePoint().getXComponent(),
+	 *			| 	   this.getConnectingEdgePoint().getYComponent())
 	 * @post	The x-component of the velocity of the element of this wall collision
 	 * 			is reversed if the element collides with a vertical wall,
 	 * 			else the y-component is reversed.
@@ -183,6 +184,7 @@ public class WallCollision extends Collision{
 	 */
 	@Override
 	public void resolve(CollisionListener collisionListener) {
+		if(collisionListener != null)
 		collisionListener.boundaryCollision(getElement(),
 				this.getConnectingEdgePoint().getXComponent(),
 				this.getConnectingEdgePoint().getYComponent());

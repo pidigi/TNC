@@ -20,12 +20,15 @@ import be.kuleuven.cs.som.annotate.*;
  * 			Pieter Lietaert (1st master Mathematical engineering)
  */
 
+// Methods manipulating the collisions structure are set to private so
+// no external agents can modify it in an inappropriate way.
+
 // Height,width: Not specified (Chosen: Defensively)
 // Associations: Defensively
 
 // TODO: Overflow checking.
-// TODO: Within bounds is invar? En nog andere invars? Zoals nooit overlap, behalve met kogel van eigen ship?
 // TODO: In facade alle exceptions catchen en vervangen door modelException.
+// TODO: mutable / immutable test fixtures commentarieren.
 
 public class World{
 	/**
@@ -180,6 +183,7 @@ public class World{
 	 */
 	private final static double maxWidth = Double.MAX_VALUE;
 	
+	
 	// Nog eens goed checken of er geen problemen zijn met acces rights
 	// (vb dat ze dingen kunnen veranderen aan objecten die in ons systeem
 	// zitten)
@@ -239,118 +243,6 @@ public class World{
 		}
 		return allAsteroids;
 	}
-
-	/**
-	 * Check whether this world has the given element as one of its spatial
-	 * elements.
-	 * 
-	 * @return	The list of spatial elements associated with this world 
-	 * 			contains the spatial element.
-	 * 			| elements.contains(element)
-	 */
-	@Basic
-	@Raw
-	public boolean hasAsSpatialElement(SpatialElement element) {
-		return elements.contains(element);
-	}
-
-	/**
-	 * Check whether this world can have the given spatial element.
-	 * 
-	 * @param 	element
-	 *          The spatial element to check.
-	 * @return 	True if and only if the given element is effective, not
-	 *         	terminated and the element can be an element of this world. 
-	 *         	|result == (element != null) && (element.canHaveAsWorld(this)) &&
-	 *          | (!element.isTerminated());
-	 * @note	All overlap with other elements or an element outside the boundaries is seen as
-	 * 			a case that should be resolved on appearing on screen, so canHaveAsSpatialElement
-	 * 			does not need to check such cases.
-	 */
-	@Raw
-	public boolean canHaveAsSpatialElement(SpatialElement element) {
-		return (element != null) && ( (!this.isTerminated())
-				&& (!element.isTerminated()) );
-	}
-
-	/**
-	 * Add the given spatial element to the array of spatial elements registered
-	 * in this world.
-	 * 
-	 * @param 	element
-	 *          The spatial element to be added.
-	 * @post 	This world has the given element associated with it.
-	 * 			| (new this).hasAsSpatialElement(element)
-	 * @throws 	IllegalArgumentException
-	 * 			Check if this world can have the given 
-	 * 			element associated with it.
-	 *          | !canHaveAsSpatialElement(element)
-	 * @throws 	IllegalArgumentException
-	 *			Check if the given element doesn't already has a 
-	 *			world associated to it.
-	 *          | (element.getWorld() != null)
-	 */
-	// TODO: Documentatie aanpassen aan resolveInitialCondition
-	// M.O. Als element niet mag, wordt hij gewoon niet toegevoegd aan de lijst 
-	// (vb bij slechte gestarte asteroids of outOfBounds)
-	public void addAsSpatialElement(SpatialElement element)
-			throws IllegalArgumentException {
-		if (!canHaveAsSpatialElement(element))
-			throw new IllegalArgumentException("Element can't be added to the game world.");
-		if (element.getWorld() != null)
-			throw new IllegalArgumentException("Element already refers to a world.");
-		boolean resolved = resolveInitialCondition(element);
-		if(!resolved){
-			// Only add the ones that don't give any problems.
-			elements.add(element);
-			element.setWorld(this);
-			this.addCollision(element);
-		}
-	}
-
-	/**
-	 * Remove the association between the given spatial element and this world.
-	 * 
-	 * @param	element
-	 *          The spatial element to be removed.
-	 * @post 	The given element is no longer associated with this world.
-	 * 			| ! (new this).hasAsSpatialElement(element)
-	 * @throws 	IllegalArgumentException
-	 * 			Check if this world has the given element associated to it.
-	 *          | ! hasAsSpatialElement(element)
-	 * @throws 	IllegalArgumentException
-	 * 			Check if the given element has this world associated to it.
-	 *          | element.getWorld() != this
-	 */
-	public void removeAsSpatialElement(SpatialElement element)
-			throws IllegalArgumentException {
-		if (!this.hasAsSpatialElement(element))
-			throw new IllegalArgumentException("Element not assigned to this world.");
-		elements.remove(element);
-		removeCollision(element);
-		element.setWorld(null);
-	}
-
-	/**
-	 * Check whether this world has proper spatial elements.
-	 * 
-	 * @return 	All elements in the set of elements associated to this world
-	 * 			must reference this world as the world they are associated to
-	 * 			and it must be possible for this world to have the given element
-	 * 			associated to it.
-	 * 			| for each element in Elements: 
-	 * 		   	| (canHaveAsSpatialElement(element)) && 
-	 * 			| 	(element.getWorld() == this)
-	 */
-	public boolean hasProperSpatialElements() {
-		for (SpatialElement element : elements) {
-			if (!canHaveAsSpatialElement(element))
-				return false;
-			if (element.getWorld() != this)
-				return false;
-		}
-		return true;
-	}
 	
 	/**
 	 * Check whether the given element illegally overlaps with other elements in this world.
@@ -376,32 +268,6 @@ public class World{
 	}
 	
 	/**
-	 * Terminate element if it illegally overlaps with one of the other elements
-	 * associated with this world, except if this element or the conflicting element
-	 * is a bullet in which case the conflict is resolved as a collision with a bullet.
-	 * 
-	 * @
-	 * 
-	 */
-	// Though it changes some aspects of elements, it returns a boolean to
-	// show that some elements have been altered.
-	public boolean resolveInitialCondition(SpatialElement element){
-		SpatialElement conflictingElement = this.getIllegalOverlap(element);
-		if (!withinBounds(element)) {
-			element.terminate();
-			return true;
-		} else if (conflictingElement != null) {
-			 if((element.isBullet()) || (conflictingElement.isBullet())){
-				 (new ObjectCollision(element, conflictingElement)).resolveBullet(element, conflictingElement);
-			 } else
-				 element.terminate();
-			 return true;
-		}
-		return false;
-	}
-	
-	
-	/**
 	 * Check whether the given element is within the bounds of this world.
 	 * 
 	 * @param	element
@@ -411,17 +277,170 @@ public class World{
 	 * 			| (0+element.getRadius() < element.getXComponent() < width-element.getRadius()) &&
 	 * 			| (0+element.getRadius() < element.getYComponent() < heigth-element.getRadius())
 	 */
-	//TODO: Ook een algemene checker maken voor alle elementen als invar?
 	public boolean withinBounds(SpatialElement element){
-		return ((0 < element.getPosition().getXComponent() - element.getRadius())
+		return (element != null && 
+				(0 < element.getPosition().getXComponent() - element.getRadius())
 				&& (0 < element.getPosition().getYComponent() - element.getRadius())
 				&& (element.getPosition().getXComponent() + element.getRadius() < getWidth())
 				&& element.getPosition().getYComponent() + element.getRadius() < getHeight());
 	}
 	
-	// TODO nodig?
-	//	public boolean canAddAsSpatialElement(SpatialElement element){
+	/**
+	 * Check whether this world can have the given spatial element.
+	 * 
+	 * @param 	element
+	 *          The spatial element to check.
+	 * @return 	True if and only if the given element is effective, not
+	 *         	terminated and the element can be an element of this world. 
+	 *         	|result == (element != null) && (element.canHaveAsWorld(this)) &&
+	 *          | (!element.isTerminated());
+	 * @note	All overlap with other elements or an element outside the boundaries is seen as
+	 * 			a case that should be resolved on appearing on screen, so canHaveAsSpatialElement
+	 * 			does not need to check such cases.
+	 */
+	@Raw
+	public boolean canHaveAsSpatialElement(SpatialElement element) {
+		if(element == null)
+			return false;
+		if(element.isBullet())
+			return (!this.isTerminated()) && (!element.isTerminated());
+		return ((!this.isTerminated()) && (!element.isTerminated()) 
+				&& (getIllegalOverlap(element)) == null && withinBounds(element));
+	}
+	
+	/**
+	 * Check whether this world has proper spatial elements.
+	 * 
+	 * @return 	All elements in the set of elements associated to this world
+	 * 			must reference this world as the world they are associated to
+	 * 			and it must be possible for this world to have the given element
+	 * 			associated to it.
+	 * 			| for each element in Elements: 
+	 * 		   	| (canHaveAsSpatialElement(element)) && 
+	 * 			| 	(element.getWorld() == this)
+	 */
+	public boolean hasProperSpatialElements() {
+		for (SpatialElement element : elements) {
+			if (!canHaveAsSpatialElement(element))
+				return false;
+			if (element.getWorld() != this)
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Check whether this world has the given element as one of its spatial
+	 * elements.
+	 * 
+	 * @return	The list of spatial elements associated with this world 
+	 * 			contains the spatial element.
+	 * 			| elements.contains(element)
+	 */
+	@Basic
+	@Raw
+	public boolean hasAsSpatialElement(SpatialElement element) {
+		return elements.contains(element);
+	}
+	
+	
+	/**
+	 * Terminate element if it is a Bullet and illegally overlaps with the boundaries,
+	 * if it overlaps with one of the other elements associated with this world, it
+	 * is resolved as a collision with the bullet.
+	 * 
+	 * @effect	...
+	 * 			| if(element.isBullet() && !withinBounds(element))
+	 * 			| then element.terminate(); 
+	 * @effect	...
+	 * 			| if(element.isBullet() && withinBounds(element)
+	 * 			|		&& getIllegalOverlap(element) != null)
+	 * 			| then conflictingElement = getIllegalOverlap(element)
+	 * 			|		(new ObjectCollision(element, conflictingElement))
+	 * 			|		.resolveBullet(element, conflictingElement)
+	 * @return	...
+	 * 			| if(!element.isBullet())
+	 * 			| then result == false
+	 * @return	...
+	 * 			| if(element.isBullet() && !withinBounds(element)
+	 * 			|	&& getIllegalOverlap(element) != null)
+	 * 			| then result == true 
+	 * 
+	 */
+	// Though it changes some aspects of elements, it returns a boolean to
+	// show that the bullet has collided.
+	public boolean resolveInitialBullet(SpatialElement element){
+		if(element.isBullet()){
+			SpatialElement conflictingElement = this.getIllegalOverlap(element);
+			if (!withinBounds(element)) {
+				element.terminate();
+				return true;
+			} else if (conflictingElement != null) {
+				(new ObjectCollision(element, conflictingElement)).resolveBullet(element, conflictingElement);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Add the given spatial element to the array of spatial elements registered
+	 * in this world.
+	 * 
+	 * @param 	element
+	 *          The spatial element to be added.
+	 * @effect 	...
+	 * 			| if(!resolveInitialBullet(element))
+	 * 			| then 	elements.add(element)
+	 * 			|		element.setWorld(this)
+	 * 			|		this.addAsCollision(element)
+	 * @throws 	IllegalArgumentException
+	 * 			This world can not have the given 
+	 * 			element as Spatial element.
+	 *          | !canHaveAsSpatialElement(element)
+	 * @throws 	IllegalArgumentException
+	 *			The given element already has a 
+	 *			world associated to it.
+	 *          | (element.getWorld() != null)
+	 */
+	public void addAsSpatialElement(SpatialElement element)
+			throws IllegalArgumentException {
+		if (!canHaveAsSpatialElement(element))
+			throw new IllegalArgumentException("Element can't be added to the game world.");
+		if (element.getWorld() != null)
+			throw new IllegalArgumentException("Element already refers to a world.");
+		boolean resolved = resolveInitialBullet(element);
+		if(!resolved){
+			// Only add the ones that don't give any problems.
+			elements.add(element);
+			element.setWorld(this);
+			this.addAsCollision(element);
+		}
+	}
 
+	/**
+	 * Remove the association between the given spatial element and this world.
+	 * 
+	 * @param	element
+	 *          The spatial element to be removed.
+	 * @post 	The given element is no longer associated with this world.
+	 * 			| ! (new this).hasAsSpatialElement(element)
+	 * @throws 	IllegalArgumentException
+	 * 			Check if this world has the given element associated to it.
+	 *          | ! hasAsSpatialElement(element)
+	 * @throws 	IllegalArgumentException
+	 * 			Check if the given element has this world associated to it.
+	 *          | element.getWorld() != this
+	 */
+	public void removeAsSpatialElement(SpatialElement element)
+			throws IllegalArgumentException {
+		if (!this.hasAsSpatialElement(element))
+			throw new IllegalArgumentException("Element not assigned to this world.");
+		elements.remove(element);
+		removeAsCollision(element);
+		element.setWorld(null);
+	}
 
 	/**
 	 * Variable referencing an array containing all the spatial elements
@@ -429,73 +448,16 @@ public class World{
 	 * 
 	 * @invar 	The referenced array is effective. 
 	 * 			| elements != null
-	 * @invar 	Each element in the array is an effective, non-terminated spatial
-	 *        	element. 
+	 * @invar 	This world can have each element of elements as a spatial element. 
 	 *        	| for each element in elements: 
-	 *        	| (element != null) && (! element.isTerminated()) && 
-	 *        	| (element.getWorld() == this)
+	 *        	| canHaveAsSpatialElement(element)
+	 * @invar	Each element in the set has this world as associated world.
+	 * 			| for each element in elements:
+	 * 			| (element.getWorld() == this)
 	 */
-	//TODO: Zetten we deze invars in?
-	private final List<SpatialElement> elements = new ArrayList<SpatialElement>();
+	private final Set<SpatialElement> elements = new HashSet<SpatialElement>();
 	
-	/**
-	 * Remove all collisions where the given element is involved in
-	 * from the set of upcoming collisions of this world.
-	 * 
-	 * @param	element
-	 * 			The elements to remove all the collisions of.
-	 * @post	...
-	 * 			| for each collision in collisions:
-	 * 			|	!collision.contains(element)
-	 * 
-	 */
-	// Opmerking: element die null is kan geen kwaad, want gaat niet gevonden worden in de lijst.
-	public void removeCollision(SpatialElement element) {
-		List<Collision> collisionsRemoved = new ArrayList<Collision>();
-		for (Collision collision: collisions) {
-			if (collision.contains(element)) {
-				collisionsRemoved.add(collision);
-			}
-		}
-		collisions.removeAll(collisionsRemoved);
-	}
 	
-	/**
-	 * Add all collisions with the given element involved 
-	 * to the set of upcoming collisions of this world.
-	 * 
-	 * @param	element
-	 * 			The element to add collisions of.
-	 * @effect	...
-	 * 			| for each element2 in {element | element in elements && 
-	 * 			|		element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY
-	 * 			|		&& isValidObjectCollision(element1, element2)}
-	 * 			|	collisions.add(new ObjectCollision(element2,element1))
-	 * @effect	...
-	 * 			| collisions.add(new WallCollision(element1))
-	 * @throws	IllegalArgumentException
-	 * 			...
-	 * 			| !this.hasAsSpatialElement(element1)
-	 */
-	// TODO: comment
-	public void addCollision(SpatialElement element1) throws IllegalArgumentException{
-		if (!this.hasAsSpatialElement(element1)) {
-			throw new IllegalArgumentException("Element for collision does not belong to this world.");
-		}
-		collisions.add(new WallCollision(element1));
-		for (SpatialElement element2: elements) {
-			if (element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY
-					&& isValidObjectCollision(element1, element2)) {
-					collisions.add(new ObjectCollision(element2,element1));
-			}
-		}
-	}
-	
-	/**
-	 * A set containing all upcoming collisions in this world.
-	 */
-	// TODO: invariants
-	private final PriorityQueue<Collision> collisions = new PriorityQueue<Collision>();
 	
 	/**
 	 * Check if the collision between the given spatial element 1 and 
@@ -512,7 +474,7 @@ public class World{
 	 *			| && element2).getShip() == element1))
 	 */
 	public boolean isValidObjectCollision(SpatialElement element1, SpatialElement element2){
-			if ((element1.getWorld() != null) && (element1.getWorld() != null) && 
+			if ((element1.getWorld() != null) && (element2.getWorld() != null) && 
 			(element1.getWorld() != element2.getWorld())){
 				return false;
 			}	
@@ -520,6 +482,58 @@ public class World{
 				&& ((Bullet) element1).getShip() == ((Ship) element2))
 				|| ((element2.isBullet() && element1.isShip())
 				&& ((Bullet) element2).getShip() == ((Ship) element1)));
+	}
+	
+	/**
+	 * Add all collisions with the given element involved 
+	 * to the set of upcoming collisions of this world.
+	 * 
+	 * @param	element
+	 * 			The element to add collisions of.
+	 * @effect	...
+	 * 			| for each element2 in {element | element in elements && 
+	 * 			|		element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY
+	 * 			|		&& isValidObjectCollision(element1, element2)}:
+	 * 			|	collisions.add(new ObjectCollision(element2,element1))
+	 * @effect	...
+	 * 			| collisions.add(new WallCollision(element1))
+	 * @throws	IllegalArgumentException
+	 * 			This world does not have element1 as a spatial element.
+	 * 			| !this.hasAsSpatialElement(element1)
+	 */
+	private void addAsCollision(SpatialElement element1) throws IllegalArgumentException{
+		if (!this.hasAsSpatialElement(element1)) {
+			throw new IllegalArgumentException("Element for collision does not belong to this world.");
+		}
+		collisions.add(new WallCollision(element1));
+		for (SpatialElement element2: elements) {
+			if (element1.getTimeToCollision(element2) != Double.POSITIVE_INFINITY
+					&& isValidObjectCollision(element1, element2)) {
+					collisions.add(new ObjectCollision(element2,element1));
+			}
+		}
+	}
+	
+	/**
+	 * Remove all collisions where the given element is involved in
+	 * from the set of upcoming collisions of this world.
+	 * 
+	 * @param	element
+	 * 			The elements to remove all the collisions of.
+	 * @post	...
+	 * 			| for each collision in collisions:
+	 * 			|	!collision.contains(element)
+	 * 
+	 */
+	// Opmerking: element die null is kan geen kwaad, want gaat niet gevonden worden in de lijst.
+	private void removeAsCollision(SpatialElement element) {
+		List<Collision> collisionsRemoved = new ArrayList<Collision>();
+		for (Collision collision: collisions) {
+			if (collision.contains(element)) {
+				collisionsRemoved.add(collision);
+			}
+		}
+		collisions.removeAll(collisionsRemoved);
 	}
 	
 	/**
@@ -537,18 +551,30 @@ public class World{
 	 * 			| then this.removeCollision(element)
 	 * 			| 	   this.addCollisoin(element)
 	 */
-	public void updateElementCollisions(Set<SpatialElement> elementsToUpdate){
+	private void updateElementCollisions(Set<SpatialElement> elementsToUpdate){
 		assert elementsToUpdate != null;
 		for(SpatialElement element: elementsToUpdate){
 			 assert element != null;
 		}	
 		for(SpatialElement element: elementsToUpdate){
 			if(!element.isTerminated()){
-				this.removeCollision(element);
-				this.addCollision(element);
+				this.removeAsCollision(element);
+				this.addAsCollision(element);
 			}
 		}
 	}
+	
+	/**
+	 * A set containing all upcoming collisions in this world.
+	 * 
+	 * @invar	The structure is effective.
+	 * 			| collisions != null
+	 * @invar	Each collision in collisions is effective.
+	 * 			| for each collision in collisions:
+	 * 			| collision != null
+	 */
+	private final PriorityQueue<Collision> collisions = new PriorityQueue<Collision>();
+	
 	
 	/**
 	 * Evolve the world by the time deltaT.
