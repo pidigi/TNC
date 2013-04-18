@@ -476,7 +476,7 @@ public class World {
 	 */
 	// TODO: Only save the first collision, instead of all the elements? Doesn't gain so much.
 	public void addCollision(SpatialElement element1) throws IllegalArgumentException{
-		if (this.hasAsSpatialElement(element1)) {
+		if (!this.hasAsSpatialElement(element1)) {
 			throw new IllegalArgumentException("Element for collision does not belong to this world.");
 		}
 		collisions.add(new WallCollision(element1));

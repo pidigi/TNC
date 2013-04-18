@@ -116,7 +116,7 @@ public class Asteroid extends SpatialElement{
 	 * 		    | super.terminate();
 	 */
 	public void terminate(){
-		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld()){
+		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated()){
 			double newRandomAngle = random.nextDouble()*2*Math.PI;
 			Vector2D randomDirection = new Vector2D(Math.cos(newRandomAngle),
 					Math.sin(newRandomAngle));

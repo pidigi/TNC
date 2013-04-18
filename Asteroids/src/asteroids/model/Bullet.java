@@ -93,7 +93,7 @@ public class Bullet extends SpatialElement{
 		return this.ship != null;
 	}
 	
-	// Niet meer nodig want in opgave duidelijk insinuatie dat het final moet zijn
+	//TODO: Niet meer nodig want in opgave duidelijk insinuatie dat het final moet zijn
 //	/**
 //     * Set the given ship as the owner for this bullet.
 //     * 
@@ -145,7 +145,7 @@ public class Bullet extends SpatialElement{
 		hasBounced = true;
 	}
 	
-	// Niet nodig, zie bounce.
+	//TODO: Niet nodig, zie bounce.
 //	/**
 //	 * Set whether this bullet has already bounced of a wall.
 //	 * 

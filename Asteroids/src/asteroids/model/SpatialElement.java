@@ -13,7 +13,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  * 			| isValidPosition()
  * @invar	The spatial element has a valid radius.
  * 			| isValidRadius()
- * @invar	The spatial element has a proper mass.
+ * @invar	The spatial element has a valid mass.
  * 			| isValidMass()
  * @invar 	The spatial element has a proper world associated with it.
  * 			| hasProperWorld()
@@ -498,114 +498,48 @@ public class SpatialElement {
 		return ((this == otherElement) || (this
 				.getDistanceBetween(otherElement) < -Util.EPSILON));
 	}
-
-//	/**
-//	 * Calculate the time to collision between this spatial element and the given spatial
-//	 * element.
-//	 * 
-//	 * @param	otherElement
-//	 *          The spatial element for which the time to collision is
-//	 *          calculated.
-//	 * @return	Double.POSITIVE_INFINITY if this spatial element and the given
-//	 *         	spatial element are the same. 
-//	 *          | if (this == otherElement) 
-//	 *          | then result == Double.POSITIVE_INFINITY
-//	 * @return 	The time until collision according to current position and
-//	 *         	velocity if this spatial element and the given spatial element
-//	 *         	(different from this spatial element), both moving in their
-//	 *         	current direction, will ever collide, else Double.POSITIVE_INFINITY. 
-//	 *         	| if (this != otherElement) 
-//	 *         	| then let 
-//	 *         	| 		allOverlapTimes = {collisionTime in Double | 
-//	 *         	|							(when(this.move(collisionTime) 
-//	 *          | 							&& otherElement.move(collisionTime))
-//	 *         	| 							then this.overlap(otherspatial element)) 
-//	 *         	| 							&& (collisionTime != Double.POSITIVE_INFINITY)} 
-//	 *         	| 		in 
-//	 *         	| 		if (!isEmpty(allOverlapTimes))
-//	 *         	| 		then fuzzyEquals(result, min(allOverlapTimes)) == true 
-//	 *         	| 		else 
-//	 *         	| 		then result == Double.POSITIVE_INFINITY
-//	 * @throws 	NullPointerException
-//	 *          The other spatial element is non existent 
-//	 *          | otherElement == null
-//	 */
-//	//TODO: Documentatie aanpassen naar niet negatief worden.
-//	public double getTimeToCollision(SpatialElement otherElement)
-//			throws NullPointerException {
-//		if (otherElement == null)
-//			throw new NullPointerException(
-//					"The other spatial element is non existent.");
-//		if (this != otherElement) {
-//			Vector2D dr = this.getPosition().subtract(
-//					otherElement.getPosition());
-//			Vector2D dv = this.getVelocity().subtract(
-//					otherElement.getVelocity());
-//			double drdr = dr.getDotProduct(dr);
-//			double dvdv = dv.getDotProduct(dv);
-//			double dvdr = dr.getDotProduct(dv);
-//			double d = dvdr
-//					* dvdr
-//					- dvdv
-//					* (drdr - Math.pow(
-//							(this.getRadius() + otherElement.getRadius()), 2));
-//			if (dvdr >= 0 || d <= 0)
-//				return Double.POSITIVE_INFINITY;
-//			else
-//				return -1 * (dvdr + Math.sqrt(d)) / dvdv;
-//		} else {
-//			return Double.POSITIVE_INFINITY;
-//		}
-//	}
 	
 	/**
-	 * Return the time it will take for this ship to collide with the other ship.
+	 * Return the time it will take for this spatial element to collide with the other spatial element.
 	 *  
 	 * @param   other
-	 *          The other ship to collide with.
+	 *          The other spatial element to collide with.
 	 * @return  The resulting time is not negative and different from Double.NaN
-	 *        | Util.fuzzyLeq(0.0,result) && (! Double.isNaN(result))
+	 *        	| Util.fuzzyLeq(0.0,result) && (! Double.isNaN(result))
 	 * @return  If the resulting time is finite, the distance between both
 	 *          ships would be fuzzy equal to zero if they would both move
 	 *          during the resulting time.
-	 *        | if (result < Double.POSITIVE_INFINITY) then
-	 *        |   Util.fuzzyEquals(this.distanceBetween(other,result),0.0)
+	 *        	| if (result < Double.POSITIVE_INFINITY) then
+	 *        	|   Util.fuzzyEquals(this.distanceBetween(other,result),0.0)
 	 * @return  If the resulting distance is finite, the distance between both ships
 	 *          would be fuzzy different from zero if they would move for a time shorter than the
 	 *          resulting time.
-	 *        | if (result < Double.POSITIVE_INFINITY) then
-	 *        |   for each time in 0.0..result:
-	 *        |     if (time < result)
-	 *        |       then ! Util.fuzzyEquals(this.distanceBetween(other,time),0.0)
+	 *        	| if (result < Double.POSITIVE_INFINITY) then
+	 *        	|   for each time in 0.0..result:
+	 *        	|     if (time < result)
+	 *        	|       then ! Util.fuzzyEquals(this.distanceBetween(other,time),0.0)
 	 * @return  If the resulting time is infinite, this ship is the same as the
 	 *          other ship or the distance between both
 	 *          ships would be different from zero for each finite time they would move.
-	 *        | if (result == Double.POSITIVE_INFINITY) then
-	 *        |   (this == other) ||
-	 *        |   (for each time in 0.0..Double.POSITIVE_INFINITY:
-	 *        |     if (! Double.isInfinite(time)) then
-	 *        |       (! Util.fuzzyEquals(this.distanceBetween(other,time),0.0))
+	 *        	| if (result == Double.POSITIVE_INFINITY) then
+	 *        	|   (this == other) ||
+	 *        	|   (for each time in 0.0..Double.POSITIVE_INFINITY:
+	 *        	|     if (! Double.isInfinite(time)) then
+	 *        	|       (! Util.fuzzyEquals(this.distanceBetween(other,time),0.0))
 	 * @throws  NullPointerException
 	 *          The other ship is not effective.
-	 *        | other == null
+	 *        	| other == null
 	 */
 	public double getTimeToCollision(SpatialElement other) throws NullPointerException {
 		if (this == other) {
 			return Double.POSITIVE_INFINITY;
 		}
-		// double dx = position.getX() - other.getPosition().getX();
-		// double dy = position.getY() - other.getPosition().getY();
 		Vector2D dposition = this.getPosition().subtract(other.getPosition());
-		// double dvx = speed.getX() - other.getSpeed().getX();
-		// double dvy = speed.getY() - other.getSpeed().getY();
 		Vector2D dspeed = this.getVelocity().subtract(other.getVelocity());
 		double sigma = this.getRadius() + other.getRadius();
 
-		// a*dt^2 + b*dt + c = 0
 		double a = dspeed.getXComponent()*dspeed.getXComponent() + dspeed.getYComponent()*dspeed.getYComponent();
-		// double b = pow(dvx, 2) + pow(dvy, 2);
 		double b = 2 * (dposition.getXComponent()*dspeed.getXComponent() + dposition.getYComponent()*dspeed.getYComponent());
-		// double c = dx*dx + dy*dy - pow(sigma, 2);
 		double c = (dposition.getXComponent()*dposition.getXComponent() + dposition.getYComponent()*dposition.getYComponent()) - Math.pow(sigma, 2);
 		if (0 <= b) {
 			return Double.POSITIVE_INFINITY;
@@ -694,7 +628,7 @@ public class SpatialElement {
 	 *         this.getRadius()*sign(this.getVelocity
 	 *         ().getYComponent()))/this.getVelocity().getYComponent()
 	 */
-	// Nog beter commentaar
+	//TODO: Commentaar geven.
 	public double getTimeToHorizontalWallCollision(double yBound) {
 		double yVelocity = this.getVelocity().getYComponent();
 		double yComponent = this.getPosition().getYComponent();
@@ -719,6 +653,7 @@ public class SpatialElement {
 	 *         this.getRadius()*sign(this.getVelocity
 	 *         ().getXComponent()))/this.getVelocity().getXComponent()
 	 */
+	//TODO: Commentaar geven.
 	public double getTimeToVerticalWallCollision(double xBound) {
 		double xVelocity = this.getVelocity().getXComponent();
 		double xComponent = this.getPosition().getXComponent();
@@ -806,7 +741,7 @@ public class SpatialElement {
 	 */
 	private final double mass;
 	
-	
+	//TODO: Commentaar geven
 	public boolean isShip() {
 		return (this instanceof Ship);
 	}
