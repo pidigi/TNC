@@ -20,7 +20,7 @@ public abstract class Collision implements Comparable<Collision>{
 	 * Check whether this collision is equal to the given collision.
 	 * 
 	 * @param 	otherCollision
-	 * 			The given collision to check equality with
+	 * 			The given collision to check equality with.
 	 * @return	...
 	 */
 	public abstract boolean equals(Collision otherCollision);
@@ -45,16 +45,17 @@ public abstract class Collision implements Comparable<Collision>{
 	
 	
 	/**
-	 * Get the vector containing the position of impact on 
-	 * the edge of an element involved in the collision
-	 * if the collision would happen instantly.
+	 * Get the vector containing the position of the upcoming collisions' 
+	 * point of contact on the edge of an element involved in the collision.
 	 * 
 	 * @return	...
 	 */
-	public abstract Vector2D getCollisionEdge();
+	public abstract Vector2D getConnectingEdgePoint();
 	
 	/**
-	 * Compare this collision to the other collision to see if it is smaller, equal or larger.
+	 * Compare the time to collision of this collision to the
+	 * time to collision of the given other collision to see if 
+	 * it is smaller, equal or larger.
 	 * 
 	 * @param	otherCollision
 	 * 			The collision to compare this collision with.
@@ -81,7 +82,7 @@ public abstract class Collision implements Comparable<Collision>{
 	}
 	
 	/**
-	 * Check whether this collision is a wallcollision
+	 * Check whether this collision is a wallcollision.
 	 * 
 	 * @return	...
 	 * 			| result == (this instanceof WallCollision)
@@ -91,7 +92,7 @@ public abstract class Collision implements Comparable<Collision>{
 	}
 	
 	/**
-	 * Check whether this collision is an objectcollision
+	 * Check whether this collision is an objectcollision.
 	 * 
 	 * @return	...
 	 * 			| result == (this instanceof ObjectCollision)
@@ -101,10 +102,10 @@ public abstract class Collision implements Comparable<Collision>{
 	}
 	
 	/**
-	 * Resolve the collision
+	 * Resolve the collision.
 	 * 
 	 * @param 	collisionListener
-	 * 			The collisionlistener used to visualize the resolve.
+	 * 			The collisionListener used to visualize the resolve.
 	 * @post 	...
 	 */
 	public abstract void resolve(CollisionListener collisionListener);
