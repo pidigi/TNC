@@ -38,7 +38,7 @@ public class Asteroid extends SpatialElement{
 	public Asteroid(Vector2D position, double radius, Vector2D velocity, double maxSpeed, Random random)
 			throws IllegalArgumentException, NullPointerException{
 		super(position,radius,velocity,maxSpeed,4/3*Math.PI*Math.pow(radius,3)*massDensity);
-		this.random = random;
+		this.setRandom(random);
 	}
 	
 	/**
@@ -62,8 +62,8 @@ public class Asteroid extends SpatialElement{
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 */
 	@Raw
-	public Asteroid(Vector2D position, double radius, 
-			Vector2D velocity, Random random) {
+	public Asteroid(Vector2D position, double radius,Vector2D velocity, Random random) 
+			throws IllegalArgumentException, NullPointerException{
 		this(position, radius, velocity, 300000, random);
 	}
 	
@@ -111,7 +111,7 @@ public class Asteroid extends SpatialElement{
 	 * @effect	The asteroid is terminated as a spatial element.
 	 * 		    | super.terminate();
 	 */
-	public void terminate(){
+	public void terminate() throws IllegalArgumentException{
 		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated()){
 			double newRandomAngle = random.nextDouble()*2*Math.PI;
 			Vector2D randomDirection = new Vector2D(Math.cos(newRandomAngle),
@@ -170,11 +170,17 @@ public class Asteroid extends SpatialElement{
 	 * 			The given Random object to set.
 	 * @post	...
 	 * 			| (new this).getRandom() == random;
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			| (random == null)
 	 */
 	@Basic
-	public void setRandom(Random random){
+	public void setRandom(Random random) throws NullPointerException{
+		if (random == null)
+			throw new NullPointerException("Given random generator is non-effective while constructing asteroid.");
 		this.random = random;
 	}
+	
 	/**
 	 * The random generator associated with this asteroid.
 	 */

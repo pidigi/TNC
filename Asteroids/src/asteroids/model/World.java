@@ -248,6 +248,8 @@ public class World{
 	/**
 	 * Check whether the given element illegally overlaps with other elements in this world.
 	 * 
+	 * @pre		...
+	 * 			| (element != null)
 	 * @return 	One of the other spatial elements that the given element 
 	 * 			illegally overlaps with or a non-effective element
 	 * 			if none of the other elements illegally overlap with 
@@ -366,11 +368,15 @@ public class World{
 	 * 			| if(element.isBullet() && !withinBounds(element)
 	 * 			|	&& getIllegalOverlap(element) != null)
 	 * 			| then result == true 
-	 * 
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			| (element == null)
 	 */
 	// Though it changes some aspects of elements, it returns a boolean to
 	// show that the bullet has collided.
-	public boolean resolveInitialBullet(SpatialElement element){
+	public boolean resolveInitialBullet(SpatialElement element) throws NullPointerException {
+		if (element == null)
+			throw new NullPointerException("Non-effective element given while resolving inital bullet condition.");
 		if(element.isBullet()){
 			SpatialElement conflictingElement = this.getIllegalOverlap(element);
 			if (!withinBounds(element)) {
@@ -383,7 +389,6 @@ public class World{
 		}
 		return false;
 	}
-	
 	
 	/**
 	 * Add the given spatial element to the array of spatial elements registered
@@ -580,6 +585,9 @@ public class World{
 	/**
 	 * Evolve the world by the time deltaT.
 	 * 
+	 * @pre		...
+	 * 			| (deltaT >= 0)
+	 * 
 	 * @effect	...
 	 * 			| timeLeft = deltaT
 	 * 			| do	
@@ -603,6 +611,7 @@ public class World{
 	 * 			|	while(0 < timeLeft)
 	 */
 	public void evolve(Double deltaT, CollisionListener collisionListener) {
+		assert (deltaT >= 0);
 		double timeLeft = deltaT;
 		do {
 			double minCollisionTime = Double.POSITIVE_INFINITY;

@@ -39,14 +39,14 @@ public class Bullet extends SpatialElement{
 	 * 			| in 
 	 * 			| super(position, radius, velocity, maxSpeed, mass)
 	 * @throws	IllegalArgumentException
-	 * 			The given ship is not effective.
-	 * 			| shooter == null
+	 * 			The given ship can not be added as source of this bullet.
+	 * 			| !canHaveAsShip(shooter)
 	 */
 	@Raw
 	public Bullet(Vector2D position, double radius, Vector2D velocity, double maxSpeed, Ship shooter)
-	throws IllegalArgumentException, NullPointerException{
+	throws IllegalArgumentException{
 		super(position,radius,velocity,maxSpeed,4/3*Math.PI*Math.pow(radius,3)*massDensity);
-		if(shooter == null)
+		if(!canHaveAsShip(shooter))
 			throw new IllegalArgumentException("Invalid bullet source.");
 		this.ship = shooter;
 	}
@@ -111,7 +111,7 @@ public class Bullet extends SpatialElement{
 	 * 
 	 * @post	| (new this).hasBounced() == true
 	 */
-	// No setter necassary because physically not logical to set back to false 
+	// No setter necessary because physically not logical to set back to false 
 	// and private setter would only be used in this method.
 	public void bounce(){
 		hasBounced = true;

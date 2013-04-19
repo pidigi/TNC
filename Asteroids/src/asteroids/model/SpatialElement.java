@@ -87,8 +87,7 @@ public class SpatialElement {
 	 */
 	@Raw
 	public SpatialElement(Vector2D position, double radius, Vector2D velocity,
-			double maxSpeed, double mass) throws IllegalArgumentException,
-			NullPointerException {
+			double maxSpeed, double mass) throws IllegalArgumentException {
 		if (!isValidRadius(radius)) {
 			throw new IllegalArgumentException(
 					"Given radius was invalid while constructing new spatial element.");
@@ -131,7 +130,7 @@ public class SpatialElement {
 	 */
 	@Raw
 	public SpatialElement(Vector2D position, double radius, Vector2D velocity,
-			double mass) throws IllegalArgumentException, NullPointerException {
+			double mass) throws IllegalArgumentException {
 		this(position, radius, velocity, 300000, mass);
 	}
 	
@@ -446,8 +445,8 @@ public class SpatialElement {
 	 */
 	public double getDistanceBetween(SpatialElement otherElement)
 			throws NullPointerException {
-		if (otherElement == null)
-			throw new NullPointerException("The other element is non existent.");
+//		if (otherElement == null)
+//			throw new NullPointerException("The other element is non existent.");
 		if (this == otherElement)
 			return 0;
 		else
@@ -467,6 +466,9 @@ public class SpatialElement {
 	 *         	overlap. 
 	 *          | result == ((this == otherElement) ||
 	 *          | (this.getDistanceBetween(otherElement) < -Util.EPSILON))
+	 * @throws	NullPointerException
+	 * 			The given element is non effective.
+	 * 			| (otherElement == null)
 	 */
 	public boolean overlap(SpatialElement otherElement)
 			throws NullPointerException {

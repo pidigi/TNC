@@ -52,7 +52,7 @@ public class ObjectCollision extends Collision{
 	 *			| && (getElement2() == otherCollision.getElement1() 
 	 *			| || getElement2() == otherCollision.getElement2()))
 	 */
-	public boolean equals(Collision otherCollision){
+	public boolean equals(Collision otherCollision) {
 		return  (otherCollision != null  && otherCollision.isObjectCollision()) &&
 				((getElement1() == ((ObjectCollision) otherCollision).getElement1() 
 				|| getElement1() == ((ObjectCollision) otherCollision).getElement2())
@@ -186,6 +186,9 @@ public class ObjectCollision extends Collision{
 	/**
 	 * Resolve the bouncing of given spatial elements.
 	 * 
+	 * @pre		...
+	 * 			| (element1 != null) && (element2 != null)
+	 * 
 	 * @effect	...
 	 * 			| let unitNormal = (element1.getPosition().
 	 *			| 	  	subtract(element2.getPosition())).getDirection()
@@ -240,7 +243,8 @@ public class ObjectCollision extends Collision{
 	 * Resolve the collision between at least one bullet.
 	 * 
 	 * @pre		...
-	 * 			| (element1.isBullet() || element2.isBullet())
+	 * 			| (((element1 != null) && (element1 != null)) &&
+	 * 			| (element1.isBullet() || element2.isBullet()))
 	 * @post	...
 	 * 			| if(element1.isBullet())
 	 * 			| then  element1.terminate

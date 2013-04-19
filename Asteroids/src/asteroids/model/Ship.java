@@ -41,7 +41,7 @@ public class Ship extends SpatialElement{
 	 */
 	@Raw
 	public Ship(Vector2D position, double angle, double radius, Vector2D velocity, double maxSpeed, double mass)
-			throws IllegalArgumentException, NullPointerException{
+			throws IllegalArgumentException{
 		super(position,radius,velocity,maxSpeed,mass);
 		assert isValidAngle(angle);
 		setAngle(angle);
@@ -71,7 +71,7 @@ public class Ship extends SpatialElement{
 	 */
 	@Raw
 	public Ship(Vector2D position, double angle, double radius, Vector2D velocity, double mass)
-			throws IllegalArgumentException, NullPointerException{
+			throws IllegalArgumentException{
 		this(position,angle,radius,velocity,300000,mass);
 	}
 	
@@ -86,7 +86,7 @@ public class Ship extends SpatialElement{
 	 */
 	@Raw
 	public Ship() 
-			throws IllegalArgumentException, NullPointerException{
+			throws IllegalArgumentException{
 		this(new Vector2D(0,0),0,10,new Vector2D(0,0),1E5);
 	}
 		
@@ -222,8 +222,11 @@ public class Ship extends SpatialElement{
 	 * 			| newBullet.getMass() == 4/3*PI*3^3*Bullet.getMassDensity()
 	 * 			| newBullet.getShip() == this
 	 * 			| this.getWorld().hasAsSpatialElement(newBullet)
+	 * @throws	NullpointerException
+	 * 			This ship needs to be located in a world in order to fire a bullet.
+	 * 			| !this.hasProperWorld()
 	 */
-	public void fireBullet() throws IllegalArgumentException {
+	public void fireBullet() throws NullPointerException {
 		if(!this.hasProperWorld())
 			throw new NullPointerException("Ship not located within a world.");
 		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
