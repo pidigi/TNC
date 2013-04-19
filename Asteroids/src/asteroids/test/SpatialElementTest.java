@@ -3,6 +3,8 @@ package asteroids.test;
 import static org.junit.Assert.*;
 import static asteroids.Util.*;
 
+import java.util.Random;
+
 import org.junit.*;
 import asteroids.model.*;
 
@@ -22,16 +24,28 @@ public class SpatialElementTest {
 		standardElement = new SpatialElement(new Vector2D(0,0),10,new Vector2D(0,0),300000,1E10);
 	}
 	
-	private SpatialElement element100, element1002, elementWorld, elementNoWorld, elementVelocity;
+	private static SpatialElement element100, element1002, elementWorld, elementNoWorld, elementVelocity;
 	
 	/**
 	 * Set up a mutable test fixture
 	 * 
 	 * @post 	The variable element100 references a new ship at (100,0) with 
 	 * 			a velocity of -10 in the x-direction and zero in the y-direction,
-	 * 			an angle of 0, radius of 10 and maximum velocity of 300000.
+	 * 			radius of 10, a maximum velocity of 300000 and a mass 1E5.
 	 * @post 	The variable element1002 references a new ship at (100,0) with 
-	 * 			a velocity of zero, an angle of PI/4, a radius of 10 and maximum velocity of 300000.
+	 * 			a velocity of zero, a radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post 	The variable elementWorld references a new ship at (100,100) with 
+	 * 			a velocity of zero, a radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post 	The variable elementNoWorld references a new ship at (100,100) with 
+	 * 			a velocity of zero, a radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post 	The variable elementWorld references a new ship at (0,0) with 
+	 * 			a velocity (10,10), a radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post	The variable newWorld references a new World with dimensions (1000,1000)
+	 * @effect	newWorld.addAsSpatialElement(elementWorld)
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception{
@@ -40,7 +54,6 @@ public class SpatialElementTest {
 		elementWorld = new SpatialElement(new Vector2D(100,100),10,new Vector2D(0,0),300000,1E5);
 		World newWorld = new World(1000,1000);
 		newWorld.addAsSpatialElement(elementWorld);
-		elementWorld.setWorld(newWorld);
 		elementNoWorld = new SpatialElement(new Vector2D(100,100),10,new Vector2D(0,0),300000,1E5);
 		elementVelocity = new SpatialElement(new Vector2D(0,0),10,new Vector2D(10,10),300000,1E5);
 	}
@@ -454,13 +467,13 @@ public class SpatialElementTest {
 	
 	@Test
 	public final void isShip_FalseCase(){
-		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,null);
+		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,new Random());
 		assertFalse(asteroid.isShip());
 	}
 	
 	@Test
 	public final void isAsteroid_TrueCase(){
-		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,null);
+		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,new Random());
 		assertTrue(asteroid.isAsteroid());
 	}
 	
@@ -479,7 +492,7 @@ public class SpatialElementTest {
 	
 	@Test
 	public final void isBullet_FalseCase(){
-		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,null);
+		SpatialElement asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,new Random());
 		assertFalse(asteroid.isBullet());
 	}
 }

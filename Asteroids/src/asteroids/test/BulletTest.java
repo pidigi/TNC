@@ -13,8 +13,12 @@ public class BulletTest {
 	/**
 	 * Set up an mutable test fixture
 	 * 
-	 * @post 	The variable standard ship references a new ship at the origin with zero velocity,
-	 * 			an angle of 0, radius of 10 and maximum velocity of 300000.
+	 * @post 	The variable standardShip references a new ship at the origin with zero velocity,
+	 * 			an angle of 0, radius of 10, maximum velocity of 300000 and mass of 1E5.
+	 * @post	The variable standardBullet references a new Bullet at (10,10) with radius 10,
+	 * 			velocity zero, maximul velocity 300000 and standardShip as its source.
+	 * @post	The variable newWorld references a new World with dimensions (1000,1000)
+	 * @effect	newWorld.addAsSpatialElement(standardBullet)
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception{
@@ -26,8 +30,7 @@ public class BulletTest {
 	
 	@Test
 	public final void constructor_NormalCase() throws Exception{
-		Ship newShip = new Ship();
-		Bullet newBullet = new Bullet(new Vector2D(50,100),15,new Vector2D(2000,10000),300000,newShip);
+		Bullet newBullet = new Bullet(new Vector2D(50,100),15,new Vector2D(2000,10000),300000,standardShip);
 		assertEquals(50, newBullet.getPosition().getXComponent(),EPSILON);
 		assertEquals(100, newBullet.getPosition().getYComponent(),EPSILON);
 		assertEquals(15, newBullet.getRadius(),EPSILON);
@@ -35,7 +38,7 @@ public class BulletTest {
 		assertEquals(10000, newBullet.getVelocity().getYComponent(),EPSILON);
 		assertEquals(300000, newBullet.getMaxSpeed(),EPSILON);
 		assertEquals(4/3*Math.PI*Math.pow(15,3)*Bullet.getMassDensity(), newBullet.getMass(),EPSILON);
-		assertTrue(newBullet.getShip() == newShip);
+		assertTrue(newBullet.getShip() == standardShip);
 		assertFalse(newBullet.getHasBounced());
 	}
 	

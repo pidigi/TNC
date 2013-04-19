@@ -16,8 +16,11 @@ public class AsteroidTest {
 	/**
 	 * Set up an mutable test fixture
 	 * 
-	 * @post 	The variable standard ship references a new ship at the origin with zero velocity,
-	 * 			an angle of 0, radius of 10 and maximum velocity of 300000.
+	 * @post	The variable standardRandom references a new Random object.
+	 * @post 	The variable standardAsteroid references a new asteroid at (50,50) with zero velocity,
+	 * 			radius of 40, and maximum velocity of 300000 and standardRandom as random object.
+	 * @post	The variable standardWorld references a new World with dimensions (1000,1000)
+	 * @effect 	standardWorld.addAsSpatialElement(standardAsteroid)
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception{
@@ -77,22 +80,41 @@ public class AsteroidTest {
 	}
 	
 	@Test
-	// TODO
+	// TODO check velocity direction of asteroids
 	public final void terminate_NormalCase(){
 		standardAsteroid.terminate();
 		assertTrue(standardAsteroid.isTerminated());
 		assertFalse(standardWorld.hasAsSpatialElement(standardAsteroid));
 		Set<Asteroid> asteroids = standardWorld.getAsteroids();
 		for(Asteroid asteroid:asteroids) {
-//			assertEquals(asteroid.getVelocity().getDirection().getXComponent(),Direction.getXComponent(),EPSILON);
-//			assertEquals(asteroid.getVelocity().getDirection().getYComponent(),Direction.getYComponent(),EPSILON);
-//			assertTrue(( (asteroid.getPosition().subtract(standardAsteroid.getPosition())).getDirection().getXComponent() == Direction.getXComponent())
-//					|| ( (asteroid.getPosition().subtract(standardAsteroid.getPosition())).getDirection().getXComponent() == -1*Direction.getXComponent()));
-//			assertTrue(( (asteroid.getPosition().subtract(standardAsteroid.getPosition())).getDirection().getYComponent() == Direction.getYComponent())
-//					|| ( (asteroid.getPosition().subtract(standardAsteroid.getPosition())).getDirection().getYComponent() == -1*Direction.getYComponent()));
 			assertEquals((asteroid.getPosition().subtract(standardAsteroid.getPosition())).getNorm(),standardAsteroid.getRadius()/2,EPSILON);
 			assertEquals(asteroid.getVelocity().getNorm(),standardAsteroid.getVelocity().getNorm()*1.5,EPSILON);
 			assertEquals(asteroid.getRadius(),standardAsteroid.getRadius()/2,EPSILON);
 		}
 	}
+	
+	@Test
+	public final void terminate_TooSmall(){
+		Asteroid smallAsteroid = new Asteroid(new Vector2D(200,200),20,new Vector2D(0,0),300000, standardRandom);
+		standardWorld.addAsSpatialElement(smallAsteroid);
+		smallAsteroid.terminate();
+		assertFalse(standardWorld.hasAsSpatialElement(smallAsteroid));
+		for(SpatialElement asteroid: standardWorld.getAsteroids())
+			assertTrue(asteroid == standardAsteroid);
+		//Last test indicates that this is the only asteroid object in the world
+		// (no child asteroids were added)
+	}
+	
+	@Test
+	public final void terminate_AlreadyTerminated(){
+		standardAsteroid.terminate();
+		assertTrue(standardAsteroid.isTerminated());
+		standardAsteroid.terminate();
+		assertTrue(standardWorld.getAsteroids().size() == 2);
+		// No extra child asteroids were made after the first terminate.
+	}
+	
+	// for the case on hasProperWorld() see spatial element test.
+	
+	
 }

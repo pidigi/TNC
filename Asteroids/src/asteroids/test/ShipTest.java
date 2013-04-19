@@ -22,16 +22,23 @@ public class ShipTest {
 		standardShip = new Ship(new Vector2D(0,0),0,10,new Vector2D(0,0),300000);
 	}
 	
-	private Ship ship100, ship100PiD4, shipWorld;
+	private static Ship ship100, ship100PiD4, shipWorld;
 	
 	/**
 	 * Set up a mutable test fixture
 	 * 
 	 * @post 	The variable ship100 references a new ship at (100,0) with 
 	 * 			a velocity of -10 in the x-direction and zero in the y-direction,
-	 * 			an angle of 0, radius of 10 and maximum velocity of 300000.
+	 * 			an angle of 0, radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
 	 * @post 	The variable ship100PiD4 references a new ship at (100,0) with 
-	 * 			a velocity of zero, an angle of PI/4, a radius of 10 and maximum velocity of 300000.
+	 * 			a velocity of zero, an angle of PI/4, a radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post 	The variable shipWorld references a new ship at (100,100) with 
+	 * 			a velocity of zero, an angle of PI/4, a radius of 10, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post	The variable newWorld references a new World with dimensions (1000,1000)
+	 * @effect	newWorld.addAsSpatialElement(shipWorld)
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception{
@@ -40,7 +47,6 @@ public class ShipTest {
 		shipWorld = new Ship(new Vector2D(100,100),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
 		World newWorld = new World(1000,1000);
 		newWorld.addAsSpatialElement(shipWorld);
-		shipWorld.setWorld(newWorld);
 	}
 	
 	@Test

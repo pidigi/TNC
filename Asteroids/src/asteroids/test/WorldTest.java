@@ -23,32 +23,64 @@ public class WorldTest {
 	private static Set<Ship> standardShips;
 	private static Set<Asteroid> standardAsteroids;
 	private static Set<Bullet> standardBullets;
-	private Ship newShip, newShip2;
-	private Asteroid newAsteroid;
-	private World worldToEvolve;
+	private static Ship newShip, newShip2;
+	private static Asteroid newAsteroid;
+	private static World worldToEvolve;
 	
 	/**
 	 * Set up an mutable test fixture
 	 * 
+	 * @post	The variable standardShip1 references a new ship at (100,100) with 
+	 * 			a velocity of zero, an angle of zero, a radius of 50, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post	The variable standardShip2 references a new ship at (200,200) with 
+	 * 			a velocity of zero, an angle of zero, a radius of 50, a maximum velocity of 300000
+	 * 			and a mass of 1E5.
+	 * @post 	The variable standardAsteroid1 references a new asteroid at (300,300) with zero velocity,
+	 * 			radius of 50, and maximum velocity of 300000 and a new Random object.
+	 * @post 	The variable standardAsteroid2 references a new asteroid at (300,300) with zero velocity,
+	 * 			radius of 50, and maximum velocity of 300000 and a new Random object.
+	 * @post	The variable standardBullet1 references a new Bullet at (500,500) with radius 20,
+	 * 			velocity zero, maximul velocity 300000 and standardShip1 as its source.
+	 * @post	The variable standardBullet2 references a new Bullet at (600,600) with radius 20,
+	 * 			velocity zero, maximul velocity 300000 and standardShip2 as its source.
+	 * @post	The variable standardShips references a Set containing standardShip1 and standardShip2.
+	 * @post	The variable standardAsteroids references a Set containing standardAsteroid1 
+	 * 			and standardAsteroid2.
+	 * @post	The variable standardBullets references a Set containing standardBullet1
+	 * 			and standardBullet2.
 	 * @post 	The variable standardWorld references a world size 1000 by 1000, 
-	 * 			containing 2 ships, 2 asteroids and 2 bullets also stored in sets standardShips,
-	 * 			standardBullets and standardAsteroids.
+	 * 			referencing standardShip1, standardShip2, standardAsteroid1,
+	 * 			standardAsteroid2, standardBullet1, and standardBullet2.
+	 * @post	The variable newWorld references a new World with dimensions (1000,1000)
+	 * 			referencing the element newShip.
+	 * @post	The variable newShip references a new ship at (100,100) with 
+	 * 			a velocity (100,0), an angle of zero, a radius of 50, a maximum velocity of 300000
+	 * 			and a mass of 1.1E18.
+	 * @post	The variable newShip2 references a new ship at (900,100) with 
+	 * 			a velocity (-100,0), an angle of zero, a radius of 50, a maximum velocity of 300000
+	 * 			and a mass of 1.1E18.
+	 * @post	The variable newAsteroid references a new asteroid at (500,100) with zero velocity,
+	 * 			radius of 50, and maximum velocity of 300000 and a new Random object.
 	 */
 	@Before
 	public void setUpMutableFixture() throws Exception{
 		standardWorld = new World(1000,1000);
-		Ship standardShip1 = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
-		Ship standardShip2 = new Ship(new Vector2D(200,200), 0, 50, new Vector2D(0,0), 300000, 50);
+		Ship standardShip1 = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 1e5);
+		Ship standardShip2 = new Ship(new Vector2D(200,200), 0, 50, new Vector2D(0,0), 300000, 1e5);
+		Ship overlapShip = new Ship(new Vector2D(200,200), 0, 50, new Vector2D(0,0), 300000, 1e5);
 		standardShips = new HashSet<Ship>();
 		standardShips.add(standardShip1);
 		standardShips.add(standardShip2);
 		Asteroid standardAsteroid1 = new Asteroid(new Vector2D(300,300), 50, new Vector2D(0,0), 300000, new Random());
 		Asteroid standardAsteroid2 = new Asteroid(new Vector2D(400,400), 50, new Vector2D(0,0), 300000, new Random());
+		Asteroid overlapAsteroid = new Asteroid(new Vector2D(400,400), 50, new Vector2D(0,0), 300000, new Random());
 		standardAsteroids = new HashSet<Asteroid>();
 		standardAsteroids.add(standardAsteroid1);
 		standardAsteroids.add(standardAsteroid2);
 		Bullet standardBullet1 = new Bullet(new Vector2D(500,500),20,new Vector2D(0,0),300000,standardShip1);
 		Bullet standardBullet2 = new Bullet(new Vector2D(600,600),20,new Vector2D(0,0),300000,standardShip2);
+		Bullet overlapBullet = new Bullet(new Vector2D(600,600),20,new Vector2D(0,0),300000,standardShip2);
 		standardBullets = new HashSet<Bullet>();
 		standardBullets.add(standardBullet1);
 		standardBullets.add(standardBullet2);
@@ -75,12 +107,12 @@ public class WorldTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public final void constructor_NaNWidt() throws Exception{
+	public final void constructor_NaNWidth() throws Exception{
 		new World(Double.NaN,3000);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public final void constructor_NaNheigth() throws Exception{
+	public final void constructor_NaNheight() throws Exception{
 		new World(2000,Double.NaN);
 	}
 	
@@ -110,7 +142,6 @@ public class WorldTest {
 		Set<Ship> ships = standardWorld.getShips();
 		Set<Bullet> bullets = standardWorld.getBullets();
 		standardWorld.terminate();
-		//TODO: Checken of leeg is? Nog eens checken aan de hand van de formele specificaties van de methode.
 		assertTrue(standardWorld.isTerminated());
 		assertTrue(standardWorld.getAsteroids().isEmpty());
 		assertTrue(standardWorld.getShips().isEmpty());
@@ -169,14 +200,13 @@ public class WorldTest {
 		assertFalse(standardWorld.isValidHeight(Double.NaN));
 	}
 	
+	//Second part of condition cannot be tested since world.elements
+	// is not publically available
 	@Test
 	public final void getShips_StandardCase() {
 		Set<Ship> ships = standardWorld.getShips();
 		for(Ship ship: ships) {
-			assertTrue(standardShips.contains(ship));
-		}
-		for(Ship ship: standardShips) {
-			assertTrue(ships.contains(ship));
+			assertTrue(standardWorld.hasAsSpatialElement(ship));
 		}
 	}
 	
@@ -184,10 +214,7 @@ public class WorldTest {
 	public final void getAsteroids_StandardCase() {
 		Set<Asteroid> asteroids = standardWorld.getAsteroids();
 		for(Asteroid asteriod: asteroids) {
-			assertTrue(standardAsteroids.contains(asteriod));
-		}
-		for(Asteroid asteriod: standardAsteroids) {
-			assertTrue(asteroids.contains(asteriod));
+			assertTrue(standardWorld.hasAsSpatialElement(asteriod));
 		}
 	}
 	
@@ -195,15 +222,24 @@ public class WorldTest {
 	public final void getBullets_StandardCase() {
 		Set<Bullet> bullets = standardWorld.getBullets();
 		for(Bullet bullet: bullets) {
-			assertTrue(standardBullets.contains(bullet));
-		}
-		for(Bullet bullet: standardBullets) {
-			assertTrue(bullets.contains(bullet));
+			assertTrue(standardWorld.hasAsSpatialElement(bullet));
 		}
 	}
 	
 	@Test
+	public final void getIllegalOverlap_NoOverlap(){
+		assertTrue(standardWorld.getIllegalOverlap(newShip2) == null);
+	}
+	
+	@Test
+	public final void getIllegalOverlap_Overlap(){
+		// cannot be tested since no overlapping object can
+		// be added to a world, see the tests of canHaveAsSpatialElement
+	}
+	
+	@Test
 	public final void hasAsSpatialElement_TrueCases() {
+		// just test all at once
 		for(Ship ship: standardShips) {
 			assertTrue(standardWorld.hasAsSpatialElement(ship));
 		}
@@ -225,7 +261,6 @@ public class WorldTest {
 		assertFalse(standardWorld.hasAsSpatialElement(newBullet));
 	}
 	
-	// TODO: extra testen als nieuwe canHaveAsSpatialElement
 	@Test
 	public final void canHaveAsSpatialElement_TrueCase() {
 		Ship newShip = new Ship(new Vector2D(700,700), 0, 50, new Vector2D(0,0), 300000, 50);
@@ -250,6 +285,13 @@ public class WorldTest {
 	}
 	
 	@Test
+	public final void canHaveAsSpatialElement_FalseCaseTerminatedBullet() {
+		Bullet bullet = new Bullet(new Vector2D(100,100), 50, new Vector2D(0,0), 300000, new Ship());
+		bullet.terminate();
+		assertFalse(standardWorld.canHaveAsSpatialElement(bullet));
+	}
+	
+	@Test
 	public final void canHaveAsSpatialElement_FalseCaseTerminatedElement() {
 		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
 		newShip.terminate();
@@ -257,10 +299,53 @@ public class WorldTest {
 	}
 	
 	@Test
+	public final void canHaveAsSpatialElement_FalseCaseIllegalOverlap() {
+		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.canHaveAsSpatialElement(newShip));
+	}
+	
+	@Test
+	public final void canHaveAsSpatialElement_FalseCaseOutOfBounds() {
+		Ship newShip = new Ship(new Vector2D(100,1000), 0, 50, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.canHaveAsSpatialElement(newShip));
+	}
+	
+	@Test
+	public final void resolveInitialBullet_NotABullet(){
+		Ship newShip = new Ship(new Vector2D(100,1000), 0, 50, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.resolveInitialBullet(newShip));
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void resolveInitialBullet_NullCase(){
+		standardWorld.resolveInitialBullet(null);
+	}
+	
+	@Test
+	public final void resolveInitialBullet_BulletOutOfBounds(){
+		Bullet bullet = new Bullet(new Vector2D(100,1100), 50, new Vector2D(0,0), 300000, new Ship());
+		assertTrue(standardWorld.resolveInitialBullet(bullet));
+		assertTrue(bullet.isTerminated());
+	}
+	
+	@Test
+	public final void resolveInitialBullet_BulletCollides(){
+		Bullet bullet = new Bullet(new Vector2D(800,800), 50, new Vector2D(0,0), 300000, new Ship());
+		Asteroid newOverlapAsteroid = new Asteroid(new Vector2D(800,800), 50, new Vector2D(0,0), 300000, new Random());
+		standardWorld.addAsSpatialElement(newOverlapAsteroid);
+		assertTrue(standardWorld.resolveInitialBullet(bullet));
+		assertTrue(bullet.isTerminated());
+		assertTrue(newOverlapAsteroid.isTerminated());
+	}
+	
+	@Test
 	public final void addAsSpatialElement_NormalCase() throws Exception{
 		Ship newShip = new Ship(new Vector2D(800,800), 0, 50, new Vector2D(0,0), 300000, 50);
 		standardWorld.addAsSpatialElement(newShip);
 		assertTrue(standardWorld.hasAsSpatialElement(newShip));
+		assertTrue(newShip.getWorld() == standardWorld);
+		// For distinctions based on resolveInitialBullet,
+		// see the tests of that method
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -276,6 +361,32 @@ public class WorldTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
+	public final void addAsSpatialElement_CaseTerminatedBullet() {
+		Bullet bullet = new Bullet(new Vector2D(100,100), 50, new Vector2D(0,0), 300000, new Ship());
+		bullet.terminate();
+		standardWorld.addAsSpatialElement(bullet);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void addAsSpatialElement_CaseTerminatedElement() {
+		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
+		newShip.terminate();
+		standardWorld.addAsSpatialElement(newShip);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void addAsSpatialElement_CaseIllegalOverlap() {
+		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
+		standardWorld.addAsSpatialElement(newShip);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void addAsSpatialElement_CaseOutOfBounds() {
+		Ship newShip = new Ship(new Vector2D(100,1000), 0, 50, new Vector2D(0,0), 300000, 50);
+		standardWorld.addAsSpatialElement(newShip);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
 	public final void addAsSpatialElement_AlreadyAdded() throws Exception{
 		Ship newShip = new Ship(new Vector2D(800,800), 0, 50, new Vector2D(0,0), 300000, 50);
 		standardWorld.addAsSpatialElement(newShip);
@@ -286,12 +397,15 @@ public class WorldTest {
 	public final void removeAsSpatialElement_NormalCase() throws Exception{
 		for(Ship ship: standardShips) {
 			standardWorld.removeAsSpatialElement(ship);
+			assertFalse(standardWorld.hasAsSpatialElement(ship));
 		}
 		for(Asteroid asteroid: standardAsteroids) {
 			standardWorld.removeAsSpatialElement(asteroid);
+			assertFalse(standardWorld.hasAsSpatialElement(asteroid));
 		}
 		for(Bullet bullet: standardBullets) {
 			standardWorld.removeAsSpatialElement(bullet);
+			assertFalse(standardWorld.hasAsSpatialElement(bullet));
 		}
 	}
 	
@@ -309,29 +423,20 @@ public class WorldTest {
 	}
 	
 	@Test
-	public final void hasProperSpatialElement_TrueCase() {
+	public final void hasProperSpatialElements_TrueCase() {
 		assertTrue(standardWorld.hasProperSpatialElements());
 	}
 	
-	// TODO How to test for false case?
-//	@Test
-//	public final void hasProperSpatialElement_FalseCase() {
-//		assertFalse(standardWorld.hasProperSpatialElements());
-//	}
+	@Test
+	public final void hasProperSpatialElements_FalseCase() {
+		// Since hasProperSpatialElements is a class invariant,
+		// no false case can be generated to test...
+	}
 	
 	@Test
 	public final void withinBounds_TrueCase() {
-		for(Ship ship : standardShips) {
-			assertTrue(standardWorld.withinBounds(ship));
-		}
-		for(Asteroid asteroid : standardAsteroids) {
-			assertTrue(standardWorld.withinBounds(asteroid));
-		}
-		for(Bullet bullet : standardBullets) {
-			assertTrue(standardWorld.withinBounds(bullet));
-		}
-		Ship ShipOnBoundary = new Ship(new Vector2D(900,900), 0, 99, new Vector2D(0,0), 300000, 50);
-		assertTrue(standardWorld.withinBounds(ShipOnBoundary));
+		Ship ShipCloseToBoundary = new Ship(new Vector2D(900,900), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertTrue(standardWorld.withinBounds(ShipCloseToBoundary));
 	}
 	
 	@Test
@@ -340,11 +445,30 @@ public class WorldTest {
 	}
 	
 	@Test
-	public final void withinBounds_OutsideBounds() {
-		Ship ShipOutOfBoundary = new Ship(new Vector2D(2000,2000), 0, 99, new Vector2D(0,0), 300000, 50);
+	public final void withinBounds_OutsideRight() {
+		Ship ShipOutOfBoundary = new Ship(new Vector2D(1500,500), 0, 99, new Vector2D(0,0), 300000, 50);
 		assertFalse(standardWorld.withinBounds(ShipOutOfBoundary));
 	}
 	
+	@Test
+	public final void withinBounds_OutsideLeft() {
+		Ship ShipOutOfBoundary = new Ship(new Vector2D(-500,500), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.withinBounds(ShipOutOfBoundary));
+	}
+	
+	@Test
+	public final void withinBounds_OutsideTop() {
+		Ship ShipOutOfBoundary = new Ship(new Vector2D(500,1500), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.withinBounds(ShipOutOfBoundary));
+	}
+	
+	@Test
+	public final void withinBounds_OutsideBottom() {
+		Ship ShipOutOfBoundary = new Ship(new Vector2D(500,-500), 0, 99, new Vector2D(0,0), 300000, 50);
+		assertFalse(standardWorld.withinBounds(ShipOutOfBoundary));
+	}
+	
+	//extra test near boundary
 	@Test
 	public final void withinBounds_OnBounds() {
 		Ship ShipOnBoundary = new Ship(new Vector2D(1000,1000), 0, 99, new Vector2D(0,0), 300000, 50);
@@ -354,7 +478,6 @@ public class WorldTest {
 	@Test
 	public final void isValidObjectCollision_TrueCase() {
 		for (Ship ship: standardShips) {
-			assertTrue(standardWorld.isValidObjectCollision(ship,ship));
 			for (Asteroid asteroid: standardAsteroids) {
 				assertTrue(standardWorld.isValidObjectCollision(ship,asteroid));
 			}
@@ -364,18 +487,16 @@ public class WorldTest {
 				}
 			}
 		}
-		for (Asteroid asteroid: standardAsteroids) {
-			assertTrue(standardWorld.isValidObjectCollision(asteroid,asteroid));
-		}
-		for (Bullet bullet: standardBullets) {
-			assertTrue(standardWorld.isValidObjectCollision(bullet,bullet));
-		}
+	}
+	
+	@Test
+	public final void isValidObjectCollision_SameElement(){
+		assertFalse(standardWorld.isValidObjectCollision(newShip, newShip));
 	}
 	
 	@Test
 	public final void isValidObjectCollision_BulletFromSameShip() {
 		for (Ship ship: standardShips) {
-			assertTrue(standardWorld.isValidObjectCollision(ship,ship));
 			for (Bullet bullet: standardBullets) {
 				if (bullet.getShip() == ship) {
 					assertFalse(standardWorld.isValidObjectCollision(ship,bullet));

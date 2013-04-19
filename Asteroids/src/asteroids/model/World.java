@@ -22,6 +22,9 @@ import be.kuleuven.cs.som.annotate.*;
 
 // Methods manipulating the collisions structure are set to private so
 // no external agents can modify it in an inappropriate way.
+// Also the method resolveInitialBullet is private to avoid external
+// agents to modify elements of the game (e.g. create a bullet that collides
+// with another entity)
 
 // Height,width: Not specified (Chosen: Defensively)
 // Associations: Defensively
@@ -78,6 +81,7 @@ public class World{
 	 * @post 	...
 	 * 			| for each element in elements: 
 	 * 			| ((new element).isTerminated())
+	 * 			|	&& !this.hasAsSpatialElement(element)
 	 */
 	// Element from elements cannot be null (invariant)
 	public void terminate() {
@@ -184,26 +188,22 @@ public class World{
 	 */
 	private final static double maxWidth = Double.MAX_VALUE;
 	
-	
-	// Nog eens goed checken of er geen problemen zijn met acces rights
-	// (vb dat ze dingen kunnen veranderen aan objecten die in ons systeem
-	// zitten)
-	// OPLOSSING: Alleen problemen als ze dingen kunnen veranderen zonder 
-	// dat ze het door hebben, wat niet het geval is omdat de methodes van 
-	// ship, asteroid en bullet duidelijk gedefinieerd zijn.
 	/**
 	 * Get all the ships in this game world.
 	 * 
 	 * @return 	A set containing all the ship elements associated with this world.
 	 * 			| let result == Set<Ship>
 	 * 			| in
-	 * 			| for Ship ship in result
-	 * 			|	this.hasAsSpatialElement(ship)
+	 * 			| (for all ship in this.elements
+	 * 			|	if(ship.isShip())
+	 * 			|	result.contains(ship))
+	 * 			| && (for all ship in result
+	 * 			|	   this.hasAsSpatialElement(ship))
 	 */
 	public Set<Ship> getShips() {
 		Set<Ship> allShips = new HashSet<Ship>();
 		for (SpatialElement element : elements) {
-			if (element instanceof Ship)
+			if (element.isShip())
 				allShips.add((Ship) element);
 		}
 		return allShips;
@@ -215,13 +215,16 @@ public class World{
 	 * @return 	A set containing all the bullet elements associated with this world.
 	 * 			| let result == Set<Bullet>
 	 * 			| in
-	 * 			| for Bullet bullet in result
-	 * 			|	this.hasAsSpatialElement(bullet)
+	 * 			| (for all bullet in this.elements
+	 * 			|	if(bullet.isBullet())
+	 * 			|	result.contains(bullet))
+	 * 			| && (for all bullet in result
+	 * 			|	   this.hasAsSpatialElement(bullet))
 	 */
 	public Set<Bullet> getBullets() {
 		Set<Bullet> allBullets = new HashSet<Bullet>();
 		for (SpatialElement element : elements) {
-			if (element instanceof Bullet)
+			if (element.isBullet())
 				allBullets.add((Bullet) element);
 		}
 		return allBullets;
@@ -233,13 +236,16 @@ public class World{
 	 * @return 	A set containing all the asteroid elements associated with this world.
 	 * 			| let result == Set<Asteroid>
 	 * 			| in
-	 * 			| for Asteroid asteroid in result
-	 * 			|	this.hasAsSpatialElement(asteroid)
+	 * 			| (for all asteroid in this.elements
+	 * 			|	if(asteroid.isAsteroid())
+	 * 			|	result.contains(asteroid))
+	 * 			| && (for all asteroid in result
+	 * 			|	   this.hasAsSpatialElement(asteroid))
 	 */
 	public Set<Asteroid> getAsteroids() {
 		Set<Asteroid> allAsteroids = new HashSet<Asteroid>();
 		for (SpatialElement element : elements) {
-			if (element instanceof Asteroid)
+			if (element.isAsteroid())
 				allAsteroids.add((Asteroid) element);
 		}
 		return allAsteroids;
@@ -254,16 +260,15 @@ public class World{
 	 * 			illegally overlaps with or a non-effective element
 	 * 			if none of the other elements illegally overlap with 
 	 * 			the given element.
-	 * 			| ( result.overlap(element) && isValidObjectCollision(result, element)) || 
-	 * 			| ((result == null) &&
-	 * 			| (for each element in this.elements)
-	 * 			|	(!result.overlap(element)) || (!isValidObjectCollision(result, element))))
+	 * 			| ( result.overlap(element) && isValidObjectCollision(result, element)) 
+	 * 			|	|| ((result == null) &&
+	 * 			| (for each elem in this.elements
+	 * 			|	(!result.overlap(elem)) || (!isValidObjectCollision(result, elem)))
 	 */
 	public SpatialElement getIllegalOverlap(SpatialElement element){
 		for (SpatialElement otherElement: elements){
 			if(element.overlap(otherElement) 
-				&& isValidObjectCollision(element, otherElement)
-				&& element != otherElement){
+				&& isValidObjectCollision(element, otherElement)){
 				return otherElement;
 			}
 		}
@@ -293,11 +298,20 @@ public class World{
 	 * 
 	 * @param 	element
 	 *          The spatial element to check.
-	 * @return 	True if and only if the given element is effective, not
-	 *         	terminated and the element can be an element of this world. 
-	 *         	|result == (element != null) && (element.canHaveAsWorld(this)) &&
-	 *          | (!element.isTerminated());
-	 * @note	All overlap with other elements or an element outside the boundaries is seen as
+	 * @return	False if the element is not effective
+	 * 			| if(element == null)
+	 * 			| then result == false
+	 * @return 	If the element is effective and a bullet, return true if and only
+	 * 			if it is not terminated and this world is not terminated.
+	 * 			| if(element != null && element.isBullet())
+	 * 			| then result == !this.isTerminated()) && (!element.isTerminated()
+	 * @return 	If the element is effective and not a bullet, return true if and 
+	 * 			only if the given element is not terminated, this world is not terminated,
+	 * 			the element is within the bounds and there is no illegal overlap.
+	 * 			| if(element != null && !element.isBullet())
+	 * 			| then result == !this.isTerminated()) && (!element.isTerminated()
+	 *         	| 	&& (getIllegalOverlap(element)) == null && withinBounds(element))
+	 * @note	A bullet outside the boundaries or overlapping with other elements is seen as
 	 * 			a case that should be resolved on appearing on screen, so canHaveAsSpatialElement
 	 * 			does not need to check such cases.
 	 */
@@ -318,9 +332,10 @@ public class World{
 	 * 			must reference this world as the world they are associated to
 	 * 			and it must be possible for this world to have the given element
 	 * 			associated to it.
-	 * 			| for each element in Elements: 
-	 * 		   	| (canHaveAsSpatialElement(element)) && 
-	 * 			| 	(element.getWorld() == this)
+	 * 			| if (for each element in Elements: 
+	 * 		   	| 	(canHaveAsSpatialElement(element)) && 
+	 * 			| 		(element.getWorld() == this))
+	 * 			| then result == true
 	 */
 	public boolean hasProperSpatialElements() {
 		for (SpatialElement element : elements) {
@@ -365,8 +380,8 @@ public class World{
 	 * 			| if(!element.isBullet())
 	 * 			| then result == false
 	 * @return	...
-	 * 			| if(element.isBullet() && !withinBounds(element)
-	 * 			|	&& getIllegalOverlap(element) != null)
+	 * 			| if(element.isBullet() && (!withinBounds(element)
+	 * 			|	|| getIllegalOverlap(element) != null)
 	 * 			| then result == true 
 	 * @throws	NullPointerException
 	 * 			...
@@ -435,9 +450,6 @@ public class World{
 	 * @throws 	IllegalArgumentException
 	 * 			Check if this world has the given element associated to it.
 	 *          | ! hasAsSpatialElement(element)
-	 * @throws 	IllegalArgumentException
-	 * 			Check if the given element has this world associated to it.
-	 *          | element.getWorld() != this
 	 */
 	public void removeAsSpatialElement(SpatialElement element)
 			throws IllegalArgumentException {
@@ -470,9 +482,12 @@ public class World{
 	 * spatial element 2 is a valid object collision.
 	 * 
 	 * @return	...
+	 * 			| if(element1 == element2)
+	 * 			| then result == false
+	 * @return	...
 	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
-				| (element1.getWorld() != element2.getWorld()))
-				| then result == false
+	 *			| (element1.getWorld() != element2.getWorld()))
+	 *			| then result == false
 	 * @return	...
 	 * 			| result == !(((element1.isBullet() && element2.isShip())
 	 *			| && (element1.getShip() == element2)
@@ -480,6 +495,8 @@ public class World{
 	 *			| && element2).getShip() == element1))
 	 */
 	public boolean isValidObjectCollision(SpatialElement element1, SpatialElement element2){
+			if(element1 == element2)
+				return false;
 			if ((element1.getWorld() != null) && (element2.getWorld() != null) && 
 			(element1.getWorld() != element2.getWorld())){
 				return false;

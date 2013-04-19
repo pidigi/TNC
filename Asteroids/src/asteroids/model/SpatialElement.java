@@ -35,10 +35,6 @@ import be.kuleuven.cs.som.annotate.Raw;
 // changing the position the spatial element directly other than within spatial element
 // makes little sense. The method move can be used to indirectly change the position attribute.
 
-// TODO: Checken welke methodes package afh. moet maken? Acces rights van alle methodes in het algemeen.
-// TODO: Check de bidirectionele conection nog een laatste keer.
-// TODO: Nakijken van de @Basic, @Raw en @Immutable indicaties.
-
 public class SpatialElement {
 	/**
 	 * Initialize this new spatial element with given position, radius,
