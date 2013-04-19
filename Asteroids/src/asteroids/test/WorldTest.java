@@ -4,7 +4,6 @@ import java.util.*;
 import static org.junit.Assert.*;
 import org.junit.*;
 import static asteroids.Util.*;
-import asteroids.CollisionListener;
 import asteroids.model.*;
 
 public class WorldTest {
@@ -41,9 +40,9 @@ public class WorldTest {
 	 * @post 	The variable standardAsteroid2 references a new asteroid at (300,300) with zero velocity,
 	 * 			radius of 50, and maximum velocity of 300000 and a new Random object.
 	 * @post	The variable standardBullet1 references a new Bullet at (500,500) with radius 20,
-	 * 			velocity zero, maximul velocity 300000 and standardShip1 as its source.
+	 * 			velocity zero, maximum velocity 300000 and standardShip1 as its source.
 	 * @post	The variable standardBullet2 references a new Bullet at (600,600) with radius 20,
-	 * 			velocity zero, maximul velocity 300000 and standardShip2 as its source.
+	 * 			velocity zero, maximum velocity 300000 and standardShip2 as its source.
 	 * @post	The variable standardShips references a Set containing standardShip1 and standardShip2.
 	 * @post	The variable standardAsteroids references a Set containing standardAsteroid1 
 	 * 			and standardAsteroid2.
@@ -68,19 +67,16 @@ public class WorldTest {
 		standardWorld = new World(1000,1000);
 		Ship standardShip1 = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 1e5);
 		Ship standardShip2 = new Ship(new Vector2D(200,200), 0, 50, new Vector2D(0,0), 300000, 1e5);
-		Ship overlapShip = new Ship(new Vector2D(200,200), 0, 50, new Vector2D(0,0), 300000, 1e5);
 		standardShips = new HashSet<Ship>();
 		standardShips.add(standardShip1);
 		standardShips.add(standardShip2);
 		Asteroid standardAsteroid1 = new Asteroid(new Vector2D(300,300), 50, new Vector2D(0,0), 300000, new Random());
 		Asteroid standardAsteroid2 = new Asteroid(new Vector2D(400,400), 50, new Vector2D(0,0), 300000, new Random());
-		Asteroid overlapAsteroid = new Asteroid(new Vector2D(400,400), 50, new Vector2D(0,0), 300000, new Random());
 		standardAsteroids = new HashSet<Asteroid>();
 		standardAsteroids.add(standardAsteroid1);
 		standardAsteroids.add(standardAsteroid2);
 		Bullet standardBullet1 = new Bullet(new Vector2D(500,500),20,new Vector2D(0,0),300000,standardShip1);
 		Bullet standardBullet2 = new Bullet(new Vector2D(600,600),20,new Vector2D(0,0),300000,standardShip2);
-		Bullet overlapBullet = new Bullet(new Vector2D(600,600),20,new Vector2D(0,0),300000,standardShip2);
 		standardBullets = new HashSet<Bullet>();
 		standardBullets.add(standardBullet1);
 		standardBullets.add(standardBullet2);
@@ -201,7 +197,7 @@ public class WorldTest {
 	}
 	
 	//Second part of condition cannot be tested since world.elements
-	// is not publically available
+	// is not publicly available
 	@Test
 	public final void getShips_StandardCase() {
 		Set<Ship> ships = standardWorld.getShips();

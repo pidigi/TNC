@@ -22,17 +22,10 @@ import be.kuleuven.cs.som.annotate.*;
 
 // Methods manipulating the collisions structure are set to private so
 // no external agents can modify it in an inappropriate way.
-// Also the method resolveInitialBullet is private to avoid external
-// agents to modify elements of the game (e.g. create a bullet that collides
-// with another entity)
 
+// Approach to methods:
 // Height,width: Not specified (Chosen: Defensively)
 // Associations: Defensively
-
-// TODO: Overflow checking.
-// TODO: In facade alle exceptions catchen en vervangen door modelException.
-// TODO: mutable / immutable test fixtures commentarieren.
-// TODO: alle throws van diepere lagen checken en incalculeren...
 
 public class World{
 	/**
@@ -279,11 +272,11 @@ public class World{
 	 * Check whether the given element is within the bounds of this world.
 	 * 
 	 * @param	element
-	 * 			The spacial element to check.
+	 * 			The spatial element to check.
 	 * @return	...
 	 * 			| result = (element != null) &&
 	 * 			| (0+element.getRadius() < element.getXComponent() < width-element.getRadius()) &&
-	 * 			| (0+element.getRadius() < element.getYComponent() < heigth-element.getRadius())
+	 * 			| (0+element.getRadius() < element.getYComponent() < height-element.getRadius())
 	 */
 	public boolean withinBounds(SpatialElement element){
 		return (element != null && 
@@ -304,13 +297,13 @@ public class World{
 	 * @return 	If the element is effective and a bullet, return true if and only
 	 * 			if it is not terminated and this world is not terminated.
 	 * 			| if(element != null && element.isBullet())
-	 * 			| then result == !this.isTerminated()) && (!element.isTerminated()
+	 * 			| then result == (!this.isTerminated()) && (!element.isTerminated())
 	 * @return 	If the element is effective and not a bullet, return true if and 
 	 * 			only if the given element is not terminated, this world is not terminated,
 	 * 			the element is within the bounds and there is no illegal overlap.
 	 * 			| if(element != null && !element.isBullet())
-	 * 			| then result == !this.isTerminated()) && (!element.isTerminated()
-	 *         	| 	&& (getIllegalOverlap(element)) == null && withinBounds(element))
+	 * 			| then result == ((!this.isTerminated()) && (!element.isTerminated())
+	 *         	| 	&& (getIllegalOverlap(element) == null) && withinBounds(element))
 	 * @note	A bullet outside the boundaries or overlapping with other elements is seen as
 	 * 			a case that should be resolved on appearing on screen, so canHaveAsSpatialElement
 	 * 			does not need to check such cases.
@@ -566,7 +559,7 @@ public class World{
 	 * @pre		...
 	 * 			| elementsToUpdat != null
 	 * @pre		...
-	 * 			| for each element in elementsToUpdat
+	 * 			| for each element in elementsToUpdate
 	 * 			|	element != null
 	 * @effect	...
 	 * 			| for each element in elementsToUpdate
