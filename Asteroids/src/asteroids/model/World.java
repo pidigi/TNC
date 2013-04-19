@@ -29,6 +29,7 @@ import be.kuleuven.cs.som.annotate.*;
 // TODO: Overflow checking.
 // TODO: In facade alle exceptions catchen en vervangen door modelException.
 // TODO: mutable / immutable test fixtures commentarieren.
+// TODO: alle throws van diepere lagen checken en incalculeren...
 
 public class World{
 	/**

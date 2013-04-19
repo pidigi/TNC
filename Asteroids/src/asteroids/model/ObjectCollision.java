@@ -126,7 +126,8 @@ public class ObjectCollision extends Collision{
 	 * connecting line between the positions of element1 and element2 of this collision.
 	 * 
 	 * @return	...
-	 * 			| fuzzyEquals(result.getNorm(),getElement1().getRadius())
+	 * 			| fuzzyEquals(result.subtract(getElement1().getPosition()).getNorm(),
+	 * 			| getElement1().getRadius())
 	 * @return	...
 	 * 			| result.getDirection().equals(getElement2().getPosition()
 	 * 			| .subtract(getElement1().getPosition()).getDirection())
@@ -248,8 +249,9 @@ public class ObjectCollision extends Collision{
 	 * 			|		element1.terminate
 	 * 			
 	 */
-	//TODO is overlap van nog te verdwijnen kogel met nieuwe asteroid mogelijk?
-	//TODO: Nog nodige methode?
+	// First terminate bullet because on terminating an asteroids,
+	// two smaller asteroids might appear that instantly collide with
+	// the not yet terminated bullet.
 	void resolveBullet(SpatialElement element1,
 			SpatialElement element2) {
 			if(element1.isBullet()){ 

@@ -216,17 +216,17 @@ public class SpatialElementTest {
 		elementWorld.getWorld().removeAsSpatialElement(elementWorld);
 		assertTrue(elementWorld.hasProperWorld());
 	}
-	// TODO
 	// For test of hasAsSpatialElement, see World testsuite.
 	
 	@Test
 	public final void setWorld_NormalCase() throws Exception {
 		World newWorld = new World(2000,2000);
 		newWorld.addAsSpatialElement(elementNoWorld);
-//		elementNoWorld.setWorld(newWorld);
 		assertTrue(elementNoWorld.getWorld() == newWorld);
 	}
-	// TODO geeft nog problemen
+	// addAsSpatialElement contains setWorld, which cannot be 
+	// used seperately without adding the element first
+	// So here, setWorld is tested indirectly.
 	
 	@Test(expected = IllegalArgumentException.class)
 	public final void setWorld_NotAdded() throws Exception {
@@ -324,20 +324,32 @@ public class SpatialElementTest {
 	}
 	
 	@Test
-	public final void getTimeToCollision_NormalCase() throws Exception{
+	public final void getTimeToCollision_NormalCase(){
 		double newCollisionTime = element100.getTimeToCollision(standardElement);
 		assertEquals(8,newCollisionTime,EPSILON);
-		// TODO volgens hun methode testen?
+		assertTrue(0 <= newCollisionTime);
+		assertFalse(((Double) newCollisionTime).isNaN());
+		element100.move(newCollisionTime/2);
+		standardElement.move(newCollisionTime/2);
+		assertTrue(fuzzyLessThanOrEqualTo(0.0,element100.getDistanceBetween(standardElement)));
+		element100.move(newCollisionTime/2);
+		standardElement.move(newCollisionTime/2);
+		assertEquals(element100.getDistanceBetween(standardElement),0.0,EPSILON);
 	}
 	
 	@Test
-	public final void getTimeToCollision_NoCollisionCase() throws Exception{
+	public final void getTimeToCollision_NoCollisionCase(){
 		double newCollisionTime = element1002.getTimeToCollision(standardElement);
 		assertTrue(newCollisionTime == Double.POSITIVE_INFINITY);
 	}
 	
+	public final void getTimeToCollision_SameElement(){
+		double newCollisionTime = element100.getTimeToCollision(element100);
+		assertTrue(newCollisionTime == Double.POSITIVE_INFINITY);
+	}
+	
 	@Test(expected = NullPointerException.class)
-	public final void getTimeToCollision_NullCase()throws Exception{
+	public final void getTimeToCollision_NullCase(){
 		element1002.getTimeToCollision(null);
 	}
 	

@@ -4,6 +4,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import org.junit.*;
 import static asteroids.Util.*;
+import asteroids.CollisionListener;
 import asteroids.model.*;
 
 public class WorldTest {
@@ -22,6 +23,9 @@ public class WorldTest {
 	private static Set<Ship> standardShips;
 	private static Set<Asteroid> standardAsteroids;
 	private static Set<Bullet> standardBullets;
+	private Ship newShip, newShip2;
+	private Asteroid newAsteroid;
+	private World worldToEvolve;
 	
 	/**
 	 * Set up an mutable test fixture
@@ -54,6 +58,12 @@ public class WorldTest {
 		standardWorld.addAsSpatialElement(standardAsteroid2);
 		standardWorld.addAsSpatialElement(standardBullet1);
 		standardWorld.addAsSpatialElement(standardBullet2);
+		
+		worldToEvolve = new World(1000,1000);
+		newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(100,0), 300000, 1.1E18);
+		newShip2 = new Ship(new Vector2D(900,100), 0, 50, new Vector2D(-100,0), 300000, 1.1E18);
+		worldToEvolve.addAsSpatialElement(newShip);
+		newAsteroid = new Asteroid(new Vector2D(500,100), 50, new Vector2D(0,0), 300000, new Random());
 	}
 	
 	@Test
@@ -102,7 +112,6 @@ public class WorldTest {
 		standardWorld.terminate();
 		//TODO: Checken of leeg is? Nog eens checken aan de hand van de formele specificaties van de methode.
 		assertTrue(standardWorld.isTerminated());
-		//TODO: Implementatie van het vernietigen van de asteroids
 		assertTrue(standardWorld.getAsteroids().isEmpty());
 		assertTrue(standardWorld.getShips().isEmpty());
 		assertTrue(standardWorld.getBullets().isEmpty());
@@ -342,8 +351,6 @@ public class WorldTest {
 		assertFalse(standardWorld.withinBounds(ShipOnBoundary));
 	}
 	
-	// TODO: Kunnen niet echt addCollision en removeCollision testen want kunnen niet aan de lijst.
-	
 	@Test
 	public final void isValidObjectCollision_TrueCase() {
 		for (Ship ship: standardShips) {
@@ -364,7 +371,8 @@ public class WorldTest {
 			assertTrue(standardWorld.isValidObjectCollision(bullet,bullet));
 		}
 	}
-
+	
+	@Test
 	public final void isValidObjectCollision_BulletFromSameShip() {
 		for (Ship ship: standardShips) {
 			assertTrue(standardWorld.isValidObjectCollision(ship,ship));
@@ -376,6 +384,7 @@ public class WorldTest {
 		}
 	}
 	
+	@Test
 	public final void isValidObjectCollision_NotSameWorld() {
 		World newWorld = new World(1000,1000);
 		Ship newShip = new Ship(new Vector2D(100,100), 0, 50, new Vector2D(0,0), 300000, 50);
@@ -385,5 +394,90 @@ public class WorldTest {
 		}
 	}
 	
+	@Test
+	public final void evolve_CaseMove(){
+		worldToEvolve.evolve(1.0, null);
+		assertEquals(200,newShip.getPosition().getXComponent(),EPSILON);
+	}
+	
+	@Test
+	public final void evolve_CaseMoveThrust(){
+		newShip.setThrusterActive(true);
+		worldToEvolve.evolve(1.0, null);
+		assertEquals(200,newShip.getPosition().getXComponent(),EPSILON);
+		assertEquals(101,newShip.getVelocity().getXComponent(),EPSILON);
+	}
+	
+	@Test
+	public final void evolve_CaseWallCollision(){
+		worldToEvolve.evolve(10.0, null);
+		assertEquals(800,newShip.getPosition().getXComponent(),EPSILON);
+		assertEquals(-100,newShip.getVelocity().getXComponent(),EPSILON);
+	}
+	
+	@Test
+	public final void evolve_CaseObjectCollisionBounce(){
+		worldToEvolve.addAsSpatialElement(newShip2);
+		worldToEvolve.evolve(7.0, null);
+		assertEquals(100,newShip.getPosition().getXComponent(),EPSILON);
+		assertEquals(-100,newShip.getVelocity().getXComponent(),EPSILON);
+		assertEquals(900,newShip2.getPosition().getXComponent(),EPSILON);
+		assertEquals(100,newShip2.getVelocity().getXComponent(),EPSILON);
+	}
+	
+	@Test
+	public final void evolve_CaseObjectCollisionBulletHitShip(){
+		worldToEvolve.addAsSpatialElement(newShip2);
+		newShip.fireBullet();
+		worldToEvolve.evolve(7.0, null);
+		assertEquals(800,newShip.getPosition().getXComponent(),EPSILON);
+		assertTrue(newShip2.isTerminated());
+		assertTrue(worldToEvolve.getBullets().isEmpty());
+	}
+	
+	@Test
+	public final void evolve_CaseObjectCollisionShipHitAsteroid(){
+		worldToEvolve.addAsSpatialElement(newAsteroid);
+		worldToEvolve.evolve(7.0, null);
+		assertTrue(newShip.isTerminated());
+		assertTrue(worldToEvolve.getAsteroids().contains(newAsteroid));
+	}
+	
+	@Test
+	public final void evolve_CaseObjectCollisionBulletHitAsteroid(){
+		newShip.fireBullet();
+		worldToEvolve.addAsSpatialElement(newAsteroid);
+		worldToEvolve.evolve(2.0, null);
+		assertTrue(worldToEvolve.getBullets().isEmpty());
+		assertTrue(newAsteroid.isTerminated());
+		assertFalse(worldToEvolve.getAsteroids().contains(newAsteroid));
+		assertEquals(2,worldToEvolve.getAsteroids().size());
+	}
+	
+	@Test
+	public final void evolve_CaseBulletFirstBounce(){
+		newShip.fireBullet();
+		worldToEvolve.evolve(4.0, null);
+		for(Bullet bullet: worldToEvolve.getBullets()){
+		assertEquals(844,bullet.getPosition().getXComponent(),EPSILON);
+		assertFalse(bullet.isTerminated());
+		assertTrue(bullet.getHasBounced());
+		}
+	}
+	
+	@Test
+	public final void evolve_CaseBulletSecondBounce(){
+		newShip.fireBullet();
+		worldToEvolve.evolve(10.0, null);
+		assertTrue(worldToEvolve.getBullets().isEmpty());
+	}
+	
+	@Test
+	public final void evolve_CaseBulletOverSource(){
+		newShip.fireBullet();
+		worldToEvolve.evolve(7.0, null);
+		assertFalse(worldToEvolve.getBullets().isEmpty());
+		assertEquals(800,newShip.getPosition().getXComponent(),EPSILON);
+	}
 	
 }

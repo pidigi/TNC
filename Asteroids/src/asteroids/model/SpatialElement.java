@@ -25,7 +25,6 @@ import be.kuleuven.cs.som.annotate.Raw;
 
 //Link to repository: https://github.com/Extrimius/TNC.git
 
-// TODO: Strategy
 // Position: Defensively
 // Velocity: Total
 // Radius: Defensively
@@ -39,8 +38,6 @@ import be.kuleuven.cs.som.annotate.Raw;
 // TODO: Checken welke methodes package afh. moet maken? Acces rights van alle methodes in het algemeen.
 // TODO: Check de bidirectionele conection nog een laatste keer.
 // TODO: Nakijken van de @Basic, @Raw en @Immutable indicaties.
-// TODO: Insatance of nog eens nakijken op het einde.
-// TODO: Eerst de speciale gevallen in de documentatie en dan gewoon of andersom?
 
 public class SpatialElement {
 	/**
@@ -162,13 +159,7 @@ public class SpatialElement {
 	 * 			| if (this.getWorld() != null)
 	 * 		    | then this.getWorld().hasAsSpatialElement(this)
 	 */
-	// TODO check whether (new this).isTerminated() is legitimate
-	// & whether the 'if' is necessary
-	// & does it need try - catch around removeAsSpatialElement???
-	// Nu enkel checken of het null is want non terminated elementen kunnen geen
-	// world hebben (dan is world null) en als ze al geterminate zijn is world
-	// ook null dus !isTerminated erbij in if statement zou dubbelop zijn
-	// Exception van remove zal nooit komen want aangeroepen via this.getworld
+	// RemoveAsSpatialElement won't throw an exception since it's called via this.getWorld()
 	public void terminate() {
 		if (this.getWorld() != null) {
 			this.getWorld().removeAsSpatialElement(this);
@@ -494,14 +485,16 @@ public class SpatialElement {
 	 *          ships would be fuzzy equal to zero if they would both move
 	 *          during the resulting time.
 	 *        	| if (result < Double.POSITIVE_INFINITY) then
-	 *        	|   Util.fuzzyEquals(this.getDistanceBetween(other,result),0.0)
+	 *        	|	when this.move(result) && other.move(result)
+	 *        	|   Util.fuzzyEquals(this.getDistanceBetween(other),0.0)
 	 * @return  If the resulting distance is finite, the distance between both ships
 	 *          would be fuzzy different from zero if they would move for a time shorter than the
 	 *          resulting time.
 	 *        	| if (result < Double.POSITIVE_INFINITY) then
 	 *        	|   for each time in 0.0..result:
 	 *        	|     if (time < result)
-	 *        	|       then ! Util.fuzzyEquals(this.getDistanceBetween(other,time),0.0)
+	 *        	|		when this.move(time) && other.move(time)
+	 *        	|       then ! Util.fuzzyEquals(this.getDistanceBetween(other),0.0)
 	 * @return  If the resulting time is infinite, this ship is the same as the
 	 *          other ship or the distance between both
 	 *          ships would be different from zero for each finite time they would move.
@@ -509,7 +502,8 @@ public class SpatialElement {
 	 *        	|   (this == other) ||
 	 *        	|   (for each time in 0.0..Double.POSITIVE_INFINITY:
 	 *        	|     if (! Double.isInfinite(time)) then
-	 *        	|       (! Util.fuzzyEquals(this.getDistanceBetween(other,time),0.0))
+	 *        	|		when this.move(time) && other.move(time)
+	 *        	|       (! Util.fuzzyEquals(this.getDistanceBetween(other),0.0))
 	 * @throws  NullPointerException
 	 *          The other ship is not effective.
 	 *        	| other == null

@@ -66,8 +66,6 @@ public class WallCollision extends Collision{
 	/**
 	 * Get the time to the first collision with a wall of the containing world, if any.
 	 * 
-	 * @effect	...
-	 * 			| //TODO setWallPosition
 	 * @return	...
 	 * 			| if(getElement().getWorld() == null)
 	 * 			| then result == Double.POSITIVE_INFINITY

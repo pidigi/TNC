@@ -13,7 +13,6 @@ import be.kuleuven.cs.som.annotate.Raw;
 			 Pieter Lietaert (1st master Mathematical engineering)
  */
 
-// TODO: Strategy
 // Direction (angle): Nominally
 
 public class Ship extends SpatialElement{
