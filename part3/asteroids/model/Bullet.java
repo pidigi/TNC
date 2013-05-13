@@ -162,8 +162,8 @@ public class Bullet extends SpatialElement{
 	// want komt eigenlijk toch nooit voor in de lijst...
 	@Override
 	public void resolve(SpatialElement otherElement) throws NullPointerException{
-		if(otherElement == null)
-			throw new NullPointerException("Noneffective element to resolve collision with.");
+		if(!canResolve(otherElement))
+			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isBullet()){
 			otherElement.terminate();
 			this.terminate();

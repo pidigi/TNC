@@ -381,8 +381,8 @@ public class Ship extends SpatialElement{
 	 */
 	@Override
 	public void resolve(SpatialElement otherElement) throws NullPointerException{
-		if(otherElement == null)
-			throw new NullPointerException("Noneffective element to resolve collision with.");
+		if(!canResolve(otherElement))
+			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isShip())
 			resolveBounce(otherElement);
 		else

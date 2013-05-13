@@ -36,7 +36,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 // changing the position the spatial element directly other than within spatial element
 // makes little sense. The method move can be used to indirectly change the position attribute.
 
-public class SpatialElement {
+public abstract class SpatialElement {
 	/**
 	 * Initialize this new spatial element with given position, radius,
 	 * velocity, maximum speed and mass.
@@ -570,11 +570,11 @@ public class SpatialElement {
 			throws NullPointerException {
 		double timeToCollision = this.getTimeToCollision(otherElement);
 		if (timeToCollision != Double.POSITIVE_INFINITY) {
-			SpatialElement thisClone = new SpatialElement(this.getPosition(),
-					this.getRadius(), this.getVelocity(), this.getMaxSpeed(),this.getMass());
-			SpatialElement otherClone = new SpatialElement(
-					otherElement.getPosition(), otherElement.getRadius(),
-					otherElement.getVelocity(), otherElement.getMaxSpeed(), otherElement.getMass());
+			SpatialElement thisClone = new Ship(this.getPosition(),0,
+					this.getRadius(), this.getVelocity(), this.getMaxSpeed());
+			SpatialElement otherClone = new Ship(
+					otherElement.getPosition(),0, otherElement.getRadius(),
+					otherElement.getVelocity(), otherElement.getMaxSpeed());
 
 			thisClone.move(timeToCollision);
 			otherClone.move(timeToCollision);
@@ -754,17 +754,72 @@ public class SpatialElement {
 		return (this instanceof Bullet);
 	}
 	
-	
-	
-	//TODO hier eigenlijk best abstract van maken en hele klasse
-	// dan ook maar dan moet je getCollisionPosition aanpassen
-	public void resolve(SpatialElement otherElement){
-		
+	/**
+	 * Check whether a collision of this and the given element can be resolved.
+	 * 
+	 * @param 	otherElement
+	 * 			The element to check resolving with.
+	 * @return	True if and only if the other element is effective and
+	 * 			the worlds of this and the given element are effective and the same.
+	 * 			| result == !(otherElement == null || this.getWorld() == null ||
+	 * 			|	otherElement.getWorld() == null || otherElement.getWorld() != this.getWorld())
+	 */
+	//TODO is dit wel een goed idee om superklasse te gebruiken voor gemeenschappelijk deel?
+	// of beter gewoon iets die een boolean teruggeeft?
+	// Momenteel voor boolean optie gekozen...
+	public boolean canResolve(SpatialElement otherElement){
+		if(otherElement == null)
+			return false;
+		if(this.getWorld() == null || otherElement.getWorld() == null || 
+				otherElement.getWorld() != this.getWorld())
+			return false;
+		return true;
 	}
+	
+	/**
+	 * Resolve this and the given element.
+	 * 
+	 * @param 	otherElement
+	 * 			The element to resolve with.
+	 * @return	...
+	 */
+	public abstract void resolve(SpatialElement otherElement);
 	
 	// TODO toch apart plaatsen maar dan dubbele code (mss wel verdedigbaar indien 
 	// het later nog zou wijzigen tss asteroid en ship...
 	// Maar toch niet echt want je zou sowieso methode moeten aanpassen dan...
+	/**
+	 * Resolve the bouncing of given spatial elements.
+	 * 
+	 * @pre		...
+	 * 			| (element1 != null) && (element2 != null)
+	 * 
+	 * @effect	...
+	 * 			| let unitNormal = (element1.getPosition().
+	 *			| 	  	subtract(element2.getPosition())).getDirection()
+	 *			| 	  unitTangent = new Vector2D(-unitNormal.getYComponent(),
+	 *			|		unitNormal.getXComponent())
+	 *			|	  velocity1 = element1.getVelocity()
+	 *			|	  velocity2 = element2.getVelocity()
+	 *			|    
+	 *			|	  element1Normal = velocity1.getDotProduct(unitNormal)
+	 * 			|	  element1Tangent = velocity1.getDotProduct(unitTangent)
+	 *			|	  element2Normal = velocity2.getDotProduct(unitNormal)
+	 *			|	  element2Tangent = velocity2.getDotProduct(unitTangent)
+	 *			|		 
+	 *			|	  element1NormalUpdated = (element1Normal*(massInvolved1 -
+	 *			|		massInvolved2) + 2 * massInvolved2 * element2Normal)/
+	 *		    |       (massInvolved1 + massInvolved2)
+	 *		    |     element2NormalUpdated = (element2Normal*(massInvolved2 - 
+	 *			|		massInvolved1) + 2 * massInvolved1 * element1Normal)/
+	 *		    |       (massInvolved1 + massInvolved2)
+	 *		    |
+	 *		    | in element1.setVelocity(unitNormal.multiply(element1NormalUpdated)
+	 *			|		.add(unitTangent.multiply(element1Tangent)))
+	 *			|		 
+	 *			|	 element2.setVelocity(unitNormal.multiply(element2NormalUpdated)
+	 *			|		.add(unitTangent.multiply(element2Tangent)))
+	 */
 	public void resolveBounce(SpatialElement otherElement){
 		double sumOfRadius = this.getRadius() + otherElement.getRadius();
 		double mass1 = this.getMass();
