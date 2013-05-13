@@ -1,6 +1,9 @@
 package asteroids.model.expressions;
 
-import asteroids.model.Ship;
+import java.util.Map;
+
+import asteroids.model.SpatialElement;
+import asteroids.model.types.T;
 
 public class Self extends EntityReference {
 
@@ -9,10 +12,16 @@ public class Self extends EntityReference {
 	}
 
 	@Override
-	public String evaluate(Ship ship) {
+	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType())
 			throw new IllegalArgumentException();
 		return "self";
 	}
 
+	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap){
+		if(!eMap.containsKey("self") || !(eMap.get("self") instanceof SEReference))
+			throw new IllegalArgumentException();
+		return ((SEReference) eMap.get("self")).getElement(tMap, eMap);		
+	}
+	
 }

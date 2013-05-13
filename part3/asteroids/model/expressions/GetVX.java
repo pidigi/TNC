@@ -1,6 +1,7 @@
 package asteroids.model.expressions;
 
-import asteroids.model.Ship;
+import java.util.Map;
+import asteroids.model.types.T;
 
 public class GetVX extends Property {
 
@@ -9,8 +10,8 @@ public class GetVX extends Property {
 	}
 
 	@Override
-	public String evaluate(Ship ship) {
-		return String.valueOf(ship.getVelocity().getXComponent());
+	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+		return String.valueOf(getElement(tMap, eMap).getVelocity().getXComponent());
 	}
 
 }

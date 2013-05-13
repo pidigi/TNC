@@ -1,6 +1,6 @@
 package asteroids.model.expressions;
 
-import asteroids.model.*;
+import java.util.Map;
 import asteroids.model.types.*;
 
 
@@ -14,7 +14,7 @@ public abstract class E {
 		this.column = column;
 	}
 
-	public abstract String evaluate(Ship ship);
+	public abstract String evaluate(Map<String,T> tMap, Map<String,E> eMap);
 	
 	public abstract T getType();
 

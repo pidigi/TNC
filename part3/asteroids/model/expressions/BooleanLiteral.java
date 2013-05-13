@@ -1,6 +1,6 @@
 package asteroids.model.expressions;
 
-import asteroids.model.Ship;
+import java.util.Map;
 import asteroids.model.types.BooleanT;
 import asteroids.model.types.T;
 
@@ -18,7 +18,7 @@ public class BooleanLiteral extends E {
 	}
 
 	@Override
-	public String evaluate(Ship ship) {
+	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		return String.valueOf(getBoolean());
 	}
 

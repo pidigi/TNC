@@ -1,6 +1,6 @@
 package asteroids.model.expressions;
 
-import asteroids.model.*;
+import java.util.Map;
 import asteroids.model.types.*;
 
 public class DoubleLiteral extends E {
@@ -17,7 +17,7 @@ public class DoubleLiteral extends E {
 	}
 
 	@Override
-	public String evaluate(Ship ship) {
+	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		return String.valueOf(getDouble());
 	}
 

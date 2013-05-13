@@ -1,6 +1,7 @@
 package asteroids.model.expressions;
 
-import asteroids.model.*;
+import java.util.Map;
+import asteroids.model.types.T;
 
 public class Inequality extends Comparison {
 
@@ -9,11 +10,11 @@ public class Inequality extends Comparison {
 	}
 
 	@Override
-	public String evaluate(Ship ship) {
+	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType())
 			throw new IllegalArgumentException();
-		double val1 = Double.parseDouble(getE1().evaluate(ship));
-		double val2 = Double.parseDouble(getE1().evaluate(ship));
+		double val1 = Double.parseDouble(getE1().evaluate(tMap, eMap));
+		double val2 = Double.parseDouble(getE2().evaluate(tMap, eMap));
 		return String.valueOf(val1 != val2);
 	}
 
