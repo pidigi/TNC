@@ -13,12 +13,12 @@ public abstract class EntityReference extends E {
 	}
 
 	@Override
-	public T getType() {
+	public T getType(Map<String,T> tMap) {
 		return new EntityT();
 	}
 
 	@Override
-	public boolean hasValidType() {
+	public boolean hasValidType(Map<String,T> tMap) {
 		return true;
 	}
 	

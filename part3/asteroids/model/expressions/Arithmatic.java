@@ -1,5 +1,7 @@
 package asteroids.model.expressions;
 
+import java.util.Map;
+
 import asteroids.model.types.DoubleT;
 import asteroids.model.types.T;
 
@@ -10,14 +12,14 @@ public abstract class Arithmatic extends BinaryE {
 	}
 
 	@Override
-	public T getType() {
+	public T getType(Map<String,T> tMap) {
 		return new DoubleT();
 	}
 
 	@Override
-	public boolean hasValidType() {
-		return (getE1().getType().isDouble() 
-				&& getE2().getType().isDouble());
+	public boolean hasValidType(Map<String,T> tMap) {
+		return (getE1().getType(tMap).isDouble() 
+				&& getE2().getType(tMap).isDouble());
 		// TODO is in principe hetzelfde als comparison
 	}
 

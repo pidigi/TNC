@@ -22,12 +22,12 @@ public class DoubleLiteral extends E {
 	}
 
 	@Override
-	public DoubleT getType() {
+	public DoubleT getType(Map<String,T> tMap) {
 		return new DoubleT();
 	}
 
 	@Override
-	public boolean hasValidType() {
+	public boolean hasValidType(Map<String,T> tMap) {
 		return true;
 	}
 

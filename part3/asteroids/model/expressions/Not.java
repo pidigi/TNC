@@ -13,20 +13,20 @@ public class Not extends UnitaryE {
 
 	@Override
 	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		if(!hasValidType())
+		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		boolean val = Boolean.parseBoolean(getE().evaluate(tMap, eMap));
 		return String.valueOf(!val);
 	}
 
 	@Override
-	public T getType() {
+	public T getType(Map<String,T> tMap) {
 		return new BooleanT();
 	}
 
 	@Override
-	public boolean hasValidType() {
-		return getE().getType().isBoolean();
+	public boolean hasValidType(Map<String,T> tMap) {
+		return getE().getType(tMap).isBoolean();
 	}
 
 }

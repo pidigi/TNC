@@ -11,7 +11,7 @@ public class Or extends Logic {
 
 	@Override
 	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		if(!hasValidType())
+		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		boolean val1 = Boolean.parseBoolean(getE1().evaluate(tMap, eMap));
 		boolean val2 = Boolean.parseBoolean(getE2().evaluate(tMap, eMap));

@@ -11,7 +11,7 @@ public class Sin extends Function {
 
 	@Override
 	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		if(!hasValidType())
+		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		double val = Double.parseDouble(getE().evaluate(tMap, eMap));
 		return String.valueOf(Math.sin(val));

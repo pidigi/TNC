@@ -11,7 +11,7 @@ public class Add extends Arithmatic {
 
 	@Override
 	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		if(!hasValidType())
+		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		double val1 = Double.parseDouble(getE1().evaluate(tMap, eMap));
 		double val2 = Double.parseDouble(getE2().evaluate(tMap, eMap));

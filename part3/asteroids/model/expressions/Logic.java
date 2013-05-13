@@ -1,5 +1,7 @@
 package asteroids.model.expressions;
 
+import java.util.Map;
+
 import asteroids.model.types.BooleanT;
 import asteroids.model.types.T;
 
@@ -14,14 +16,14 @@ public abstract class Logic extends BinaryE{
 	}
 
 	@Override
-	public T getType() {
+	public T getType(Map<String,T> tMap) {
 		return new BooleanT();
 	}
 
 	@Override
-	public boolean hasValidType() {
-		return (getE1().getType().isBoolean() 
-				&& getE2().getType().isBoolean());
+	public boolean hasValidType(Map<String,T> tMap) {
+		return (getE1().getType(tMap).isBoolean() 
+				&& getE2().getType(tMap).isBoolean());
 	}
 
 

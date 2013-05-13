@@ -12,18 +12,18 @@ public abstract class Property extends UnitaryE {
 	}
 
 	@Override
-	public T getType() {
+	public T getType(Map<String,T> tMap) {
 		return new DoubleT();
 	}
 
 	@Override
-	public boolean hasValidType() {
-		return getE().getType().isEntity();
+	public boolean hasValidType(Map<String,T> tMap) {
+		return getE().getType(tMap).isEntity();
 		// TODO exacte type checken via String compare? (wss niet)
 	}
 	
 	protected SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap){
-		if(!hasValidType())
+		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		return ((EntityReference) getE()).getElement(tMap, eMap);
 	}

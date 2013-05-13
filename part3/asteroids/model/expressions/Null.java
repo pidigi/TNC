@@ -13,7 +13,7 @@ public class Null extends EntityReference {
 
 	@Override
 	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		if(!hasValidType())
+		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		return "null";
 	}

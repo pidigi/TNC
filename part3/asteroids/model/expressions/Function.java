@@ -1,5 +1,7 @@
 package asteroids.model.expressions;
 
+import java.util.Map;
+
 import asteroids.model.types.*;
 
 public abstract class Function extends UnitaryE {
@@ -9,13 +11,13 @@ public abstract class Function extends UnitaryE {
 	}
 
 	@Override
-	public T getType() {
+	public T getType(Map<String,T> tMap) {
 		return new DoubleT();
 	}
 
 	@Override
-	public boolean hasValidType() {
-		return getE().getType().isDouble();
+	public boolean hasValidType(Map<String,T> tMap) {
+		return getE().getType(tMap).isDouble();
 	}
 
 }

@@ -16,9 +16,9 @@ public abstract class E {
 
 	public abstract String evaluate(Map<String,T> tMap, Map<String,E> eMap);
 	
-	public abstract T getType();
+	public abstract T getType(Map<String,T> tMap);
 
-	public abstract boolean hasValidType();
+	public abstract boolean hasValidType(Map<String,T> tMap);
 	
 	public int getLine() {
 		return line;

@@ -1,5 +1,7 @@
 package asteroids.model.expressions;
 
+import java.util.Map;
+
 import asteroids.model.types.*;
 
 public abstract class Comparison extends BinaryE {
@@ -9,13 +11,13 @@ public abstract class Comparison extends BinaryE {
 	}
 
 	@Override
-	public boolean hasValidType() {
-		return (getE1().getType().isDouble() 
-				&& getE2().getType().isDouble());
+	public boolean hasValidType(Map<String,T> tMap) {
+		return (getE1().getType(tMap).isDouble() 
+				&& getE2().getType(tMap).isDouble());
 	}
 		
 	@Override
-	public BooleanT getType(){
+	public BooleanT getType(Map<String,T> tMap){
 		return new BooleanT();
 	}
 	
