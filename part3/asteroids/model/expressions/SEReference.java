@@ -21,5 +21,4 @@ public class SEReference extends EntityReference {
 	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
 		return this.element;
 	}
-
 }

@@ -6,7 +6,6 @@ import asteroids.model.types.DoubleT;
 import asteroids.model.types.T;
 
 public abstract class Arithmatic extends BinaryE {
-
 	public Arithmatic(int line, int column, E e1, E e2) {
 		super(line, column, e1, e2);
 	}
@@ -22,5 +21,4 @@ public abstract class Arithmatic extends BinaryE {
 				&& getE2().getType(tMap).isDouble());
 		// TODO is in principe hetzelfde als comparison
 	}
-
 }

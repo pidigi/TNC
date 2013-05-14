@@ -12,5 +12,4 @@ public abstract class UnitaryE extends E {
 	public E getE() {
 		return e;
 	}
-
 }

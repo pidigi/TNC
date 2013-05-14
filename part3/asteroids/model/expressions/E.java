@@ -1,11 +1,12 @@
 package asteroids.model.expressions;
 
 import java.util.Map;
+
+import asteroids.model.SpatialElement;
 import asteroids.model.types.*;
 
 
 public abstract class E {
-	
 	private final int line;
 	private final int column;
 	
@@ -28,4 +29,7 @@ public abstract class E {
 		return column;
 	}
 	
+	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
+		return null;
+	}
 }

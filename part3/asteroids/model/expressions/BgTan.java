@@ -3,9 +3,9 @@ package asteroids.model.expressions;
 import java.util.Map;
 import asteroids.model.types.T;
 
-public class Sin extends Function {
+public class BgTan extends Function {
 
-	public Sin(int line, int column, E e) {
+	public BgTan(int line, int column, E e) {
 		super(line, column, e);
 	}
 

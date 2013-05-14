@@ -23,5 +23,4 @@ public class Self extends EntityReference {
 			throw new IllegalArgumentException();
 		return ((SEReference) eMap.get("self")).getElement(tMap, eMap);		
 	}
-	
 }

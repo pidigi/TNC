@@ -1,13 +1,21 @@
 package asteroids.model;
 
-import java.util.Random;
-import java.util.Set;
-
+import java.io.*;
+import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.util.*;
+import org.antlr.v4.runtime.*;
 import asteroids.CollisionListener;
 import asteroids.IFacade;
 import asteroids.ModelException;
+import asteroids.model.statements.*;
+import asteroids.model.types.*;
+import asteroids.model.expressions.*;
+import asteroids.model.programs.parsing.*;
 
-public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
+public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public World createWorld(double width, double height) {
@@ -290,4 +298,63 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet> {
 		return bullet.getShip();
 	}
 
+	@Override
+	public asteroids.IFacade.ParseOutcome<Program> parseProgram(String text) {
+		ProgramFactoryI factory = new ProgramFactoryI();
+	    ProgramParser<E, S, T> parser = new ProgramParser<>(factory);
+	    try {
+	        parser.parse(text);
+	        List<String> errors = parser.getErrors();
+	        if(! errors.isEmpty()) {
+	          return ParseOutcome.failure(errors.get(0));
+	        } else {
+	          return ParseOutcome.success(new Program(parser.getGlobals(), parser.getStatement())); 
+	        }
+	    } catch(RecognitionException e) {
+	      return ParseOutcome.failure(e.getMessage());
+	    }
+	}
+
+	@Override
+	public asteroids.IFacade.ParseOutcome<Program> loadProgramFromStream(
+			InputStream stream) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public asteroids.IFacade.ParseOutcome<Program> loadProgramFromUrl(URL url)
+			throws IOException {
+		
+			String result;
+			  FileInputStream stream = new FileInputStream(new File(url.getPath()));
+			  try {
+			    FileChannel fc = stream.getChannel();
+			    MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+			    result = Charset.defaultCharset().decode(bb).toString();
+			    /* Instead of using default, pass in a decoder. */
+			  }
+			  finally {
+			    stream.close();
+			  }
+			  return parseProgram(result);
+	}
+
+	@Override
+	public boolean isTypeCheckingSupported() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public asteroids.IFacade.TypeCheckOutcome typeCheckProgram(Program program) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setShipProgram(Ship ship, Program program) {
+		ship.setProgram(program);
+		program.setShip(ship);
+	}
 }

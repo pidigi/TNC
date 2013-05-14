@@ -10,7 +10,7 @@ public class GetDirection extends Property {
 
 	public GetDirection(int line, int column) {
 		super(line, column, new Self(line, column));
-		throw new NullPointerException("Made GetDirection Object that is not defined properly.");
+//		throw new NullPointerException("Made GetDirection Object that is not defined properly.");
 	}
 
 	// TODO beter inpassen in structuur...

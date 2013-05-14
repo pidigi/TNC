@@ -284,6 +284,26 @@ public class Ship extends SpatialElement{
 	 */
 	private final Set<SpatialElement> bullets = new HashSet<SpatialElement>();
 	
+	/**
+	 * Get the program of this ship.
+	 */
+	@Basic
+	public Program getProgram() {
+		return this.program;
+	}
+	
+	/**
+	 * Set the program for this ship.
+	 */
+	@Basic
+	public void setProgram(Program program) {
+		this.program = program;
+	}
+	
+	/**
+	 * The program of this ship.
+	 */
+	private Program program;
 	
 	
 	/** 

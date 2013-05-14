@@ -648,6 +648,11 @@ public class World{
 					Double acc = deltaT * 1.1E18 / element.getMass();
 					((Ship) element).thrust(acc);
 				}
+				for (Ship ship: this.getShips()) {
+					Program program = ship.getProgram();
+					if (program != null)
+						program.advanceProgram(deltaT);
+				}
 				updateElementCollisions(thrusting);
 				timeLeft -= minCollisionTime;
 			}
