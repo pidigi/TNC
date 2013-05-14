@@ -12,14 +12,6 @@ public class Fire extends Action{
 	}
 	
 	@Override
-	public S getStatement(int line) {
-		if (this.getLine() == line) {
-			return this;
-		}
-		return null;
-	}
-	
-	@Override
 	public void execute (Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr) {
 		ship.fireBullet();
 	}

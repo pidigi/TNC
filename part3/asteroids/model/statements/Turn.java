@@ -23,7 +23,16 @@ public class Turn extends Action{
 		if (!(angle.getType(globalTypes) instanceof DoubleT)) {
 			throw new IllegalArgumentException();
 		}
-		String angleEval = this.getAngle().evaluate(globalTypes,globalExpr);
-		ship.turn(Double.valueOf(angleEval));
+		String angleString = this.getAngle().evaluate(globalTypes,globalExpr);
+		double angleEval = Double.valueOf(angleString);
+		double resultingAngle = angleEval + ship.getAngle();
+		double resultingAngleIn =  resultingAngle % (2*Math.PI);
+		double turningAngle = resultingAngleIn - ship.getAngle();
+		ship.turn(turningAngle);
+	}
+	
+	@Override
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		return angle.getType(globalTypes).isDouble() && angle.typeCheck(globalTypes);
 	}
 }

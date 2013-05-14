@@ -98,8 +98,7 @@ public class Foreach extends S{
 			switch (type) {
 				case SHIP:
 					for (Ship shipje:ship.getWorld().getShips()) {
-						if(shipje != ship) 
-							list.add(shipje);
+						list.add(shipje);
 					}
 					break;
 				case ASTEROID:
@@ -141,4 +140,10 @@ public class Foreach extends S{
 		return this.list;
 	}
 	private List<SpatialElement> list = new ArrayList<SpatialElement>();
+	
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		boolean bodyTypeCheck = body.typeCheck(globalTypes);
+		boolean bodyActionCheck = body.containsAction();
+		return bodyTypeCheck && !bodyActionCheck;
+	}
 }

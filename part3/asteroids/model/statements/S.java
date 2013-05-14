@@ -27,6 +27,14 @@ public abstract class S {
 	
 	private final int line;
 	
+	public boolean isAction() {
+		return false;
+	}
+	
+	public boolean containsAction() {
+		return isAction();
+	}
+	
 	public S getStatement(int line) {
 		if (line == this.getLine()) {
 			return this;
@@ -43,4 +51,8 @@ public abstract class S {
 	}
 	
 	public abstract void execute(Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr);
+	
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		return true;
+	}
 }

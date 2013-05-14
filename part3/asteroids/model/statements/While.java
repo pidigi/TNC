@@ -63,4 +63,15 @@ public class While extends S{
 			return this.getEndLine() + 1;
 		}
 	}
+	
+	@Override
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		// TODO: typecheck van condition moet eerst, want anders ga je niet getType 
+		// kunnen toepassen als condition niet in de lijst staat. Goed?
+		boolean bodyCheck = getBody().typeCheck(globalTypes);
+		if(!this.getCondition().typeCheck(globalTypes))
+			return false;
+		boolean	conditionCheck =  this.getCondition().getType(globalTypes).isBoolean();
+		return bodyCheck && conditionCheck;
+	}
 }

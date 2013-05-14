@@ -45,4 +45,13 @@ public class Assignment extends S{
 			throw new IllegalArgumentException();
 		}
 	}
+	
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		boolean corrVar = globalTypes.containsKey(this.variable);
+		if (!corrVar)
+			return false;
+		boolean match = globalTypes.get(this.variable).equals(rhs.getType(globalTypes));
+		boolean corrE = rhs.typeCheck(globalTypes);
+		return match && corrE;
+	}
 }

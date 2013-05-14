@@ -295,9 +295,25 @@ public class Ship extends SpatialElement{
 	/**
 	 * Set the program for this ship.
 	 */
+	// TODO: Omdraaien van bidirectionele condities?
 	@Basic
 	public void setProgram(Program program) {
-		this.program = program;
+		if (program == null) {
+			if (this.program != null) {
+				this.program.setShip(null);
+			}
+			this.program = program;
+//			if (this.program != null) {
+//				this.program.terminate();
+//			} else {
+//				this.program = program;
+//			}
+		} else if (program.typeCheck()) {
+			this.program = program;
+			program.setShip(this);
+		} else {
+			System.out.println("Niet toegevoegd.");
+		}
 	}
 	
 	/**

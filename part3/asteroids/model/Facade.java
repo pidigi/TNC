@@ -301,7 +301,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 	@Override
 	public asteroids.IFacade.ParseOutcome<Program> parseProgram(String text) {
 		ProgramFactoryI factory = new ProgramFactoryI();
-	    ProgramParser<E, S, T> parser = new ProgramParser<>(factory);
+	    ProgramParser<E, S, T> parser = new ProgramParser<E, S, T>(factory);
 	    try {
 	        parser.parse(text);
 	        List<String> errors = parser.getErrors();
@@ -355,6 +355,5 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 	@Override
 	public void setShipProgram(Ship ship, Program program) {
 		ship.setProgram(program);
-		program.setShip(ship);
 	}
 }

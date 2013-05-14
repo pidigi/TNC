@@ -15,7 +15,10 @@ public class Self extends EntityReference {
 	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		return "self";
+		if(!eMap.containsKey("self") || !(eMap.get("self") instanceof SEReference))
+			throw new IllegalArgumentException();
+		return String.valueOf((eMap.get("self")).evaluate(tMap,eMap));
+//		return "self";
 	}
 
 	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap){

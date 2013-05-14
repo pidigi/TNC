@@ -1,5 +1,9 @@
 package asteroids.model.expressions;
 
+import java.util.Map;
+
+import asteroids.model.types.T;
+
 public abstract class BinaryE extends E {
 
 	private final E e1;
@@ -19,5 +23,11 @@ public abstract class BinaryE extends E {
 	public E getE2() {
 		return e2;
 	}
-
+	
+	@Override
+	public boolean typeCheck(Map<String,T> tMap){
+		return this.hasValidType(tMap) 
+				&& getE1().typeCheck(tMap)
+				&& getE2().typeCheck(tMap);
+	}
 }

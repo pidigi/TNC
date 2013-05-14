@@ -20,5 +20,4 @@ public abstract class Comparison extends BinaryE {
 	public BooleanT getType(Map<String,T> tMap){
 		return new BooleanT();
 	}
-	
 }

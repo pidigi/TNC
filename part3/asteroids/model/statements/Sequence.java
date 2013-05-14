@@ -32,6 +32,19 @@ public class Sequence extends S{
 		return null;
 	}
 	
+	public boolean containsAction() {
+		if (this.getList().isEmpty()) {
+			return false;
+		}
+		for (S stat:this.getList()) {
+			boolean contains = stat.containsAction();
+			if (contains) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public int getEndLine() {
 		if (this.getList().isEmpty()) {
@@ -47,5 +60,18 @@ public class Sequence extends S{
 	@Override
 	public int updateLine() {
 		return this.getLine();
+	}
+	
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		if (this.getList().isEmpty()) {
+			return true;
+		}
+		for (S stat:this.getList()) {
+			boolean check = stat.typeCheck(globalTypes);
+			if (!check) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

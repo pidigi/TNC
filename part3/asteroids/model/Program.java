@@ -53,9 +53,13 @@ public class Program {
 	
 	private Map<String, E> globalExpressions = new HashMap<String,E>();
 	
-	public void setShip(Ship givenShip) {
-		ship = givenShip;
-		globalExpressions.put("self",new SEReference(0,0,givenShip));
+	public void setShip(Ship ship) {
+		if (!this.isTerminated() && ship == null) 
+			throw new NullPointerException();
+		if (ship.getProgram() != this) 
+			throw new IllegalArgumentException();
+		this.ship = ship;
+		globalExpressions.put("self",new SEReference(0,0,ship));
 	}
 	
 	public Ship getShip() {
@@ -82,27 +86,48 @@ public class Program {
 	
 	private boolean terminated = false;
 	
+	public boolean getBroken() {
+		return this.broken;
+	}
+	
+	public void setBroken(boolean broken) {
+		this.broken = broken;
+	}
+	
+	private boolean broken;
+	
 	public void advanceProgram(double dt) {
-		if (this.getLine() >= this.getEndLine()) {
-			// TODO: goed?
-			this.terminate();
-		} else if (this.waitingTime>0.05) {
-			// TODO: hoe beter?
-			S currentStatement = this.getExecutable();
-			while (!(currentStatement instanceof Action) && this.getLine() < this.getEndLine()) {
-				currentStatement = this.getExecutable().getStatement(this.line);
-				if (currentStatement == null) {
-					this.setLine(this.getLine()+1);
-				} else {
-					// TODO: geen ship meer meegeven, maar via self handelen?
-					currentStatement.execute(this.getShip(),this.getGlobalTypes(),this.getGlobalExpressions());
-					this.setGlobalExpressions(currentStatement.updateGlobals(this.getGlobalExpressions()));
-					this.setLine(currentStatement.updateLine());
+		// TODO: nodig om te checken?
+		if (!this.isTerminated() && !getBroken()) {
+			if (this.getLine() >= this.getEndLine()) {
+				// TODO: goed?
+				this.terminate();
+			} else if (this.waitingTime>0.05) {
+				// TODO: hoe beter? Zonder while loop?
+				try {
+					S currentStatement = this.getExecutable();
+					while (!(currentStatement instanceof Action) && this.getLine() < this.getEndLine()) {
+						currentStatement = this.getExecutable().getStatement(this.line);
+						if (currentStatement == null) {
+							this.setLine(this.getLine()+1);
+						} else {
+							// TODO: geen ship meer meegeven, maar via self handelen?
+							currentStatement.execute(this.getShip(),this.getGlobalTypes(),this.getGlobalExpressions());
+							this.setGlobalExpressions(currentStatement.updateGlobals(this.getGlobalExpressions()));
+							this.setLine(currentStatement.updateLine());
+						}
+					}
+				} catch(Exception exc) {
+					this.setBroken(true);
 				}
+				this.waitingTime = 0;
+			} else {
+				waitingTime += dt;
 			}
-			this.waitingTime = 0;
-		} else {
-			waitingTime += dt;
 		}
+	}
+	
+	public boolean typeCheck() {
+		return this.getExecutable().typeCheck(this.getGlobalTypes());
 	}
 }

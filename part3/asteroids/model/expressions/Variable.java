@@ -30,11 +30,16 @@ public class Variable extends E {
 
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
-		return getType(tMap) != null;
+		return tMap.containsKey(this.getName());
 	}
 	
 	@Override
 	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
 		return eMap.get(name).getElement(tMap, eMap);
+	}
+	
+	@Override
+	public boolean typeCheck(Map<String,T> tMap){
+		return hasValidType(tMap);
 	}
 }

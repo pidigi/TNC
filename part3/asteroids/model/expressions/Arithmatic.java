@@ -12,9 +12,11 @@ public abstract class Arithmatic extends BinaryE {
 
 	@Override
 	public T getType(Map<String,T> tMap) {
+//		if (!hasValidType(tMap))
+//			throw new IllegalArgumentException();
 		return new DoubleT();
 	}
-
+	
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
 		return (getE1().getType(tMap).isDouble() 

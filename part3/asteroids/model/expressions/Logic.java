@@ -25,6 +25,4 @@ public abstract class Logic extends BinaryE{
 		return (getE1().getType(tMap).isBoolean() 
 				&& getE2().getType(tMap).isBoolean());
 	}
-
-
 }

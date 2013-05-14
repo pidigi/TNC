@@ -30,5 +30,10 @@ public class DoubleLiteral extends E {
 	public boolean hasValidType(Map<String,T> tMap) {
 		return true;
 	}
+	
+	@Override
+	public boolean typeCheck(Map<String,T> tMap){
+		return this.hasValidType(tMap);
+	}
 
 }

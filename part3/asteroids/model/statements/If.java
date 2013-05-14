@@ -112,4 +112,14 @@ public class If extends S{
 		String eval = condition.evaluate(globalTypes,globalExpr);
 		this.setConditionEval(Boolean.parseBoolean(eval));
 	}
+	
+	@Override
+	public boolean typeCheck(Map<String, T> globalTypes) {
+		// TODO: zie while.
+		boolean bodyCheck = getThen().typeCheck(globalTypes) && getOtherwise().typeCheck(globalTypes);
+		if (!this.getCondition().typeCheck(globalTypes))
+			return false;
+		boolean conditionCheck = this.getCondition().getType(globalTypes).isBoolean();
+		return bodyCheck && conditionCheck;
+	}
 }

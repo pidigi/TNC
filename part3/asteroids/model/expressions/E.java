@@ -32,4 +32,6 @@ public abstract class E {
 	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
 		return null;
 	}
+	
+	public abstract boolean typeCheck(Map<String,T> tMap);
 }
