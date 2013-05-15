@@ -426,5 +426,15 @@ public class Ship extends SpatialElement{
 			otherElement.resolve(this);
 	}
 	
+	/**
+	 * Check whether this is a Ship object.
+	 * 
+	 * @return	True
+	 * 			| result == true
+	 */
+	@Override
+	public boolean isShip() {
+		return true;
+	}
 	
 }

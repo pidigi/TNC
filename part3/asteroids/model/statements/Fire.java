@@ -11,7 +11,7 @@ public class Fire extends Action{
 	}
 	
 	@Override
-	public void execute (Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		ship.fireBullet();
+	public void execute (Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+		((Ship) globalExpr.get("self")).fireBullet();
 	}
 }

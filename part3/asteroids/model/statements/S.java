@@ -1,7 +1,6 @@
 package asteroids.model.statements;
 
 import java.util.Map;
-import asteroids.model.*;
 import asteroids.model.types.T;
 
 public abstract class S {
@@ -49,7 +48,7 @@ public abstract class S {
 		return this.getLine() + 1;
 	}
 	
-	public abstract void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr);
+	public abstract void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr);
 	
 	public boolean typeCheck(Map<String, T> globalTypes) {
 		return true;

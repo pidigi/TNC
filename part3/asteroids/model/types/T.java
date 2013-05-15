@@ -2,15 +2,15 @@ package asteroids.model.types;
 
 public abstract class T {	
 	public boolean isBoolean(){
-		return this instanceof BooleanT;
+		return false;
 	}
 	
 	public boolean isDouble(){
-		return this instanceof DoubleT;
+		return false;
 	}
 	
 	public boolean isEntity(){
-		return this instanceof EntityT;
+		return false;
 	}
 	
 	public boolean equals(T type) {

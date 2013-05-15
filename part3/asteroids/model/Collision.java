@@ -100,6 +100,8 @@ public abstract class Collision implements Comparable<Collision>{
 	 * 			The collisionListener used to visualize the resolve.
 	 * @post 	...
 	 */
+	//TODO in subclasses nog bij dat enkel resolven als ze dicht genoeg????
+	// SOWIESO erbij in commentaar!!!!!!!!!!!!!
 	public abstract void resolve(CollisionListener collisionListener);
 	
 	/**

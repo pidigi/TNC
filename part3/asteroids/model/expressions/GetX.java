@@ -15,7 +15,6 @@ public class GetX extends Property {
 	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		// TODO op null checken???
 		return ((SpatialElement) getE().evaluate(tMap, eMap)).getPosition().getXComponent();
 	}
 

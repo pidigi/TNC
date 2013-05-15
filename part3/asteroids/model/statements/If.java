@@ -2,7 +2,6 @@ package asteroids.model.statements;
 
 import java.util.Map;
 
-import asteroids.model.Ship;
 import asteroids.model.expressions.E;
 import asteroids.model.types.BooleanT;
 import asteroids.model.types.T;
@@ -105,7 +104,7 @@ public class If extends S{
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (!(condition.getType(globalTypes) instanceof BooleanT)) {
 			throw new IllegalArgumentException();
 		}

@@ -20,7 +20,8 @@ public abstract class Property extends UnitaryE {
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
 		return getE().getType(tMap).isEntity();
-		// TODO exacte type checken via String compare? (wss niet)
+		// Evt hier null object eruit filteren? sowieso kunnen gelijkstellingen met
+		// niet geïnitialiseerde waarden nog tot problemen leiden...
 	}
 	
 }

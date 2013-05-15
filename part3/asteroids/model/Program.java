@@ -110,7 +110,7 @@ public class Program {
 							this.setLine(this.getLine()+1);
 						} else {
 							// TODO: geen ship meer meegeven, maar via self handelen?
-							currentStatement.execute(this.getShip(),this.getGlobalTypes(),this.getGlobalExpressions());
+							currentStatement.execute(this.getGlobalTypes(),this.getGlobalExpressions());
 							this.setGlobalExpressions(currentStatement.updateGlobals(this.getGlobalExpressions()));
 							this.setLine(currentStatement.updateLine());
 						}

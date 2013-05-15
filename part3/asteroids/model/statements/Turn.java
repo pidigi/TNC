@@ -19,10 +19,11 @@ public class Turn extends Action{
 	private E angle;
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (!(angle.getType(globalTypes) instanceof DoubleT)) {
 			throw new IllegalArgumentException();
 		}
+		Ship ship = ((Ship) globalExpr.get("self"));
 		double angleEval = (Double) this.getAngle().evaluate(globalTypes,globalExpr);
 		double resultingAngle = angleEval + ship.getAngle();
 		double resultingAngleIn =  resultingAngle % (2*Math.PI);

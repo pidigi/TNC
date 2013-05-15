@@ -731,7 +731,7 @@ public abstract class SpatialElement {
 	 */
 	// Tried to combine the three methods but did not succeed.
 	public boolean isShip() {
-		return (this instanceof Ship);
+		return false;
 	}
 
 	/**
@@ -741,7 +741,7 @@ public abstract class SpatialElement {
 	 * 			| result == (this instanceof Asteroid)
 	 */
 	public boolean isAsteroid() {
-		return (this instanceof Asteroid);
+		return false;
 	}
 
 	/**
@@ -751,7 +751,7 @@ public abstract class SpatialElement {
 	 * 			| result == (this instanceof Bullet)
 	 */
 	public boolean isBullet() {
-		return (this instanceof Bullet);
+		return false;
 	}
 	
 	/**
@@ -764,9 +764,6 @@ public abstract class SpatialElement {
 	 * 			| result == !(otherElement == null || this.getWorld() == null ||
 	 * 			|	otherElement.getWorld() == null || otherElement.getWorld() != this.getWorld())
 	 */
-	//TODO is dit wel een goed idee om superklasse te gebruiken voor gemeenschappelijk deel?
-	// of beter gewoon iets die een boolean teruggeeft?
-	// Momenteel voor boolean optie gekozen...
 	public boolean canResolve(SpatialElement otherElement){
 		if(otherElement == null)
 			return false;
@@ -785,9 +782,6 @@ public abstract class SpatialElement {
 	 */
 	public abstract void resolve(SpatialElement otherElement);
 	
-	// TODO toch apart plaatsen maar dan dubbele code (mss wel verdedigbaar indien 
-	// het later nog zou wijzigen tss asteroid en ship...
-	// Maar toch niet echt want je zou sowieso methode moeten aanpassen dan...
 	/**
 	 * Resolve the bouncing of given spatial elements.
 	 * 

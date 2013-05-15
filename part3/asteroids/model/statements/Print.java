@@ -1,7 +1,6 @@
 package asteroids.model.statements;
 
 import java.util.Map;
-import asteroids.model.Ship;
 import asteroids.model.expressions.E;
 import asteroids.model.types.T;
 
@@ -18,7 +17,7 @@ public class Print extends S{
 	private final E exp;
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		System.out.println(this.getExp().evaluate(globalTypes,globalExpr));
 	}
 }

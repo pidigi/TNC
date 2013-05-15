@@ -7,6 +7,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import org.antlr.v4.runtime.*;
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
 import asteroids.CollisionListener;
 import asteroids.IFacade;
 import asteroids.ModelException;
@@ -300,7 +302,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public asteroids.IFacade.ParseOutcome<Program> parseProgram(String text) {
-		ProgramFactoryI factory = new ProgramFactoryI();
+		ProgramFactoryImpl factory = new ProgramFactoryImpl();
 	    ProgramParser<E, S, T> parser = new ProgramParser<E, S, T>(factory);
 	    try {
 	        parser.parse(text);
@@ -342,14 +344,15 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public boolean isTypeCheckingSupported() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public asteroids.IFacade.TypeCheckOutcome typeCheckProgram(Program program) {
-		// TODO Auto-generated method stub
-		return null;
+		if(program.typeCheck())
+			return asteroids.IFacade.TypeCheckOutcome.success();
+		else
+			return asteroids.IFacade.TypeCheckOutcome.failure("Fail");
 	}
 
 	@Override

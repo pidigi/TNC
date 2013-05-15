@@ -13,7 +13,7 @@ public class Division extends Arithmatic {
 	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		//TODO delen door nul?
+		// Note that dividing by zero is not checked since inf is acceptable
 		double val1 = (Double) getE1().evaluate(tMap, eMap);
 		double val2 = (Double) getE2().evaluate(tMap, eMap);
 		return val1 / val2;

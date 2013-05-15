@@ -2,7 +2,6 @@ package asteroids.model.statements;
 
 import java.util.List;
 import java.util.Map;
-import asteroids.model.Ship;
 import asteroids.model.types.T;
 
 public class Sequence extends S{
@@ -53,7 +52,7 @@ public class Sequence extends S{
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 	}
 	
 	@Override

@@ -87,7 +87,8 @@ public class Foreach extends S{
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+		Ship ship = ((Ship) globalExpr.get("self"));
 		if (looped == -1) {
 			this.setEnded(false);
 			looped += 1;

@@ -21,7 +21,9 @@ public class Equality extends Comparison {
 	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		// TODO: miss niet nodig omdat je de naar string omgezette objecten ook zou kunnen vglen?
+		// TODO: deze methode checken
+		// TODO overal hasValidType checken in evaluate!!!
+		// TODO ook boolean ondersteunen?
 		if(getE1().getType(tMap).isEntity())
 			return getE1().evaluate(tMap, eMap) == getE2().evaluate(tMap, eMap);
 		return getE1().evaluate(tMap, eMap).equals(getE2().evaluate(tMap, eMap));

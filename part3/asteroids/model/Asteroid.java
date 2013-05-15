@@ -224,4 +224,15 @@ public class Asteroid extends SpatialElement{
 			otherElement.resolve(this);
 	}
 	
+	/**
+	 * Check whether this is a Asteroid object.
+	 * 
+	 * @return	True
+	 * 			| result == true
+	 */
+	@Override
+	public boolean isAsteroid() {
+		return true;
+	}
+	
 }

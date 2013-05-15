@@ -11,7 +11,7 @@ public class EnableThruster extends Action{
 	}
 
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		ship.setThrusterActive(true);
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+		((Ship) globalExpr.get("self")).setThrusterActive(true);
 	}
 }

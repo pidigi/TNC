@@ -8,7 +8,6 @@ public class Not extends UnitaryE {
 
 	public Not(int line, int column, E e) {
 		super(line, column, e);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

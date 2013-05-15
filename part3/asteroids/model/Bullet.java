@@ -158,8 +158,6 @@ public class Bullet extends SpatialElement{
 	 * 			The other element is not effective.
 	 * 			| otherElement == null
 	 */
-	// TODO nodig om hier nog expliciet te eisen dat source != element
-	// want komt eigenlijk toch nooit voor in de lijst...
 	@Override
 	public void resolve(SpatialElement otherElement) throws NullPointerException{
 		if(!canResolve(otherElement))
@@ -169,10 +167,23 @@ public class Bullet extends SpatialElement{
 			this.terminate();
 		}
 		else if(otherElement.isShip() && this.getShip() != otherElement){
+			// double check if getShip != otherElement even though normally
+			// no list of collisions would contain such a collision.
 				this.terminate();
 				otherElement.terminate();
 		} else
 			otherElement.resolve(this);
+	}
+	
+	/**
+	 * Check whether this is a Bullet object.
+	 * 
+	 * @return	True
+	 * 			| result == true
+	 */
+	@Override
+	public boolean isBullet() {
+		return true;
 	}
 	
 }

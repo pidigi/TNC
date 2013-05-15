@@ -1,13 +1,14 @@
 package asteroids.model.statements;
 
 import java.util.Map;
-import asteroids.model.Ship;
 import asteroids.model.expressions.*;
 import asteroids.model.types.*;
 
 public class Assignment extends S{
 	public Assignment(int line, int column, String variable, E rhs) {
 		super(line,column);
+		if(variable == null)
+			throw new NullPointerException("Invalid variable name");
 		this.variable = variable;
 		this.rhs = rhs;
 	}
@@ -18,15 +19,12 @@ public class Assignment extends S{
 	
 	@Override
 	public Map<String, Object> updateGlobals(Map<String, Object> currentGlobals) {
-		//TODO geen voorwaarden???
 		currentGlobals.put(variable,rhsEval);
 		return currentGlobals;
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		// TODO: Niet echt goede code, maar kan geen strings zetten in de global expressions
-		// want dan kan je geen verwijzingen naar elementen meer opslaan!! 
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (rhs.getType(globalTypes) instanceof T) {
 			this.rhsEval = rhs.evaluate(globalTypes, globalExpr);
 		} else {

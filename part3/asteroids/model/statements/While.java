@@ -4,7 +4,6 @@ import java.util.Map;
 import asteroids.model.expressions.*;
 import asteroids.model.types.BooleanT;
 import asteroids.model.types.T;
-import asteroids.model.*;
 
 public class While extends S{
 	public While(int line, int column, E condition, S body) {
@@ -47,7 +46,7 @@ public class While extends S{
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (!(this.getCondition().getType(globalTypes) instanceof BooleanT)) {
 			throw new IllegalArgumentException();
 		}
