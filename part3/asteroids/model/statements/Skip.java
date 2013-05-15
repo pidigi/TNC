@@ -3,7 +3,6 @@ package asteroids.model.statements;
 import java.util.Map;
 
 import asteroids.model.Ship;
-import asteroids.model.expressions.E;
 import asteroids.model.types.T;
 
 public class Skip extends Action{
@@ -12,6 +11,6 @@ public class Skip extends Action{
 	}
 
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr) {
+	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 	}
 }

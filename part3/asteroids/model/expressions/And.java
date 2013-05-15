@@ -9,7 +9,7 @@ public class And extends Logic {
 	}
 	
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		boolean val1 = (Boolean) getE1().evaluate(tMap, eMap);

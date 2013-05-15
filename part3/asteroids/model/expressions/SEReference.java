@@ -14,7 +14,7 @@ public class SEReference extends EntityReference {
 	}
 
 	@Override
-	public SpatialElement evaluate(Map<String, T> tMap, Map<String, E> eMap) {
+	public SpatialElement evaluate(Map<String, T> tMap, Map<String,Object> eMap) {
 		return this.getElement();
 	}
 

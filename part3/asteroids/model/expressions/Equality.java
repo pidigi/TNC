@@ -18,7 +18,7 @@ public class Equality extends Comparison {
 	}
 	
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		// TODO: miss niet nodig omdat je de naar string omgezette objecten ook zou kunnen vglen?

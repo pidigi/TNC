@@ -1,8 +1,6 @@
 package asteroids.model.expressions;
 
 import java.util.Map;
-
-import asteroids.model.SpatialElement;
 import asteroids.model.types.*;
 
 
@@ -15,7 +13,7 @@ public abstract class E {
 		this.column = column;
 	}
 
-	public abstract Object evaluate(Map<String,T> tMap, Map<String,E> eMap);
+	public abstract Object evaluate(Map<String,T> tMap, Map<String,Object> eMap);
 	
 	public abstract T getType(Map<String,T> tMap);
 

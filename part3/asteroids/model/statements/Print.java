@@ -18,7 +18,7 @@ public class Print extends S{
 	private final E exp;
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr) {
+	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		System.out.println(this.getExp().evaluate(globalTypes,globalExpr));
 	}
 }

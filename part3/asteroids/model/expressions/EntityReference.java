@@ -16,7 +16,7 @@ public abstract class EntityReference extends E {
 	}
 	
 	@Override
-	public abstract SpatialElement evaluate(Map<String,T> tMap, Map<String,E> eMap);
+	public abstract SpatialElement evaluate(Map<String,T> tMap, Map<String,Object> eMap);
 
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {

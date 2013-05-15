@@ -19,7 +19,7 @@ public class Turn extends Action{
 	private E angle;
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr) {
+	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (!(angle.getType(globalTypes) instanceof DoubleT)) {
 			throw new IllegalArgumentException();
 		}

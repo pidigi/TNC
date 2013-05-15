@@ -10,7 +10,7 @@ public class BgTan extends Function {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		double val = (Double) getE().evaluate(tMap, eMap);

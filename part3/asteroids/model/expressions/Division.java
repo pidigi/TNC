@@ -10,7 +10,7 @@ public class Division extends Arithmatic {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		//TODO delen door nul?

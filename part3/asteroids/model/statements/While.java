@@ -47,7 +47,7 @@ public class While extends S{
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr) {
+	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (!(this.getCondition().getType(globalTypes) instanceof BooleanT)) {
 			throw new IllegalArgumentException();
 		}

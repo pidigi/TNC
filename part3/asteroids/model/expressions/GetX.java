@@ -12,7 +12,7 @@ public class GetX extends Property {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		// TODO op null checken???

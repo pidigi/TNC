@@ -15,7 +15,7 @@ public abstract class Property extends UnitaryE {
 	}
 	
 	@Override
-	public abstract Double evaluate(Map<String,T> tMap, Map<String,E> eMap);
+	public abstract Double evaluate(Map<String,T> tMap, Map<String,Object> eMap);
 
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {

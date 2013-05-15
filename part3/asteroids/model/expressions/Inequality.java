@@ -18,7 +18,7 @@ public class Inequality extends Comparison {
 	}
 
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		if(getE1().getType(tMap).isEntity())

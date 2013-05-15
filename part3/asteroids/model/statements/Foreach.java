@@ -7,8 +7,6 @@ import asteroids.model.Asteroid;
 import asteroids.model.Bullet;
 import asteroids.model.Ship;
 import asteroids.model.SpatialElement;
-import asteroids.model.expressions.E;
-import asteroids.model.expressions.SEReference;
 import asteroids.model.programs.parsing.ProgramFactory.ForeachType;
 import asteroids.model.types.T;
 
@@ -70,14 +68,12 @@ public class Foreach extends S{
 	}
 	
 	@Override
-	public Map<String, E> updateGlobals(Map<String, E> currentGlobals) {
+	public Map<String, Object> updateGlobals(Map<String, Object> currentGlobals) {
 		if (this.getEnded()) {
 			currentGlobals.remove(this.getName());
 			return currentGlobals;
 		}
-		SpatialElement element = list.get(this.getLooped());
-		SEReference ref = new SEReference(this.getLine(),this.getColumn(),element);
-		currentGlobals.put(this.getName(),ref);
+		currentGlobals.put(this.getName(),list.get(this.getLooped()));
 		return currentGlobals;
 	}
 	
@@ -91,7 +87,7 @@ public class Foreach extends S{
 	}
 	
 	@Override
-	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, E> globalExpr) {
+	public void execute(Ship ship, Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 		if (looped == -1) {
 			this.setEnded(false);
 			looped += 1;

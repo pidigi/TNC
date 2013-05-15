@@ -9,7 +9,7 @@ public class Add extends Arithmatic {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		double val1 = (Double) getE1().evaluate(tMap, eMap);

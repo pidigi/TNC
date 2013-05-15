@@ -2,8 +2,6 @@ package asteroids.model;
 
 import java.util.*;
 import asteroids.model.types.*;
-import asteroids.model.expressions.E;
-import asteroids.model.expressions.SEReference;
 import asteroids.model.statements.*;
 
 public class Program {
@@ -43,15 +41,15 @@ public class Program {
 	
 	private final int endLine;
 	
-	public Map<String, E> getGlobalExpressions() {
+	public Map<String, Object> getGlobalExpressions() {
 		return this.globalExpressions;
 	}
 	
-	public void setGlobalExpressions(Map<String, E> globalExpr) {
+	public void setGlobalExpressions(Map<String, Object> globalExpr) {
 		this.globalExpressions = globalExpr;
 	}
 	
-	private Map<String, E> globalExpressions = new HashMap<String,E>();
+	private Map<String, Object> globalExpressions = new HashMap<String,Object>();
 	
 	public void setShip(Ship ship) {
 		if (!this.isTerminated() && ship == null) 
@@ -59,7 +57,7 @@ public class Program {
 		if (ship.getProgram() != this) 
 			throw new IllegalArgumentException();
 		this.ship = ship;
-		globalExpressions.put("self",new SEReference(0,0,ship));
+		globalExpressions.put("self", ship);
 	}
 	
 	public Ship getShip() {
@@ -117,8 +115,9 @@ public class Program {
 							this.setLine(currentStatement.updateLine());
 						}
 					}
-				} catch(Exception exc) {
-					this.setBroken(true);
+				} catch(RuntimeException exc) {
+					throw exc;
+//					this.setBroken(true);
 				}
 				this.waitingTime = 0;
 			} else {

@@ -18,7 +18,7 @@ public class BooleanLiteral extends E {
 	}
 
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
 		return getBoolean();
 	}
 

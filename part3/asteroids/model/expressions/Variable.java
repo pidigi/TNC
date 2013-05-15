@@ -17,8 +17,8 @@ public class Variable extends E {
 	}
 
 	@Override
-	public Object evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		return eMap.get(getName()).evaluate(tMap, eMap);
+	public Object evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+		return eMap.get(getName());
 	}
 
 	@Override
