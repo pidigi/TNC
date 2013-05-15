@@ -14,11 +14,11 @@ public class SEReference extends EntityReference {
 	}
 
 	@Override
-	public String evaluate(Map<String, T> tMap, Map<String, E> eMap) {
-		return String.valueOf(getElement(tMap, eMap));
+	public SpatialElement evaluate(Map<String, T> tMap, Map<String, E> eMap) {
+		return this.getElement();
 	}
 
-	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
+	public SpatialElement getElement() {
 		return this.element;
 	}
 }

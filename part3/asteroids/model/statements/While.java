@@ -51,8 +51,7 @@ public class While extends S{
 		if (!(this.getCondition().getType(globalTypes) instanceof BooleanT)) {
 			throw new IllegalArgumentException();
 		}
-		String eval = this.getCondition().evaluate(globalTypes,globalExpr);
-		this.setConditionEval(Boolean.parseBoolean(eval));
+		this.setConditionEval((Boolean) this.getCondition().evaluate(globalTypes,globalExpr));
 	}
 
 	@Override

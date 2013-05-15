@@ -1,8 +1,6 @@
 package asteroids.model.expressions;
 
 import java.util.Map;
-
-import asteroids.model.SpatialElement;
 import asteroids.model.types.*;
 
 public abstract class Property extends UnitaryE {
@@ -15,6 +13,9 @@ public abstract class Property extends UnitaryE {
 	public T getType(Map<String,T> tMap) {
 		return new DoubleT();
 	}
+	
+	@Override
+	public abstract Double evaluate(Map<String,T> tMap, Map<String,E> eMap);
 
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
@@ -22,9 +23,4 @@ public abstract class Property extends UnitaryE {
 		// TODO exacte type checken via String compare? (wss niet)
 	}
 	
-	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap){
-		if(!hasValidType(tMap))
-			throw new IllegalArgumentException();
-		return getE().getElement(tMap, eMap);
-	}
 }

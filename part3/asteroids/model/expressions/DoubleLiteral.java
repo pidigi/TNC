@@ -17,8 +17,8 @@ public class DoubleLiteral extends E {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		return String.valueOf(getDouble());
+	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+		return getDouble();
 	}
 
 	@Override

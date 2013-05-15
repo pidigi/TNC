@@ -1,6 +1,8 @@
 package asteroids.model.expressions;
 
 import java.util.Map;
+
+import asteroids.model.SpatialElement;
 import asteroids.model.types.T;
 
 public class GetVY extends Property {
@@ -10,8 +12,11 @@ public class GetVY extends Property {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		return String.valueOf(getElement(tMap, eMap).getVelocity().getYComponent());
+	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+		if(!hasValidType(tMap))
+			throw new IllegalArgumentException();
+		// TODO op null checken???
+		return ((SpatialElement) getE().evaluate(tMap, eMap)).getVelocity().getYComponent();
 	}
 
 }

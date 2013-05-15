@@ -10,10 +10,9 @@ public class Sqrt extends Function {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		double val = Double.parseDouble(getE().evaluate(tMap, eMap));
-		return String.valueOf(Math.sqrt(val));
+		return Math.sqrt((Double) getE().evaluate(tMap, eMap));
 	}
 }

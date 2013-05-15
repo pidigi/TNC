@@ -12,11 +12,10 @@ public class Not extends UnitaryE {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		boolean val = Boolean.parseBoolean(getE().evaluate(tMap, eMap));
-		return String.valueOf(!val);
+		return !((Boolean) getE().evaluate(tMap, eMap));
 	}
 
 	@Override

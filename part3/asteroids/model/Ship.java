@@ -311,6 +311,7 @@ public class Ship extends SpatialElement{
 		} else if (program.typeCheck()) {
 			this.program = program;
 			program.setShip(this);
+			System.out.println("Toegevoegd.");
 		} else {
 			System.out.println("Niet toegevoegd.");
 		}

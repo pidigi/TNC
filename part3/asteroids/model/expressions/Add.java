@@ -9,11 +9,11 @@ public class Add extends Arithmatic {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		double val1 = Double.parseDouble(getE1().evaluate(tMap, eMap));
-		double val2 = Double.parseDouble(getE2().evaluate(tMap, eMap));
-		return String.valueOf(val1 + val2);
+		double val1 = (Double) getE1().evaluate(tMap, eMap);
+		double val2 = (Double) getE2().evaluate(tMap, eMap);
+		return val1 + val2;
 	}
 }

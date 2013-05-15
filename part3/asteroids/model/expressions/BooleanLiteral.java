@@ -18,8 +18,8 @@ public class BooleanLiteral extends E {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		return String.valueOf(getBoolean());
+	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+		return getBoolean();
 	}
 
 	@Override

@@ -109,8 +109,7 @@ public class If extends S{
 		if (!(condition.getType(globalTypes) instanceof BooleanT)) {
 			throw new IllegalArgumentException();
 		}
-		String eval = condition.evaluate(globalTypes,globalExpr);
-		this.setConditionEval(Boolean.parseBoolean(eval));
+		this.setConditionEval((Boolean) condition.evaluate(globalTypes,globalExpr));
 	}
 	
 	@Override

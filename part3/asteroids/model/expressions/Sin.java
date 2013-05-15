@@ -10,10 +10,9 @@ public class Sin extends Function {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		double val = Double.parseDouble(getE().evaluate(tMap, eMap));
-		return String.valueOf(Math.atan(val));
+		return Math.atan((Double) getE().evaluate(tMap, eMap));
 	}
 }

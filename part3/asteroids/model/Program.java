@@ -101,7 +101,7 @@ public class Program {
 		if (!this.isTerminated() && !getBroken()) {
 			if (this.getLine() >= this.getEndLine()) {
 				// TODO: goed?
-				this.terminate();
+//				this.terminate();
 			} else if (this.waitingTime>0.05) {
 				// TODO: hoe beter? Zonder while loop?
 				try {

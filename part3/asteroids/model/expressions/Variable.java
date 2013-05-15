@@ -1,8 +1,6 @@
 package asteroids.model.expressions;
 
 import java.util.Map;
-
-import asteroids.model.SpatialElement;
 import asteroids.model.types.T;
 
 public class Variable extends E {
@@ -19,7 +17,7 @@ public class Variable extends E {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Object evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		return eMap.get(getName()).evaluate(tMap, eMap);
 	}
 
@@ -31,11 +29,6 @@ public class Variable extends E {
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
 		return tMap.containsKey(this.getName());
-	}
-	
-	@Override
-	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
-		return eMap.get(name).getElement(tMap, eMap);
 	}
 	
 	@Override

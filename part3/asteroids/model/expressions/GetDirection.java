@@ -15,8 +15,8 @@ public class GetDirection extends Property {
 
 	// TODO beter inpassen in structuur...
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
-		return String.valueOf(((Ship) getElement(tMap, eMap)).getAngle());
+	public Double evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+		return ((Ship) (eMap.get("self").evaluate(tMap, eMap))).getAngle();
 	}
 
 	@Override

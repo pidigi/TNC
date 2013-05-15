@@ -12,14 +12,10 @@ public class Null extends EntityReference {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public SpatialElement evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		return "null";
-	}
-
-	@Override
-	public SpatialElement getElement(Map<String, T> tMap, Map<String, E> eMap) {
 		return null;
 	}
+
 }

@@ -18,12 +18,12 @@ public class Equality extends Comparison {
 	}
 	
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		// TODO: miss niet nodig omdat je de naar string omgezette objecten ook zou kunnen vglen?
-//		if(getE1().getType(tMap).isEntity())
-//			return String.valueOf(getE1().getElement(tMap, eMap) == getE2().getElement(tMap, eMap));
-		return String.valueOf(getE1().evaluate(tMap, eMap).equals(getE2().evaluate(tMap, eMap)));
+		if(getE1().getType(tMap).isEntity())
+			return getE1().evaluate(tMap, eMap) == getE2().evaluate(tMap, eMap);
+		return getE1().evaluate(tMap, eMap).equals(getE2().evaluate(tMap, eMap));
 	}
 }

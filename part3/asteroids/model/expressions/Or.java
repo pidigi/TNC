@@ -10,12 +10,12 @@ public class Or extends Logic {
 	}
 
 	@Override
-	public String evaluate(Map<String,T> tMap, Map<String,E> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,E> eMap) {
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
-		boolean val1 = Boolean.parseBoolean(getE1().evaluate(tMap, eMap));
-		boolean val2 = Boolean.parseBoolean(getE2().evaluate(tMap, eMap));
-		return String.valueOf(val1 || val2);
+		boolean val1 = (Boolean) getE1().evaluate(tMap, eMap);
+		boolean val2 = (Boolean) getE2().evaluate(tMap, eMap);
+		return val1 || val2;
 	}
 
 }
