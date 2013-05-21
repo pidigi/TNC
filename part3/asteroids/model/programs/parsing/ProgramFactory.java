@@ -6,7 +6,7 @@ import java.util.List;
  * Factory for creating expressions, statements and types.
  */
 public interface ProgramFactory<E, S, T> {
-  public enum ForeachType { SHIP, ASTEROID, BULLET, ANY }
+  public enum ForeachType { SHIP, ASTEROID, BULLET, ANY } 
   
   public E createDoubleLiteral(int line, int column, double d);
   public E createBooleanLiteral(int line, int column, boolean b);

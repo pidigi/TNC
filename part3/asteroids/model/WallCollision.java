@@ -140,18 +140,6 @@ public class WallCollision extends Collision{
 	}
 	
 	/**
-	 * Check if the element is a valid spatial element.
-	 * 
-	 * @param 	Element
-	 * 			The spatial element to check.
-	 * @return	True if and only if the element is effective.
-	 * 			| result == (element != null)
-	 */
-	public boolean isValidElement(SpatialElement element) {
-		return (element != null);
-	}
-	
-	/**
 	 * Variable registering the element involved in this collision.
 	 */
 	private final SpatialElement element;
@@ -186,24 +174,10 @@ public class WallCollision extends Collision{
 		collisionListener.boundaryCollision(getElement(),
 				this.getConnectingEdgePoint().getXComponent(),
 				this.getConnectingEdgePoint().getYComponent());
-		
-		double xComp = getElement().getVelocity().getXComponent();
-		double yComp = getElement().getVelocity().getYComponent();
+
 		double yPos = getConnectingEdgePoint().getYComponent();
 		
-		if(fuzzyEquals(yPos, 0) || fuzzyEquals(yPos, getElement().getWorld().getHeight())){
-			getElement().setVelocity(new Vector2D(xComp, -1*yComp));
-		} else {
-			getElement().setVelocity(new Vector2D(-1*xComp, yComp));
-		}
-		if(getElement().isBullet()){
-			if (((Bullet) getElement()).getHasBounced()) {
-				getElement().terminate();
-			} else {
-				((Bullet) getElement()).bounce();
-			}
-		}
-		
+		getElement().resolveWall(fuzzyEquals(yPos, 0) || fuzzyEquals(yPos, getElement().getWorld().getHeight()));
 	}
 
 	/**

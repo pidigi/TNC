@@ -754,24 +754,53 @@ public abstract class SpatialElement {
 		return false;
 	}
 	
+	
 	/**
-	 * Check whether a collision of this and the given element can be resolved.
+	 * Check if the collision between the given spatial element 1 and 
+	 * spatial element 2 is a valid object collision.
 	 * 
-	 * @param 	otherElement
-	 * 			The element to check resolving with.
-	 * @return	True if and only if the other element is effective and
-	 * 			the worlds of this and the given element are effective and the same.
-	 * 			| result == !(otherElement == null || this.getWorld() == null ||
-	 * 			|	otherElement.getWorld() == null || otherElement.getWorld() != this.getWorld())
+	 * @return	...
+	 * 			| if(element1 == element2)
+	 * 			| then result == false
+	 * @return	...
+	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
+	 *			| (element1.getWorld() != element2.getWorld()))
+	 *			| then result == false
+	 * @return	...
+	 * 			| result == !(((element1.isBullet() && element2.isShip())
+	 *			| && (element1.getShip() == element2)
+	 *			| || ((element2.isBullet() && element1.isShip())
+	 *			| && element2).getShip() == element1))
 	 */
-	public boolean canResolve(SpatialElement otherElement){
-		if(otherElement == null)
-			return false;
-		if(this.getWorld() == null || otherElement.getWorld() == null || 
-				otherElement.getWorld() != this.getWorld())
-			return false;
-		return true;
+	public boolean isValidObjectCollision(SpatialElement element){
+			if (element == null)
+				return false;
+			if (this == element)
+				return false;
+			if ((this.getWorld() != null) && (element.getWorld() != null))
+				return (this.getWorld() == element.getWorld());
+			return true;
 	}
+	
+//	/**
+//	 * Check whether a collision of this and the given element can be resolved.
+//	 * 
+//	 * @param 	otherElement
+//	 * 			The element to check resolving with.
+//	 * @return	True if and only if the other element is effective and
+//	 * 			the worlds of this and the given element are effective and the same.
+//	 * 			| result == !(otherElement == null || this.getWorld() == null ||
+//	 * 			|	otherElement.getWorld() == null || otherElement.getWorld() != this.getWorld())
+//	 */
+//	public boolean canResolve(SpatialElement otherElement){
+//		if(otherElement == null)
+//			return false;
+////		if(this.getWorld() == null || otherElement.getWorld() == null || 
+////				otherElement.getWorld() != this.getWorld())
+////			return false;
+////		return true;
+//		return true;
+//	}
 	
 	/**
 	 * Resolve this and the given element.
@@ -815,6 +844,8 @@ public abstract class SpatialElement {
 	 *			|		.add(unitTangent.multiply(element2Tangent)))
 	 */
 	public void resolveBounce(SpatialElement otherElement){
+		if(!this.isValidObjectCollision(otherElement))
+			throw new IllegalArgumentException("Elements cannot collide.");
 		double sumOfRadius = this.getRadius() + otherElement.getRadius();
 		double mass1 = this.getMass();
 		double mass2 = otherElement.getMass();
@@ -836,5 +867,21 @@ public abstract class SpatialElement {
 		otherElement.setVelocity(newVel2);
 	}
 	
+	public void resolveInitialCondition(SpatialElement overlappingElement) {
+		// do nothing
+	}
+	
+	public void collide(){
+		this.terminate();
+	}
+
+	public void resolveWall(boolean horizontal) {
+		double xComp = this.getVelocity().getXComponent();
+		double yComp = this.getVelocity().getYComponent();
+		if(horizontal)
+			this.setVelocity(new Vector2D(xComp, -1*yComp));
+		else
+			this.setVelocity(new Vector2D(-1*xComp, yComp));
+	}
 	
 }

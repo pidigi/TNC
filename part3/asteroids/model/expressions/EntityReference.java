@@ -1,7 +1,6 @@
 package asteroids.model.expressions;
 
 import java.util.Map;
-import asteroids.model.SpatialElement;
 import asteroids.model.types.EntityT;
 import asteroids.model.types.T;
 
@@ -15,9 +14,6 @@ public abstract class EntityReference extends E {
 		return new EntityT();
 	}
 	
-	@Override
-	public abstract SpatialElement evaluate(Map<String,T> tMap, Map<String,Object> eMap);
-
 	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
 		return true;

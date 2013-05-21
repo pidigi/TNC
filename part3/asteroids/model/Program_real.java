@@ -4,7 +4,8 @@ import java.util.*;
 import asteroids.model.types.*;
 import asteroids.model.statements.*;
 
-public class Program {
+public class Program_real {
+	// TODO: Waar tijd bijhouden? Moet tijd bijgehouden worden?
 	public Program(Map<String, T> globalTypes, S executable) {
 		this.globalTypes = globalTypes;
 		this.executable = executable;
@@ -22,7 +23,7 @@ public class Program {
 		return this.executable;
 	}
 	
-	private final S executable;
+	private S executable;
 	
 	public int getLine() {
 		return this.line;
@@ -94,24 +95,34 @@ public class Program {
 	private boolean broken;
 	
 	public void advanceProgram(double dt) {
-		this.waitingTime += dt;
-		while(!this.isTerminated() && !getBroken() && this.waitingTime >= 0.2){
+		// TODO: nodig om te checken?
+		if (!this.isTerminated() && !getBroken()) {
+			if (this.getLine() >= this.getEndLine()) {
+				// TODO: goed?
+//				this.terminate();
+			} else if (this.waitingTime>0.05) {
+				// TODO: hoe beter? Zonder while loop?
 				try {
-					S currentStatement = null;
-					while (!(currentStatement instanceof Action) && this.getLine() < this.getEndLine()){
+					S currentStatement = this.getExecutable();
+					while (!(currentStatement instanceof Action) && this.getLine() < this.getEndLine()) {
 						currentStatement = this.getExecutable().getStatement(this.line);
-						if (currentStatement == null) { // Empty line is skipped.
+						if (currentStatement == null) {
 							this.setLine(this.getLine()+1);
 						} else {
+							// TODO: geen ship meer meegeven, maar via self handelen?
 							currentStatement.execute(this.getGlobalTypes(),this.getGlobalExpressions());
 							this.setGlobalExpressions(currentStatement.updateGlobals(this.getGlobalExpressions()));
 							this.setLine(currentStatement.updateLine());
 						}
 					}
 				} catch(RuntimeException exc) {
-					this.setBroken(true);
+					throw exc;
+//					this.setBroken(true);
 				}
-			this.waitingTime -= 0.2;
+				this.waitingTime = 0;
+			} else {
+				waitingTime += dt;
+			}
 		}
 	}
 	

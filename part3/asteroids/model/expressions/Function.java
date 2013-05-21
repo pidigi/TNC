@@ -16,9 +16,6 @@ public abstract class Function extends UnitaryE {
 	}
 	
 	@Override
-	public abstract Double evaluate(Map<String,T> tMap, Map<String,Object> eMap);
-
-	@Override
 	public boolean hasValidType(Map<String,T> tMap) {
 		return getE().getType(tMap).isDouble();
 	}

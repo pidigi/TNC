@@ -215,9 +215,8 @@ public class Ship extends SpatialElement{
 	 * 			| result == (element != null && element.isBullet()
 	 * 			|	&& element.getShip() == this && !element.isTerminated())
 	 */
-	public boolean canHaveAsBullet(SpatialElement element){
-			return (element != null && element.isBullet() && 
-					(((Bullet) element).getShip() == this) &&
+	public boolean canHaveAsBullet(Bullet element){
+			return (element != null && element.getShip() == this &&
 					!element.isTerminated());
 	}
 	
@@ -232,7 +231,7 @@ public class Ship extends SpatialElement{
 	 * 			The element cannot be added.
 	 * 			| !this.canAddAsBullet(element)
 	 */
-	public void addAsBullet(SpatialElement element) throws IllegalArgumentException{
+	public void addAsBullet(Bullet element) throws IllegalArgumentException{
 		if (!this.canHaveAsBullet(element)) {
 			throw new IllegalArgumentException("The element cannot be added.");
 		}
@@ -253,7 +252,7 @@ public class Ship extends SpatialElement{
 	 * 			The element is not terminated.
 	 * 			| !element.isTerminated();
 	 */
-	public void removeAsBullet(SpatialElement element) throws NullPointerException, IllegalArgumentException{
+	public void removeAsBullet(Bullet element) throws NullPointerException, IllegalArgumentException{
 		if (element == null)
 			throw new NullPointerException();
 		if (!element.isTerminated())
@@ -282,7 +281,7 @@ public class Ship extends SpatialElement{
 	 * 			| for each bullet in collisions:
 	 * 			| !bullet.isTerminated()
 	 */
-	private final Set<SpatialElement> bullets = new HashSet<SpatialElement>();
+	private final Set<Bullet> bullets = new HashSet<Bullet>();
 	
 	/**
 	 * Get the program of this ship.
@@ -361,7 +360,7 @@ public class Ship extends SpatialElement{
 				Math.sin(this.getAngle()));
 		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));
 		Vector2D bulletVelocity = shootingDirection.multiply(250);
-		double bulletRadius = 3;
+		double bulletRadius = 100;
 		Bullet bullet = new Bullet(bulletPosition, bulletRadius, bulletVelocity, 300000, this);
 		this.addAsBullet(bullet);
 		this.getWorld().addAsSpatialElement(bullet);
@@ -418,7 +417,7 @@ public class Ship extends SpatialElement{
 	 */
 	@Override
 	public void resolve(SpatialElement otherElement) throws NullPointerException{
-		if(!canResolve(otherElement))
+		if(!isValidObjectCollision(otherElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isShip())
 			resolveBounce(otherElement);
@@ -435,6 +434,38 @@ public class Ship extends SpatialElement{
 	@Override
 	public boolean isShip() {
 		return true;
+	}
+	
+	/**
+	 * Check if the collision between the given spatial element 1 and 
+	 * spatial element 2 is a valid object collision.
+	 * 
+	 * @return	...
+	 * 			| if(element1 == element2)
+	 * 			| then result == false
+	 * @return	...
+	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
+	 *			| (element1.getWorld() != element2.getWorld()))
+	 *			| then result == false
+	 * @return	...
+	 * 			| result == !(((element1.isBullet() && element2.isShip())
+	 *			| && (element1.getShip() == element2)
+	 *			| || ((element2.isBullet() && element1.isShip())
+	 *			| && element2).getShip() == element1))
+	 */
+	@Override
+	public boolean isValidObjectCollision(SpatialElement element){
+		if(element.isAsteroid() || element.isShip())
+			return super.isValidObjectCollision(element);
+		return element.isValidObjectCollision(this);
+	}
+	
+	@Override
+	public void resolveInitialCondition(SpatialElement overlappingElement) {
+		if(!isValidObjectCollision(overlappingElement))
+			throw new IllegalArgumentException("Element cannot be resolved.");
+		if(!overlappingElement.isShip())
+			overlappingElement.resolveInitialCondition(this);
 	}
 	
 }

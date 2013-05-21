@@ -46,6 +46,18 @@ public abstract class Collision implements Comparable<Collision>{
 	public abstract Vector2D getConnectingEdgePoint();
 	
 	/**
+	 * Check if the element is a valid spatial element.
+	 * 
+	 * @param 	Element
+	 * 			The spatial element to check.
+	 * @return	True if and only if the element is effective.
+	 * 			| result == (element != null)
+	 */
+	public boolean isValidElement(SpatialElement element) {
+		return (element != null);
+	}
+	
+	/**
 	 * Compare the time to collision of this collision to the
 	 * time to collision of the given other collision to see if 
 	 * it is smaller, equal or larger.

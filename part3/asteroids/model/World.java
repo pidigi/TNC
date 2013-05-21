@@ -81,12 +81,7 @@ public class World{
 		if (!isTerminated()) {
 			Set<SpatialElement> clonedSet = new HashSet<SpatialElement>(elements);
 			for (SpatialElement element : clonedSet) {
-				if (element.isAsteroid()) {
-					((Asteroid) element).forceTerminate();
-				}
-				else {
-					element.terminate();
-				}
+				element.terminate();
 			}
 			this.isTerminated = true;
 		}
@@ -312,10 +307,7 @@ public class World{
 	public boolean canHaveAsSpatialElement(SpatialElement element) {
 		if(element == null)
 			return false;
-		if(element.isBullet())
-			return (!this.isTerminated()) && (!element.isTerminated());
-		return ((!this.isTerminated()) && (!element.isTerminated()) 
-				&& (getIllegalOverlap(element)) == null && withinBounds(element));
+		return (!this.isTerminated()) && (!element.isTerminated());		
 	}
 	
 	/**
@@ -353,52 +345,7 @@ public class World{
 	public boolean hasAsSpatialElement(SpatialElement element) {
 		return elements.contains(element);
 	}
-	
-	
-	/**
-	 * Terminate element if it is a Bullet and illegally overlaps with the boundaries,
-	 * if it overlaps with one of the other elements associated with this world, it
-	 * is resolved as a collision with the bullet.
-	 * 
-	 * @effect	...
-	 * 			| if(element.isBullet() && !withinBounds(element))
-	 * 			| then element.terminate(); 
-	 * @effect	...
-	 * 			| if(element.isBullet() && withinBounds(element)
-	 * 			|		&& getIllegalOverlap(element) != null)
-	 * 			| then conflictingElement = getIllegalOverlap(element)
-	 * 			|		(new ObjectCollision(element, conflictingElement))
-	 * 			|		.resolveBullet(element, conflictingElement)
-	 * @return	...
-	 * 			| if(!element.isBullet())
-	 * 			| then result == false
-	 * @return	...
-	 * 			| if(element.isBullet() && (!withinBounds(element)
-	 * 			|	|| getIllegalOverlap(element) != null)
-	 * 			| then result == true 
-	 * @throws	NullPointerException
-	 * 			...
-	 * 			| (element == null)
-	 */
-	// Though it changes some aspects of elements, it returns a boolean to
-	// show that the bullet has collided.
-	//TODO kijken of dit niet eleganter kan...
-	public boolean resolveInitialBullet(SpatialElement element) throws NullPointerException {
-		if (element == null)
-			throw new NullPointerException("Non-effective element given while resolving inital bullet condition.");
-		if(element.isBullet()){
-			SpatialElement conflictingElement = this.getIllegalOverlap(element);
-			if (!withinBounds(element)) {
-				element.terminate();
-				return true;
-			} else if (conflictingElement != null) {
-				element.resolve(conflictingElement);
-//				(new ObjectCollision(element, conflictingElement)).resolveBullet(element, conflictingElement);
-				return true;
-			}
-		}
-		return false;
-	}
+
 	
 	/**
 	 * Add the given spatial element to the array of spatial elements registered
@@ -426,9 +373,13 @@ public class World{
 			throw new IllegalArgumentException("Element can't be added to the game world.");
 		if (element.getWorld() != null)
 			throw new IllegalArgumentException("Element already refers to a world.");
-		boolean resolved = resolveInitialBullet(element);
-		if(!resolved){
-			// Only add the ones that don't give any problems.
+		if (!withinBounds(element)){
+			// do not add the element and terminate it
+			element.terminate();
+		} else if(this.getIllegalOverlap(element) != null){
+			// do not add the element and resolve
+			element.resolveInitialCondition(this.getIllegalOverlap(element));
+		} else {
 			elements.add(element);
 			element.setWorld(this);
 			this.addAsCollision(element);
@@ -519,7 +470,7 @@ public class World{
 	 * 			This world does not have element1 as a spatial element.
 	 * 			| !this.hasAsSpatialElement(element1)
 	 */
-	private void addAsCollision(SpatialElement element1) throws IllegalArgumentException{
+	public void addAsCollision(SpatialElement element1) throws IllegalArgumentException{
 		if (!this.hasAsSpatialElement(element1)) {
 			throw new IllegalArgumentException("Element for collision does not belong to this world.");
 		}
@@ -544,7 +495,7 @@ public class World{
 	 * 
 	 */
 	// Opmerking: element die null is kan geen kwaad, want gaat niet gevonden worden in de lijst.
-	private void removeAsCollision(SpatialElement element) {
+	public void removeAsCollision(SpatialElement element) {
 		List<Collision> collisionsRemoved = new ArrayList<Collision>();
 		for (Collision collision: collisions) {
 			if (collision.contains(element)) {
@@ -624,38 +575,40 @@ public class World{
 	 */
 	public void evolve(Double deltaT, CollisionListener collisionListener) {
 		assert (deltaT >= 0);
-		double timeLeft = deltaT;
-		do {
-			double minCollisionTime = Double.POSITIVE_INFINITY;
-			if(!collisions.isEmpty())
-				minCollisionTime = collisions.peek().getCollisionTime();
-			
-			Set<SpatialElement> thrusting = new HashSet<SpatialElement>();
-			for (SpatialElement element : elements) {
-				element.move(Math.min(minCollisionTime, timeLeft));
-				if (element.isShip() && ((Ship) element).isThrusterActive()) {
-					thrusting.add(element);
+		if(!this.isTerminated()){
+			double timeLeft = deltaT;
+			do {
+				double minCollisionTime = Double.POSITIVE_INFINITY;
+				if(!collisions.isEmpty())
+					minCollisionTime = collisions.peek().getCollisionTime();
+				
+				Set<SpatialElement> thrusting = new HashSet<SpatialElement>();
+				for (SpatialElement element : elements) {
+					element.move(Math.min(minCollisionTime, timeLeft));
+					if (element.isShip() && ((Ship) element).isThrusterActive()) {
+						thrusting.add(element);
+					}
 				}
-			}
-			
-			if (minCollisionTime < timeLeft) {
-				timeLeft -= minCollisionTime;
-				Collision firstCollision = collisions.poll();
-				firstCollision.resolve(collisionListener);
-				updateElementCollisions(firstCollision.getAllElements());
-			} else {
-				for (SpatialElement element : thrusting) {				
-					Double acc = deltaT * 1.1E18 / element.getMass();
-					((Ship) element).thrust(acc);
+				
+				if (minCollisionTime < timeLeft) {
+					timeLeft -= minCollisionTime;
+					Collision firstCollision = collisions.poll();
+					firstCollision.resolve(collisionListener);
+					updateElementCollisions(firstCollision.getAllElements());
+				} else {
+					for (SpatialElement element : thrusting) {				
+						Double acc = deltaT * 1.1E18 / element.getMass();
+						((Ship) element).thrust(acc);
+					}
+					for (Ship ship: this.getShips()) {
+						Program program = ship.getProgram();
+						if (program != null)
+							program.advanceProgram(deltaT);
+					}
+					updateElementCollisions(thrusting);
+					timeLeft -= minCollisionTime;
 				}
-				for (Ship ship: this.getShips()) {
-					Program program = ship.getProgram();
-					if (program != null)
-						program.advanceProgram(deltaT);
-				}
-				updateElementCollisions(thrusting);
-				timeLeft -= minCollisionTime;
-			}
-		} while (0 < timeLeft);
+			} while (0 < timeLeft);
+		}
 	}
 }

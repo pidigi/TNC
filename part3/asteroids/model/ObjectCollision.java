@@ -74,18 +74,6 @@ public class ObjectCollision extends Collision{
 	}
 	
 	/**
-	 * Check if the given spatial element is a valid element.
-	 * 
-	 * @param	element
-	 * 			The spatial element to check.
-	 * @return	True if and only if the given spatial element is effective.
-	 * 			| result == (element != null)
-	 */
-	public boolean isValidElement(SpatialElement element) {
-		return (element != null);
-	}
-	
-	/**
 	 * Return the first element of this object collision.
 	 */
 	@Basic @Immutable
@@ -170,104 +158,7 @@ public class ObjectCollision extends Collision{
 				this.getConnectingEdgePoint().getYComponent());
 		
 		getElement1().resolve(getElement2());
-		
-//		if ((getElement1().isShip() && (getElement2().isShip()))
-//				|| (getElement1().isAsteroid()) && (getElement2().isAsteroid())) {
-//			resolveBounce(getElement1(),getElement2());
-//		}
-//		if ((getElement1().isBullet()) || (getElement2().isBullet())) {
-//			resolveBullet(getElement1(), getElement2());
-//		}
-//		if ((getElement1().isShip()) && (getElement2().isAsteroid())) {
-//			getElement1().terminate();
-//		} else if ((getElement1().isAsteroid()) && (getElement2().isShip())) {
-//			getElement2().terminate();
-//		}
 	}
-//
-//	/**
-//	 * Resolve the bouncing of given spatial elements.
-//	 * 
-//	 * @pre		...
-//	 * 			| (element1 != null) && (element2 != null)
-//	 * 
-//	 * @effect	...
-//	 * 			| let unitNormal = (element1.getPosition().
-//	 *			| 	  	subtract(element2.getPosition())).getDirection()
-//	 *			| 	  unitTangent = new Vector2D(-unitNormal.getYComponent(),
-//	 *			|		unitNormal.getXComponent())
-//	 *			|	  velocity1 = element1.getVelocity()
-//	 *			|	  velocity2 = element2.getVelocity()
-//	 *			|    
-//	 *			|	  element1Normal = velocity1.getDotProduct(unitNormal)
-//	 * 			|	  element1Tangent = velocity1.getDotProduct(unitTangent)
-//	 *			|	  element2Normal = velocity2.getDotProduct(unitNormal)
-//	 *			|	  element2Tangent = velocity2.getDotProduct(unitTangent)
-//	 *			|		 
-//	 *			|	  element1NormalUpdated = (element1Normal*(massInvolved1 -
-//	 *			|		massInvolved2) + 2 * massInvolved2 * element2Normal)/
-//	 *		    |       (massInvolved1 + massInvolved2)
-//	 *		    |     element2NormalUpdated = (element2Normal*(massInvolved2 - 
-//	 *			|		massInvolved1) + 2 * massInvolved1 * element1Normal)/
-//	 *		    |       (massInvolved1 + massInvolved2)
-//	 *		    |
-//	 *		    | in element1.setVelocity(unitNormal.multiply(element1NormalUpdated)
-//	 *			|		.add(unitTangent.multiply(element1Tangent)))
-//	 *			|		 
-//	 *			|	 element2.setVelocity(unitNormal.multiply(element2NormalUpdated)
-//	 *			|		.add(unitTangent.multiply(element2Tangent)))
-//	 */
-//	void resolveBounce(SpatialElement element1,
-//			SpatialElement element2) {
-//		double sumOfRadius = element1.getRadius() + element2.getRadius();
-//		double mass1 = element1.getMass();
-//		double mass2 = element2.getMass();
-//		Vector2D deltaV = element2.getVelocity().subtract(element1.getVelocity());
-//		Vector2D deltaPos = element2.getPosition().subtract(element1.getPosition());
-//		
-//		double J = 2*mass1*mass2*(deltaV.getDotProduct(deltaPos))
-//					/(sumOfRadius*(mass1 + mass2));
-//		
-//		double Jx = J*deltaPos.getXComponent()/sumOfRadius;
-//		double Jy = J*deltaPos.getYComponent()/sumOfRadius;
-//		
-//		Vector2D newVel1 = new Vector2D(element1.getVelocity().getXComponent() + Jx/mass1,
-//					element1.getVelocity().getYComponent() + Jy/mass1);
-//		Vector2D newVel2 = new Vector2D(element2.getVelocity().getXComponent() - Jx/mass2,
-//				element2.getVelocity().getYComponent() - Jy/mass2);
-//		
-//		element1.setVelocity(newVel1);
-//		element2.setVelocity(newVel2);
-//		
-//	}
-//
-//	/**
-//	 * Resolve the collision between at least one bullet.
-//	 * 
-//	 * @pre		...
-//	 * 			| (((element1 != null) && (element1 != null)) &&
-//	 * 			| (element1.isBullet() || element2.isBullet()))
-//	 * @post	...
-//	 * 			| if(element1.isBullet())
-//	 * 			| then  element1.terminate
-//	 * 			| 		element2.terminate
-//	 * 			| else  element2.terminate
-//	 * 			|		element1.terminate
-//	 * 			
-//	 */
-//	// First terminate bullet because on terminating an asteroids,
-//	// two smaller asteroids might appear that instantly collide with
-//	// the not yet terminated bullet.
-//	void resolveBullet(SpatialElement element1,
-//			SpatialElement element2) {
-//			if(element1.isBullet()){ 
-//				element1.terminate();
-//				element2.terminate();
-//			}else{
-//				element2.terminate();
-//				element1.terminate();
-//			}
-//	}
 	
 	/**
 	 * Return all spatial elements involved in this collision.

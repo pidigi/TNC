@@ -160,17 +160,17 @@ public class Bullet extends SpatialElement{
 	 */
 	@Override
 	public void resolve(SpatialElement otherElement) throws NullPointerException{
-		if(!canResolve(otherElement))
+		if(!isValidObjectCollision(otherElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isBullet()){
-			otherElement.terminate();
-			this.terminate();
+			otherElement.collide();
+			this.collide();
 		}
 		else if(otherElement.isShip() && this.getShip() != otherElement){
 			// double check if getShip != otherElement even though normally
 			// no list of collisions would contain such a collision.
-				this.terminate();
-				otherElement.terminate();
+				this.collide();
+				otherElement.collide();
 		} else
 			otherElement.resolve(this);
 	}
@@ -186,4 +186,49 @@ public class Bullet extends SpatialElement{
 		return true;
 	}
 	
+	@Override
+	public void resolveInitialCondition(SpatialElement overlappingElement) {
+		if(!isValidObjectCollision(overlappingElement))
+			throw new IllegalArgumentException("Element cannot be resolved.");
+		if(overlappingElement.isShip() || overlappingElement.isAsteroid()
+				|| overlappingElement.isBullet())
+			this.resolve(overlappingElement);
+		else
+			overlappingElement.resolveInitialCondition(this);
+	}
+	
+	/**
+	 * Check if the collision between the given spatial element 1 and 
+	 * spatial element 2 is a valid object collision.
+	 * 
+	 * @return	...
+	 * 			| if(element1 == element2)
+	 * 			| then result == false
+	 * @return	...
+	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
+	 *			| (element1.getWorld() != element2.getWorld()))
+	 *			| then result == false
+	 * @return	...
+	 * 			| result == !(((element1.isBullet() && element2.isShip())
+	 *			| && (element1.getShip() == element2)
+	 *			| || ((element2.isBullet() && element1.isShip())
+	 *			| && element2).getShip() == element1))
+	 */
+	@Override
+	public boolean isValidObjectCollision(SpatialElement element){
+		if(element.isAsteroid() || element.isBullet())
+			return super.isValidObjectCollision(element);
+		if(element.isShip())
+			return (super.isValidObjectCollision(element) && this.getShip() != element);
+		return element.isValidObjectCollision(this);
+	}
+	
+	@Override
+	public void resolveWall(boolean horizontal){
+		super.resolveWall(horizontal);
+		if (this.getHasBounced())
+			this.collide();
+		else
+			this.bounce();
+	}
 }

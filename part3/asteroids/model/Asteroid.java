@@ -111,7 +111,8 @@ public class Asteroid extends SpatialElement{
 	 * @effect	The asteroid is terminated as a spatial element.
 	 * 		    | super.terminate();
 	 */
-	public void terminate() throws IllegalArgumentException{
+	@Override
+	public void collide() throws IllegalArgumentException{
 		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated()){
 			double newRandomAngle = random.nextDouble()*2*Math.PI;
 			Vector2D randomDirection = new Vector2D(Math.cos(newRandomAngle),
@@ -131,17 +132,6 @@ public class Asteroid extends SpatialElement{
 			super.terminate();
 		}
 	}
-	
-	/**
-	 * Terminate this asteroid.
-	 * 
-	 * @effect	This asteroid is terminated as a spatial element.
-	 * 		    | super.terminate();
-	 */
-	public void forceTerminate() {
-		super.terminate();
-	}
-	
 	
 	/** 
 	 * Get the mass density of this asteroid.
@@ -210,16 +200,16 @@ public class Asteroid extends SpatialElement{
 	 */
 	@Override
 	public void resolve(SpatialElement otherElement) throws NullPointerException{
-		if(!canResolve(otherElement))
+		if(!isValidObjectCollision(otherElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isAsteroid())
 			resolveBounce(otherElement);
 		else if(otherElement.isBullet()){
-			otherElement.terminate();
-			this.terminate();
+			otherElement.collide();
+			this.collide();
 		}
 		else if(otherElement.isShip()){
-			otherElement.terminate();
+			otherElement.collide();
 		} else
 			otherElement.resolve(this);
 	}
@@ -233,6 +223,37 @@ public class Asteroid extends SpatialElement{
 	@Override
 	public boolean isAsteroid() {
 		return true;
+	}
+	
+	/**
+	 * Check if the collision between the given spatial element 1 and 
+	 * spatial element 2 is a valid object collision.
+	 * 
+	 * @return	...
+	 * 			| if(element1 == element2)
+	 * 			| then result == false
+	 * @return	...
+	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
+	 *			| (element1.getWorld() != element2.getWorld()))
+	 *			| then result == false
+	 * @return	...
+	 * 			| result == !(((element1.isBullet() && element2.isShip())
+	 *			| && (element1.getShip() == element2)
+	 *			| || ((element2.isBullet() && element1.isShip())
+	 *			| && element2).getShip() == element1))
+	 */
+	@Override
+	public boolean isValidObjectCollision(SpatialElement element){
+		if(element.isAsteroid())
+			return super.isValidObjectCollision(element);
+		return element.isValidObjectCollision(this);
+	}
+	
+	public void resolveInitialCondition(SpatialElement overlappingElement) {
+		if(!isValidObjectCollision(overlappingElement))
+			throw new IllegalArgumentException("Element cannot be resolved.");
+		if(!overlappingElement.isShip() && !overlappingElement.isAsteroid())
+			overlappingElement.resolveInitialCondition(this);
 	}
 	
 }

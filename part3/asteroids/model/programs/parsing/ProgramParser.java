@@ -35,9 +35,8 @@ public class ProgramParser<E, S, T> {
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     AsteroidsParserParser parser = new AsteroidsParserParser(tokens);
     parser.setBuildParseTree(true);
-   
     parser.addErrorListener(new ANTLRErrorListener() {
-    	
+      
       @Override
       public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int column, String msg, RecognitionException e) {
         ProgramParser.this.errors.add(line + ":" + column + " syntax error: " + msg);

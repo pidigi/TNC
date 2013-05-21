@@ -21,9 +21,8 @@ public class AsteroidsParserParser extends Parser {
 		TURN=24, FIRE=25, SKIP=26, PRINT=27, IF=28, THEN=29, ELSE=30, WHILE=31, 
 		DO=32, FOREACH=33, ASSIGN=34, MUL=35, DIV=36, ADD=37, SUB=38, EQ=39, NEQ=40, 
 		LT=41, GT=42, LEQ=43, GEQ=44, AND=45, OR=46, NUMBER=47, FLOAT=48, INTEGER=49, 
-		SIGN=50, IDENTIFIER=51, LEFT_PAREN=52, RIGHT_PAREN=53, LEFT_BRACE=54, 
-		RIGHT_BRACE=55, SEMICOLON=56, COMMA=57, WHITESPACE=58, SINGLE_COMMENT=59, 
-		MOD=60;
+		IDENTIFIER=50, LEFT_PAREN=51, RIGHT_PAREN=52, LEFT_BRACE=53, RIGHT_BRACE=54, 
+		SEMICOLON=55, COMMA=56, WHITESPACE=57, SINGLE_COMMENT=58;
 	public static final String[] tokenNames = {
 		"<INVALID>", "'self'", "'true'", "'false'", "'null'", "'bool'", "'double'", 
 		"'entity'", "'ship'", "'asteroid'", "'bullet'", "'any'", "'getradius'", 
@@ -31,9 +30,8 @@ public class AsteroidsParserParser extends Parser {
 		"'cos'", "'!'", "'thrust'", "'thrust_off'", "'turn'", "'fire'", "'skip'", 
 		"'print'", "'if'", "'then'", "'else'", "'while'", "'do'", "'foreach'", 
 		"':='", "'*'", "'/'", "'+'", "'-'", "'=='", "'!='", "'<'", "'>'", "'<='", 
-		"'>='", "'&&'", "'||'", "NUMBER", "FLOAT", "INTEGER", "SIGN", "IDENTIFIER", 
-		"'('", "')'", "'{'", "'}'", "';'", "','", "WHITESPACE", "SINGLE_COMMENT", 
-		"MOD"
+		"'>='", "'&&'", "'||'", "NUMBER", "FLOAT", "INTEGER", "IDENTIFIER", "'('", 
+		"')'", "'{'", "'}'", "';'", "','", "WHITESPACE", "SINGLE_COMMENT"
 	};
 	public static final int
 		RULE_eval = 0, RULE_decl = 1, RULE_action = 2, RULE_unop = 3, RULE_ctrl = 4, 
@@ -1006,19 +1004,18 @@ public class AsteroidsParserParser extends Parser {
 	}
 
 	public static class BinopContext extends ParserRuleContext {
-		public TerminalNode LT() { return getToken(AsteroidsParserParser.LT, 0); }
-		public TerminalNode NEQ() { return getToken(AsteroidsParserParser.NEQ, 0); }
-		public TerminalNode MOD() { return getToken(AsteroidsParserParser.MOD, 0); }
-		public TerminalNode OR() { return getToken(AsteroidsParserParser.OR, 0); }
 		public TerminalNode GT() { return getToken(AsteroidsParserParser.GT, 0); }
+		public TerminalNode LT() { return getToken(AsteroidsParserParser.LT, 0); }
 		public TerminalNode SUB() { return getToken(AsteroidsParserParser.SUB, 0); }
+		public TerminalNode NEQ() { return getToken(AsteroidsParserParser.NEQ, 0); }
 		public TerminalNode GEQ() { return getToken(AsteroidsParserParser.GEQ, 0); }
-		public TerminalNode DIV() { return getToken(AsteroidsParserParser.DIV, 0); }
 		public TerminalNode EQ() { return getToken(AsteroidsParserParser.EQ, 0); }
+		public TerminalNode DIV() { return getToken(AsteroidsParserParser.DIV, 0); }
 		public TerminalNode AND() { return getToken(AsteroidsParserParser.AND, 0); }
 		public TerminalNode MUL() { return getToken(AsteroidsParserParser.MUL, 0); }
-		public TerminalNode ADD() { return getToken(AsteroidsParserParser.ADD, 0); }
+		public TerminalNode OR() { return getToken(AsteroidsParserParser.OR, 0); }
 		public TerminalNode LEQ() { return getToken(AsteroidsParserParser.LEQ, 0); }
+		public TerminalNode ADD() { return getToken(AsteroidsParserParser.ADD, 0); }
 		public BinopContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1042,7 +1039,7 @@ public class AsteroidsParserParser extends Parser {
 			{
 			setState(166);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MUL) | (1L << DIV) | (1L << ADD) | (1L << SUB) | (1L << EQ) | (1L << NEQ) | (1L << LT) | (1L << GT) | (1L << LEQ) | (1L << GEQ) | (1L << AND) | (1L << OR) | (1L << MOD))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << MUL) | (1L << DIV) | (1L << ADD) | (1L << SUB) | (1L << EQ) | (1L << NEQ) | (1L << LT) | (1L << GT) | (1L << LEQ) | (1L << GEQ) | (1L << AND) | (1L << OR))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -1073,7 +1070,7 @@ public class AsteroidsParserParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\2\3>\u00ab\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4"+
+		"\2\3<\u00ab\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4"+
 		"\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\3\2\3\2\3"+
 		"\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2.\n\2\3\2\5\2\61"+
 		"\n\2\5\2\63\n\2\3\3\3\3\3\3\3\3\5\39\n\3\3\4\3\4\3\4\3\4\3\4\3\4\5\4A"+
@@ -1084,36 +1081,36 @@ public class AsteroidsParserParser extends Parser {
 		"\n\t\3\t\3\t\3\t\3\t\3\n\3\n\3\n\3\n\3\13\3\13\3\13\3\13\3\13\3\13\3\13"+
 		"\3\13\3\13\3\13\5\13\u0098\n\13\3\13\3\13\3\13\3\13\7\13\u009e\n\13\f"+
 		"\13\16\13\u00a1\13\13\3\f\3\f\3\r\3\r\3\16\3\16\3\17\3\17\3\17\2\20\2"+
-		"\4\6\b\n\f\16\20\22\24\26\30\32\34\2\6\3\3\6\3\7\t\3\n\r\4%\60>>\u00bc"+
-		"\2\62\3\2\2\2\4\64\3\2\2\2\6@\3\2\2\2\b]\3\2\2\2\nb\3\2\2\2\fd\3\2\2\2"+
-		"\16s\3\2\2\2\20|\3\2\2\2\22\u0089\3\2\2\2\24\u0097\3\2\2\2\26\u00a2\3"+
-		"\2\2\2\30\u00a4\3\2\2\2\32\u00a6\3\2\2\2\34\u00a8\3\2\2\2\36\37\5\4\3"+
-		"\2\37 \7:\2\2 .\3\2\2\2!\"\5\6\4\2\"#\7:\2\2#.\3\2\2\2$%\5\22\n\2%&\7"+
-		":\2\2&.\3\2\2\2\'(\7\35\2\2()\5\24\13\2)*\7:\2\2*.\3\2\2\2+.\5\n\6\2,"+
-		".\7:\2\2-\36\3\2\2\2-!\3\2\2\2-$\3\2\2\2-\'\3\2\2\2-+\3\2\2\2-,\3\2\2"+
-		"\2.\60\3\2\2\2/\61\5\2\2\2\60/\3\2\2\2\60\61\3\2\2\2\61\63\3\2\2\2\62"+
-		"-\3\2\2\2\62\63\3\2\2\2\63\3\3\2\2\2\64\65\5\30\r\2\658\7\65\2\2\66\67"+
-		"\7$\2\2\679\5\24\13\28\66\3\2\2\289\3\2\2\29\5\3\2\2\2:A\7\30\2\2;A\7"+
-		"\31\2\2<=\7\32\2\2=A\5\24\13\2>A\7\33\2\2?A\7\34\2\2@:\3\2\2\2@;\3\2\2"+
-		"\2@<\3\2\2\2@>\3\2\2\2@?\3\2\2\2A\7\3\2\2\2BC\7\16\2\2C^\5\24\13\2DE\7"+
-		"\17\2\2E^\5\24\13\2FG\7\20\2\2G^\5\24\13\2HI\7\21\2\2I^\5\24\13\2JK\7"+
-		"\22\2\2K^\5\24\13\2LM\7\24\2\2MN\7\66\2\2NO\5\24\13\2OP\7\67\2\2P^\3\2"+
-		"\2\2QR\7\25\2\2RS\7\66\2\2ST\5\24\13\2TU\7\67\2\2U^\3\2\2\2VW\7\26\2\2"+
-		"WX\7\66\2\2XY\5\24\13\2YZ\7\67\2\2Z^\3\2\2\2[\\\7\27\2\2\\^\5\24\13\2"+
-		"]B\3\2\2\2]D\3\2\2\2]F\3\2\2\2]H\3\2\2\2]J\3\2\2\2]L\3\2\2\2]Q\3\2\2\2"+
-		"]V\3\2\2\2][\3\2\2\2^\t\3\2\2\2_c\5\f\7\2`c\5\16\b\2ac\5\20\t\2b_\3\2"+
-		"\2\2b`\3\2\2\2ba\3\2\2\2c\13\3\2\2\2de\7\36\2\2eg\5\24\13\2fh\7\37\2\2"+
-		"gf\3\2\2\2gh\3\2\2\2hi\3\2\2\2ij\78\2\2jk\5\2\2\2kq\79\2\2lm\7 \2\2mn"+
-		"\78\2\2no\5\2\2\2op\79\2\2pr\3\2\2\2ql\3\2\2\2qr\3\2\2\2r\r\3\2\2\2st"+
-		"\7!\2\2tv\5\24\13\2uw\7\"\2\2vu\3\2\2\2vw\3\2\2\2wx\3\2\2\2xy\78\2\2y"+
-		"z\5\2\2\2z{\79\2\2{\17\3\2\2\2|}\7#\2\2}~\7\66\2\2~\177\5\32\16\2\177"+
-		"\u0080\7;\2\2\u0080\u0081\7\65\2\2\u0081\u0083\7\67\2\2\u0082\u0084\7"+
+		"\4\6\b\n\f\16\20\22\24\26\30\32\34\2\6\3\3\6\3\7\t\3\n\r\3%\60\u00bc\2"+
+		"\62\3\2\2\2\4\64\3\2\2\2\6@\3\2\2\2\b]\3\2\2\2\nb\3\2\2\2\fd\3\2\2\2\16"+
+		"s\3\2\2\2\20|\3\2\2\2\22\u0089\3\2\2\2\24\u0097\3\2\2\2\26\u00a2\3\2\2"+
+		"\2\30\u00a4\3\2\2\2\32\u00a6\3\2\2\2\34\u00a8\3\2\2\2\36\37\5\4\3\2\37"+
+		" \79\2\2 .\3\2\2\2!\"\5\6\4\2\"#\79\2\2#.\3\2\2\2$%\5\22\n\2%&\79\2\2"+
+		"&.\3\2\2\2\'(\7\35\2\2()\5\24\13\2)*\79\2\2*.\3\2\2\2+.\5\n\6\2,.\79\2"+
+		"\2-\36\3\2\2\2-!\3\2\2\2-$\3\2\2\2-\'\3\2\2\2-+\3\2\2\2-,\3\2\2\2.\60"+
+		"\3\2\2\2/\61\5\2\2\2\60/\3\2\2\2\60\61\3\2\2\2\61\63\3\2\2\2\62-\3\2\2"+
+		"\2\62\63\3\2\2\2\63\3\3\2\2\2\64\65\5\30\r\2\658\7\64\2\2\66\67\7$\2\2"+
+		"\679\5\24\13\28\66\3\2\2\289\3\2\2\29\5\3\2\2\2:A\7\30\2\2;A\7\31\2\2"+
+		"<=\7\32\2\2=A\5\24\13\2>A\7\33\2\2?A\7\34\2\2@:\3\2\2\2@;\3\2\2\2@<\3"+
+		"\2\2\2@>\3\2\2\2@?\3\2\2\2A\7\3\2\2\2BC\7\16\2\2C^\5\24\13\2DE\7\17\2"+
+		"\2E^\5\24\13\2FG\7\20\2\2G^\5\24\13\2HI\7\21\2\2I^\5\24\13\2JK\7\22\2"+
+		"\2K^\5\24\13\2LM\7\24\2\2MN\7\65\2\2NO\5\24\13\2OP\7\66\2\2P^\3\2\2\2"+
+		"QR\7\25\2\2RS\7\65\2\2ST\5\24\13\2TU\7\66\2\2U^\3\2\2\2VW\7\26\2\2WX\7"+
+		"\65\2\2XY\5\24\13\2YZ\7\66\2\2Z^\3\2\2\2[\\\7\27\2\2\\^\5\24\13\2]B\3"+
+		"\2\2\2]D\3\2\2\2]F\3\2\2\2]H\3\2\2\2]J\3\2\2\2]L\3\2\2\2]Q\3\2\2\2]V\3"+
+		"\2\2\2][\3\2\2\2^\t\3\2\2\2_c\5\f\7\2`c\5\16\b\2ac\5\20\t\2b_\3\2\2\2"+
+		"b`\3\2\2\2ba\3\2\2\2c\13\3\2\2\2de\7\36\2\2eg\5\24\13\2fh\7\37\2\2gf\3"+
+		"\2\2\2gh\3\2\2\2hi\3\2\2\2ij\7\67\2\2jk\5\2\2\2kq\78\2\2lm\7 \2\2mn\7"+
+		"\67\2\2no\5\2\2\2op\78\2\2pr\3\2\2\2ql\3\2\2\2qr\3\2\2\2r\r\3\2\2\2st"+
+		"\7!\2\2tv\5\24\13\2uw\7\"\2\2vu\3\2\2\2vw\3\2\2\2wx\3\2\2\2xy\7\67\2\2"+
+		"yz\5\2\2\2z{\78\2\2{\17\3\2\2\2|}\7#\2\2}~\7\65\2\2~\177\5\32\16\2\177"+
+		"\u0080\7:\2\2\u0080\u0081\7\64\2\2\u0081\u0083\7\66\2\2\u0082\u0084\7"+
 		"\"\2\2\u0083\u0082\3\2\2\2\u0083\u0084\3\2\2\2\u0084\u0085\3\2\2\2\u0085"+
-		"\u0086\78\2\2\u0086\u0087\5\2\2\2\u0087\u0088\79\2\2\u0088\21\3\2\2\2"+
-		"\u0089\u008a\7\65\2\2\u008a\u008b\7$\2\2\u008b\u008c\5\24\13\2\u008c\23"+
-		"\3\2\2\2\u008d\u008e\b\13\1\2\u008e\u0098\7\61\2\2\u008f\u0098\7\65\2"+
-		"\2\u0090\u0098\7\23\2\2\u0091\u0092\7\66\2\2\u0092\u0093\5\24\13\2\u0093"+
-		"\u0094\7\67\2\2\u0094\u0098\3\2\2\2\u0095\u0098\5\26\f\2\u0096\u0098\5"+
+		"\u0086\7\67\2\2\u0086\u0087\5\2\2\2\u0087\u0088\78\2\2\u0088\21\3\2\2"+
+		"\2\u0089\u008a\7\64\2\2\u008a\u008b\7$\2\2\u008b\u008c\5\24\13\2\u008c"+
+		"\23\3\2\2\2\u008d\u008e\b\13\1\2\u008e\u0098\7\61\2\2\u008f\u0098\7\64"+
+		"\2\2\u0090\u0098\7\23\2\2\u0091\u0092\7\65\2\2\u0092\u0093\5\24\13\2\u0093"+
+		"\u0094\7\66\2\2\u0094\u0098\3\2\2\2\u0095\u0098\5\26\f\2\u0096\u0098\5"+
 		"\b\5\2\u0097\u008d\3\2\2\2\u0097\u008f\3\2\2\2\u0097\u0090\3\2\2\2\u0097"+
 		"\u0091\3\2\2\2\u0097\u0095\3\2\2\2\u0097\u0096\3\2\2\2\u0098\u009f\3\2"+
 		"\2\2\u0099\u009a\6\13\2\3\u009a\u009b\5\34\17\2\u009b\u009c\5\24\13\2"+

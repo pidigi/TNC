@@ -62,40 +62,40 @@ expr:       NUMBER
 // ------------------------------------------------------------------------
 
 namedconst: SELF | TRUE | FALSE | NULL;
-SELF: 'self';
-TRUE: 'true';
-FALSE: 'false';
-NULL: 'null';
+SELF:      'self';
+TRUE:      'true';
+FALSE:     'false';
+NULL:      'null';
 
 
 // ------------------------------------------------------------------------
 // --- Types and Specifiers -----------------------------------------------
 // ------------------------------------------------------------------------
 type:   BOOL | DOUBLE | ENTITY;
-BOOL: 'bool';
-DOUBLE: 'double';
-ENTITY: 'entity';
+BOOL:      'bool';
+DOUBLE:    'double';
+ENTITY:    'entity';
 
 entityspec: SHIP | ASTEROID | BULLET | ANY;
-SHIP: 'ship';
-ASTEROID: 'asteroid';
-BULLET: 'bullet';
-ANY: 'any';
+SHIP:      'ship';
+ASTEROID:  'asteroid';
+BULLET:    'bullet';
+ANY:       'any';
 
 
 // ------------------------------------------------------------------------
 // --- Unary Operations ---------------------------------------------------
 // ------------------------------------------------------------------------
 GETRADIUS: 'getradius';
-GETX: 'getx';
-GETY: 'gety';
-GETVX: 'getvx';
-GETVY: 'getvy';
-GETDIR: 'getdir';
-SQRT: 'sqrt';
-SIN: 'sin';
-COS: 'cos';
-NOT: '!';
+GETX:      'getx';
+GETY:      'gety';
+GETVX:     'getvx';
+GETVY:     'getvy';
+GETDIR:    'getdir';
+SQRT:      'sqrt';
+SIN:       'sin';
+COS:       'cos';
+NOT:       '!';
 
 
 // ------------------------------------------------------------------------
@@ -106,18 +106,18 @@ THRUSTOFF: 'thrust_off';
 TURN:      'turn';
 FIRE:      'fire'; 
 SKIP:      'skip';
-PRINT: 'print';
+PRINT:     'print';
 
 
 // ------------------------------------------------------------------------
 // --- Control Flow -------------------------------------------------------
 // ------------------------------------------------------------------------
-IF: 'if';
-THEN: 'then';
-ELSE: 'else';
-WHILE: 'while';
-DO: 'do';
-FOREACH: 'foreach';
+IF:        'if';
+THEN:      'then';
+ELSE:      'else';
+WHILE:     'while';
+DO:        'do';
+FOREACH:   'foreach';
 
 
 // ------------------------------------------------------------------------
@@ -125,7 +125,7 @@ FOREACH: 'foreach';
 // ------------------------------------------------------------------------
 ASSIGN: ':=';
 
-binop:  MUL | DIV | MOD | ADD | SUB |
+binop:  MUL | DIV | ADD | SUB |
         NEQ | EQ | LT | GT | LEQ | GEQ |
         AND | OR;
 MUL: '*';
@@ -145,10 +145,10 @@ OR:  '||';
 // ------------------------------------------------------------------------
 // --- Literals and Variables ---------------------------------------------
 // ------------------------------------------------------------------------
-NUMBER: INTEGER | FLOAT;
-FLOAT: INTEGER '.' '0'..'9'+;
-INTEGER: '0' | SIGN? '1'..'9' '0'..'9'*;
-SIGN: (ADD | SUB);
+
+NUMBER:  INTEGER | FLOAT;
+FLOAT:   INTEGER '.' '0'..'9'+;
+INTEGER: (('-'|'+')? '0'..'9' '0'..'9'*);
 
 IDENTIFIER: LETTER (LETTER | DIGIT | '_')*;
 fragment LETTER: LOWER | UPPER;
