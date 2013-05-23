@@ -34,8 +34,12 @@ public abstract class Collision implements Comparable<Collision>{
 	 * Get the time to collision of this collision.
 	 * 
 	 * @return	...
+	 * 
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			... ? this instanceof ObjectCollision
 	 */
-	public abstract double getCollisionTime();
+	public abstract double getCollisionTime() throws NullPointerException;
 	
 	/**
 	 * Get the point on the edge of an object involved in the collision
@@ -111,11 +115,15 @@ public abstract class Collision implements Comparable<Collision>{
 	 * @param 	collisionListener
 	 * 			The collisionListener used to visualize the resolve.
 	 * @post 	...
+	 * 
+	 * @throws	IllegalArgumentException
+	 * 			...
+	 * 			... ? this instanceof ObjectCollision
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			... ? this instanceof ObjectCollision
 	 */
-	//TODO in subclasses nog bij dat enkel resolven als ze dicht genoeg????
-	// SOWIESO erbij in commentaar!!!!!!!!!!!!!
-	// TODO liskov
-	public abstract void resolve(CollisionListener collisionListener);
+	public abstract void resolve(CollisionListener collisionListener) throws IllegalArgumentException, NullPointerException;
 	
 	/**
 	 * Return all spatial elements involved in this collision.

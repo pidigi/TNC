@@ -43,8 +43,6 @@ public class ObjectCollision extends Collision{
 	/**
 	 * Check whether this object collision is equal to the given collision.
 	 * 
-	 * @param	otherCollision
-	 * 			The other collision to check equality with.
 	 * @return	...
 	 * 			| result == (otherCollision != null  && otherCollision.isObjectCollision()
 	 *			| && (getElement1() == otherCollision.getElement1() 
@@ -52,6 +50,7 @@ public class ObjectCollision extends Collision{
 	 *			| && (getElement2() == otherCollision.getElement1() 
 	 *			| || getElement2() == otherCollision.getElement2()))
 	 */
+	@Override
 	public boolean equals(Collision otherCollision) {
 		return  (otherCollision != null  && otherCollision.isObjectCollision()) &&
 				((getElement1() == ((ObjectCollision) otherCollision).getElement1() 
@@ -63,12 +62,11 @@ public class ObjectCollision extends Collision{
 	/**
 	 * Check whether this object collision contains the given spatial element.
 	 * 
-	 * @param	otherElement
-	 * 			The element to be checked.
 	 * @return	...
 	 * 			| result == ((getElement1() == otherElement) 
 	 * 			|			|| (getElement2() == otherElement))
 	 */
+	@Override
 	public boolean contains(SpatialElement otherElement){
 		return (getElement1() == otherElement || getElement2() == otherElement);
 	}
@@ -104,8 +102,12 @@ public class ObjectCollision extends Collision{
 	 * 
 	 * @return	...
 	 * 			| result == element1.getTimeToCollision(element2)
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			getElement2() == null
 	 */
-	public double getCollisionTime(){
+	@Override
+	public double getCollisionTime() throws NullPointerException{
 		return element1.getTimeToCollision(element2);
 	}
 	
@@ -134,24 +136,11 @@ public class ObjectCollision extends Collision{
 	 * 			| then collisionListener.objectCollision(getElement1(), getElement2(), 
 	 *			| 	   this.getConnectingEdgePoint().getXComponent(),
 	 *			| 	   this.getConnectingEdgePoint().getYComponent())
-	 * @effect	If element1 and element2 of this collision are both ships or both asteroids
-	 * 			they bounce against each other.
-	 * 			| if ((getElement1().isShip() && getElement2().isShip()) 
-	 * 			| || (getElement1().isAsteroid() && getElement2().isAsteroid()))
-	 * 			| then resolveBounce(getElement1(),getElement2())
-	 * @effect	If one of the elements in this collision is a ship and 
-	 * 			the other one is an asteroid, the ship is terminated.
-	 * 			| if ((getElement1().isShip() && getElement2().isAsteroid()) 
-	 * 			| then getElement1().terminate()
-	 * 			| else if (getElement1().isAsteroid() && getElement2().isShip()))
-	 * 			| then getElement2().terminate()
-	 * @effect	If one of the elements in this collision is a bullet, the collision
-	 * 			with the bullet is resolved.
-	 * 			| if ((getElement1().isBullet() || getElement2().isBullet()) 
-	 * 			| then resolveBullet(getElement1(),getElement2())
+	 * @effect	...
+	 * 			| getElement1().resolve(getElement2())
 	 */
 	@Override
-	public void resolve(CollisionListener collisionListener) {
+	public void resolve(CollisionListener collisionListener) throws IllegalArgumentException, NullPointerException{
 		if(collisionListener != null)
 		collisionListener.objectCollision(getElement1(), getElement2(), 
 				this.getConnectingEdgePoint().getXComponent(),

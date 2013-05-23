@@ -37,8 +37,6 @@ public class WallCollision extends Collision{
 	/**
 	 * Check whether this wall collision is equal to the given collision.
 	 * 
-	 * @param	otherCollision
-	 * 			The collision to check equality with.
 	 * @return	...
 	 * 			| result == (otherCollision != null && otherCollision.isWallCollision())
 	 * 			|	&& (this.getElement() == otherCollision.getElement())
@@ -53,8 +51,6 @@ public class WallCollision extends Collision{
 	/**
 	 * Check whether this wall collision contains the given spatial element.
 	 * 
-	 * @param	otherElement
-	 * 			The element to be checked.
 	 * @return	...
 	 * 			| result == (getElement() == otherElement)
 	 */
@@ -80,7 +76,7 @@ public class WallCollision extends Collision{
 	 * 			| 	   in result == minimum(times)
 	 */
 	@Override
-	public double getCollisionTime() {
+	public double getCollisionTime(){
 		if(getElement().getWorld() != null){
 			double timeTop = getElement().getTimeToHorizontalWallCollision(getElement().getWorld().getHeight());
 			double timeBottom = getElement().getTimeToHorizontalWallCollision(0);
@@ -154,19 +150,10 @@ public class WallCollision extends Collision{
 	 * 			| then collisionListener.boundaryCollision(getElement(),
 	 *			| 	   this.getConnectingEdgePoint().getXComponent(),
 	 *			| 	   this.getConnectingEdgePoint().getYComponent())
-	 * @post	The x-component of the velocity of the element of this wall collision
-	 * 			is reversed if the element collides with a vertical wall,
-	 * 			else the y-component is reversed.
+	 * @effect	...
 	 * 			| let yPos == getConnectingEdgePoint().getYComponent()
-	 * 			| in 
-	 * 			| if(fuzzyEquals(yPos, 0) || 
+	 * 			| in getElement().resolveWall(fuzzyEquals(yPos, 0) || 
 	 * 			|	fuzzyEquals(yPos, getElement().getWorld().getHeight()))
-	 * 			| then 
-	 * 			| ((new this).getVelocity().getYComponent() == 
-	 * 			| 		this.getVelocity().getYComponent*-1)
-	 * 			| else 
-	 * 			| ((new this).getVelocity().getXComponent() == 
-	 * 			| 		this.getVelocity().getXComponent*-1) &&
 	 */
 	@Override
 	public void resolve(CollisionListener collisionListener) {

@@ -15,6 +15,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  */
 
 public class Bullet extends SpatialElement{
+	
 	/**
 	 * Initialize this new bullet.
 	 * 
@@ -109,7 +110,8 @@ public class Bullet extends SpatialElement{
 	/**
 	 * Bounce the bullet of a wall.
 	 * 
-	 * @post	| (new this).hasBounced() == true
+	 * @post	...
+	 * 			| (new this).hasBounced() == true
 	 */
 	// No setter necessary because physically not logical to set back to false 
 	// and private setter would only be used in this method.
@@ -126,13 +128,11 @@ public class Bullet extends SpatialElement{
 	/**
 	 * Terminate this bullet.
 	 * 
-	 * @effect	Terminate this spatial element.
-	 * 			| super.terminate()
 	 * @effect	Remove this bullet from the set of bullets in its ship.
 	 * 			| getShip().removeAsBullet(this)
 	 */
 	@Override
-	public void terminate() throws IllegalArgumentException{
+	public void terminate() throws IllegalArgumentException, NullPointerException{
 		super.terminate();
 		getShip().removeAsBullet(this);
 	}
@@ -140,26 +140,21 @@ public class Bullet extends SpatialElement{
 	/**
 	 * Resolve a collision of this bullet and another element.
 	 * 
-	 * @param	otherElement
-	 * 			Element to resolve the collision with.
 	 * @effect	If the other element is a ship and it is not the source
-	 * 			of this bullet, terminate both.
+	 * 			of this bullet, let both collide.
 	 * 			| if(otherElement.isShip() && this.getShip() != otherElement)
-	 * 			|	then otherElement.terminate()
-	 * 			|		 this.terminate()
-	 * @effect	If the other element is a bullet, terminate both.
+	 * 			|	then otherElement.collide()
+	 * 			|		 this.collide()
+	 * @effect	If the other element is a bullet, let both collide.
 	 * 			| if(otherElement.isBullet())
-	 * 			|	then otherElement.terminate()
-	 * 			|		 this.terminate()
+	 * 			|	then otherElement.collide()
+	 * 			|		 this.collide()
 	 * @effect	If the other element is not a ship or a bullet, let it resolve this ship.
 	 * 			| if(!otherElement.isShip() && !otherElement.isBullet())
 	 * 			|	then otherElement.resolve(this)
-	 * @throws	NullPointerException
-	 * 			The other element is not effective.
-	 * 			| otherElement == null
 	 */
 	@Override
-	public void resolve(SpatialElement otherElement) throws NullPointerException{
+	public void resolve(SpatialElement otherElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(otherElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isBullet()){
@@ -178,8 +173,6 @@ public class Bullet extends SpatialElement{
 	/**
 	 * Resolve the initial condition of this and the given element.
 	 * 
-	 * @param	overlappingElement
-	 * 			The element overlapping with this element.
 	 * @effect	If the overlapping element is a ship or asteroid or bullet,
 	 * 			resolve the initial conditions with this bullet.
 	 * 			| if (overlappingElement.isShip() || overlappingElement.isAsteroid()
@@ -190,12 +183,6 @@ public class Bullet extends SpatialElement{
 	 * 			| if (!overlappingElement.isShip() && !overlappingElement.isAsteroid()
 	 *			|		&& !overlappingElement.isBullet())
 	 * 			| then overlappingElement.resolveInitialCondition(this)
-	 * @throws	IllegalArgumentException
-	 * 			The given element does not result in an valid object collision.
-	 * 			| !isValidObjectCollision(overlappingElement)
-	 * @throws	NullPointerException
-	 * 			The given element is noneffective.
-	 * 			| overlappingElement == null
 	 */
 	@Override
 	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
@@ -212,8 +199,6 @@ public class Bullet extends SpatialElement{
 	 * Check if the collision of this element and the given element
 	 * is a valid object collision.
 	 * 
-	 * @param 	element
-	 * 			The element to check the valid collision with.
 	 * @return	If the element is an asteroid or a bullet, the result is
 	 * 			the boolean indicating whether this is a valid object overlap.
 	 * 			| if(element.isAsteroid() || element.isBullet())
@@ -228,11 +213,7 @@ public class Bullet extends SpatialElement{
 	 * 			with this element is valid.
 	 * 			| if(!element.isAsteroid() && !element.isShip() && !element.isBullet())
 	 *			| then result == element.isValidObjectCollision(this)
-	 * @throws	NullPointerException
-	 * 			The given element is null
-	 * 			| element == null
 	 */
-	// TODO alle doc hier checken...
 	@Override
 	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
 		if(element == null)

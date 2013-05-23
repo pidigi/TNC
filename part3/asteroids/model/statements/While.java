@@ -46,7 +46,7 @@ public class While extends S{
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		if (!(this.getCondition().getType(globalTypes).isDouble())) {
+		if (!(this.getCondition().getType(globalTypes).isBoolean())) {
 			throw new IllegalArgumentException();
 		}
 		this.setConditionEval((Boolean) this.getCondition().evaluate(globalTypes,globalExpr));

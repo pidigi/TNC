@@ -50,7 +50,7 @@ public class Program {
 	
 	private Map<String, Object> globalExpressions = new HashMap<String,Object>();
 	
-	public void setShip(Ship ship) {
+	public void setShip(Ship ship) throws IllegalArgumentException{
 		if(ship != null && ship.getProgram() != this)
 			throw new IllegalArgumentException();
 		if(ship == null && getShip() != null 
@@ -76,7 +76,7 @@ public class Program {
 		return terminated;
 	}
 	
-	public void terminate() {
+	public void terminate() throws IllegalArgumentException{
 		if(getShip() != null){
 			this.getShip().setProgram(null);
 		}

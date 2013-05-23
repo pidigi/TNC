@@ -154,9 +154,14 @@ public abstract class SpatialElement {
 	 * 			effective world.
 	 * 			| if (this.getWorld() != null)
 	 * 		    | then this.getWorld().hasAsSpatialElement(this)
+	 * @throws	IllegalArgumentException
+	 * 			...
+	 * 			... ? true
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			... ? true
 	 */
-	// RemoveAsSpatialElement won't throw an exception since it's called via this.getWorld()
-	public void terminate() {
+	public void terminate() throws IllegalArgumentException, NullPointerException{
 		if (this.getWorld() != null) {
 			this.getWorld().removeAsSpatialElement(this);
 		}
@@ -807,11 +812,14 @@ public abstract class SpatialElement {
 	 * 			The element to resolve with.
 	 * @return	...
 	 * 
+	 * @throws	IllegalArgumentException
+	 * 			The given element does not result in an valid object collision.
+	 * 			| !isValidObjectCollision(overlappingElement)
 	 * @throws	NullPointerException
 	 * 			The other element is not effective.
 	 * 			| otherElement == null
 	 */
-	public abstract void resolve(SpatialElement otherElement) throws NullPointerException;
+	public abstract void resolve(SpatialElement otherElement) throws IllegalArgumentException,NullPointerException;
 	
 	/**
 	 * Resolve the bouncing of given spatial elements.

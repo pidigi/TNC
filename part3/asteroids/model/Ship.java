@@ -9,8 +9,6 @@ import be.kuleuven.cs.som.annotate.*;
  * 
  * @invar	The angle of each ship must be a valid angle for a ship.
  *			| isValidAngle(getAngle())
- * @invar	This ship has a proper world.
- * 			| hasProperWorld();
  * 
  * @version  3.2
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
@@ -18,6 +16,7 @@ import be.kuleuven.cs.som.annotate.*;
  */
 
 public class Ship extends SpatialElement{
+	
 	/**
 	 * Initialize this new ship with given position, angle, radius, velocity, maximum speed and mass.
 	 * 
@@ -96,27 +95,18 @@ public class Ship extends SpatialElement{
 	}
 		
 	/**
-	 * Terminate this spatial element.
+	 * Terminate this ship.
 	 * 
-	 * @post	This spatial element is terminated.
-	 * 			| (new this).isTerminated()
-	 * @post 	This spatial element no longer references an effective 
-	 * 			world.
-	 * 			| (new this).getWorld() == null
-	 * @post	This spatial element is no longer one of the spatial
-	 * 			elements for the world to which this spatial element
-	 * 			belonged, if this element was associated with an 
-	 * 			effective world.
-	 * 			| if (this.getWorld() != null)
-	 * 		    | then this.getWorld().hasAsSpatialElement(this)
+	 * @effect	If the current program is effective it will be terminated.
+	 * 			| if(getProgram() != null)
+	 * 			| then getProgram().terminate()
 	 */
-	// TODO doc
 	@Override
-	public void terminate() {
+	public void terminate() throws IllegalArgumentException, NullPointerException{
 		if(getProgram() != null)
 			getProgram().terminate();
 		super.terminate();
-	}	
+	}
 	
 	/**
 	 * Return the angle of this ship.
@@ -367,7 +357,7 @@ public class Ship extends SpatialElement{
 	 * 			| 	newBullet.getShip() == this
 	 * 			| 	this.getWorld().hasAsSpatialElement(newBullet)
 	 * @throws	NullpointerException
-	 * 			The ship has an effective world that is not proper.
+	 * 			The ship does not have a proper world.
 	 * 			| !this.hasProperWorld()
 	 */
 	public void fireBullet() throws NullPointerException {
@@ -392,8 +382,8 @@ public class Ship extends SpatialElement{
 	 * 			The program to check.
 	 * @return	True if and only if program is noneffective or if
 	 * 			the program is typecorrect and not terminated.
-	 * 			| result == program == null || 
-	 * 			|	(program.typeCheck() && !program.isTerminated())
+	 * 			| result == (program == null || 
+	 * 			|	(program.typeCheck() && !program.isTerminated()))
 	 */
 	public boolean canHaveAsProgram(Program program){
 		return program == null || 
@@ -417,6 +407,10 @@ public class Ship extends SpatialElement{
 	 * @post	The new program of this ship is the given program if it is effective.
 	 * 			| if (program != null)
 	 * 			| then (new this).getProgram() == program
+	 * @post	If this ship was already referring to a program, this program
+	 * 			will not reference a ship anymore.
+	 * 			| if (getProgram() != null)
+	 * 			|	(new getProgram()).getShip() == null
 	 * @effect	The ship of the program is set to this ship.
 	 * 			| program.setShip(this)
 	 * @throws	IllegalArgumentException
@@ -427,7 +421,7 @@ public class Ship extends SpatialElement{
 	 * 			| !canHaveAsProgram()
 	 */
 	@Basic
-	public void setProgram(Program program) {
+	public void setProgram(Program program) throws IllegalArgumentException{
 		if(this.isTerminated())
 			throw new IllegalArgumentException("Ship is terminated.");
 		if(!this.canHaveAsProgram(program))
@@ -451,8 +445,6 @@ public class Ship extends SpatialElement{
 	 * Check if the collision of this element and the given element
 	 * is a valid object collision.
 	 * 
-	 * @param 	element
-	 * 			The element to check the valid collision with.
 	 * @return	If the element is an asteroid or a ship, the result is
 	 * 			the boolean indicating whether this is a valid object overlap.
 	 * 			| if(element.isAsteroid() || element.isShip())
@@ -462,10 +454,8 @@ public class Ship extends SpatialElement{
 	 * 			with this element is valid.
 	 * 			| if(!element.isAsteroid() && !element.isShip())
 	 *			| then result == element.isValidObjectCollision(this)
-	 * @throws	NullPointerException
-	 * 			The given element is null
-	 * 			| element == null
 	 */
+	@Override
 	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
 		if(element == null)
 			throw new NullPointerException();
@@ -477,20 +467,11 @@ public class Ship extends SpatialElement{
 	/**
 	 * Resolve the initial condition of this and the given element.
 	 * 
-	 * @param	overlappingElement
-	 * 			The element overlapping with this element.
 	 * @effect	If the overlapping element is not a ship, let it
 	 * 			resolve the initial conditions with this ship.
 	 * 			| if (!overlappingElement.isShip())
 	 * 			| then overlappingElement.resolveInitialCondition(this)
-	 * @throws	IllegalArgumentException
-	 * 			The given element does not result in an valid object collision.
-	 * 			| !isValidObjectCollision(overlappingElement)
-	 * @throws	NullPointerException
-	 * 			The given element is noneffective.
-	 * 			| overlappingElement == null
 	 */
-	// TODO maar isValidObjectCollision kan zelf NullPointerException
 	@Override
 	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(overlappingElement))
@@ -502,20 +483,15 @@ public class Ship extends SpatialElement{
 	/**
 	 * Resolve a collision of this ship and another element.
 	 * 
-	 * @param	otherElement
-	 * 			Element to resolve the collision with.
 	 * @effect	If the other element is a ship, resolve it by bouncing.
 	 * 			| if(otherElement.isShip())
 	 * 			|	then resolveBounce(otherElement)
 	 * @effect	If the other element is not a ship, let it resolve this ship.
 	 * 			| if(!otherElement.isShip())
 	 * 			|	then otherElement.resolve(this)
-	 * @throws	NullPointerException
-	 * 			The other element is not effective.
-	 * 			| otherElement == null
 	 */
 	@Override
-	public void resolve(SpatialElement otherElement) throws NullPointerException{
+	public void resolve(SpatialElement otherElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(otherElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isShip())

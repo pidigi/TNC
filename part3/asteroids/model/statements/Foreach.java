@@ -88,7 +88,7 @@ public class Foreach extends S{
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		if (body.containsAction())
+		if (getBody().containsAction())
 			throw new IllegalArgumentException("Body of for loop contains action statement.");
 		
 		Ship ship = ((Ship) globalExpr.get("self"));
@@ -98,28 +98,28 @@ public class Foreach extends S{
 			switch (this.getType()) {
 				case SHIP:
 					for (Ship shipje:ship.getWorld().getShips()) {
-						list.add(shipje);
+						this.getList().add(shipje);
 					}
 					break;
 				case ASTEROID:
 					for (Asteroid asteroid:ship.getWorld().getAsteroids()) {
-						list.add(asteroid);
+						this.getList().add(asteroid);
 					}
 					break;
 				case BULLET:
 					for (Bullet bullet:ship.getWorld().getBullets()) {
-						list.add(bullet);
+						this.getList().add(bullet);
 					}
 					break;
 				case ANY:
 					for (Asteroid asteroid:ship.getWorld().getAsteroids()) {
-						list.add(asteroid);
+						this.getList().add(asteroid);
 					}
 					for (Bullet bullet:ship.getWorld().getBullets()) {
-						list.add(bullet);
+						this.getList().add(bullet);
 					}
 					for (Ship shipje:ship.getWorld().getShips()) {
-						list.add(shipje);
+						this.getList().add(shipje);
 					}
 					break;
 			}
@@ -137,7 +137,7 @@ public class Foreach extends S{
 	}
 	
 	public List<SpatialElement> getList() {
-		return this.getList();
+		return this.list;
 	}
 	
 	private List<SpatialElement> list = new ArrayList<SpatialElement>();

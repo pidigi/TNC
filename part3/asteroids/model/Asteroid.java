@@ -94,25 +94,26 @@ public class Asteroid extends SpatialElement{
 	/**
 	 * Terminate this asteroid and create two new smaller asteroids.
 	 * 
-	 * @effect	Two new asteroids are created, moving in opposite random directions.
+	 * @post	Two new asteroids are created, moving in opposite random directions.
 	 * 			| if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated())
-	 * 			|		velocity1.equals(velocity2.multiply(-1))
-	 * 			|		fuzzyEquals(velocity1.getNorm(),this.getVelocity().getNorm()*1.5)
+	 * 			|		velocity1.equals(velocity2.multiply(-1)) &&
+	 * 			|		fuzzyEquals(velocity1.getNorm(),this.getVelocity().getNorm()*1.5) &&
 	 * 			|		position1.minus(this.getPosition()).getDirection()
-	 * 			|			.equals(velocity1.getDirection())
+	 * 			|			.equals(velocity1.getDirection()) &&
 	 * 			|		fuzzyEquals(this.getPosition().minus(position1).getNorm(),
-	 * 			|			this.getPosition().minus(position2).getNorm())
+	 * 			|			this.getPosition().minus(position2).getNorm()) &&
 	 * 			| 		position1.minus(position2).getNorm() == this.getRadius()
 	 * 			|		newRadius = this.getRadius()/2
 	 * 			|		asteroid1 = new Asteroid(position1, newRadius, velocity1, new Random())
 	 * 			|		asteroid2 = new Asteroid(position2, newRadius, velocity2, new Random())
 	 * 			|		this.getWorld().addAsSpatialElement(asteroid1);
 	 *			|		this.getWorld().addAsSpatialElement(asteroid2);
-	 * @effect	The asteroid is terminated as a spatial element.
-	 * 		    | super.terminate();
+	 * @effect	The asteroid collides as a spatial element.
+	 * 		    | this.terminate()
 	 */
+	// TODO
 	@Override
-	public void collide() throws IllegalArgumentException{
+	public void collide() throws IllegalArgumentException, NullPointerException{
 		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated()){
 			double newRandomAngle = random.nextDouble()*2*Math.PI;
 			Vector2D randomDirection = new Vector2D(Math.cos(newRandomAngle),
@@ -122,14 +123,14 @@ public class Asteroid extends SpatialElement{
 			Vector2D positionChild2 = getPosition().add(randomDirection.multiply(-radiusChild));
 			Vector2D velocityChild1 = randomDirection.multiply(getVelocity().getNorm()*1.5);
 			World temp = getWorld();
-			super.terminate();
+			this.terminate();
 			SpatialElement childAsteroid1 = new Asteroid(positionChild1, radiusChild, velocityChild1,new Random());
 			SpatialElement childAsteroid2 = new Asteroid(positionChild2, radiusChild, velocityChild1.multiply(-1),new Random());
 			temp.addAsSpatialElement(childAsteroid1);
 			temp.addAsSpatialElement(childAsteroid2);
 		}
 		else {
-			super.terminate();
+			this.terminate();
 		}
 	}
 	
@@ -179,27 +180,22 @@ public class Asteroid extends SpatialElement{
 	/**
 	 * Resolve a collision of this asteroid and another element.
 	 * 
-	 * @param	otherElement
-	 * 			Element to resolve the collision with.
-	 * @effect	If the other element is a ship, terminate it.
+	 * @effect	If the other element is a ship, let it collide.
 	 * 			| if(otherElement.isShip())
-	 * 			|	then otherElement.terminate()
-	 * @effect	If the other element is a bullet, terminate both.
+	 * 			|	then otherElement.collide()
+	 * @effect	If the other element is a bullet, let both collide.
 	 * 			| if(otherElement.isBullet())
-	 * 			|	then otherElement.terminate()
-	 * 			|		 this.terminate()
+	 * 			|	then otherElement.collide()
+	 * 			|		 this.collide()
 	 * @effect	If the other element is an asteroid, resolve by bouncing.
 	 * 			| if(otherElement.isAsteroid())
 	 * 			|	then resolveBounce(otherElement)
 	 * @effect	If the other element is not a ship, bullet or asteroid, let it resolve this ship.
 	 * 			| if(!otherElement.isShip() && !otherElement.isBullet() && !otherElement.isAsteroid())
 	 * 			|	then otherElement.resolve(this)
-	 * @throws	NullPointerException
-	 * 			The other element is not effective.
-	 * 			| otherElement == null
 	 */
 	@Override
-	public void resolve(SpatialElement otherElement) throws NullPointerException{
+	public void resolve(SpatialElement otherElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(otherElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(otherElement.isAsteroid())
@@ -218,8 +214,6 @@ public class Asteroid extends SpatialElement{
 	 * Check if the collision of this element and the given element
 	 * is a valid object collision.
 	 * 
-	 * @param 	element
-	 * 			The element to check the valid collision with.
 	 * @return	If the element is an asteroid, the result is the boolean 
 	 * 			indicating whether this is a valid object overlap.
 	 * 			| if(element.isAsteroid())
@@ -229,9 +223,6 @@ public class Asteroid extends SpatialElement{
 	 * 			with this element is valid.
 	 * 			| if(!element.isAsteroid())
 	 *			| then result == element.isValidObjectCollision(this)
-	 * @throws	NullPointerException
-	 * 			The given element is null
-	 * 			| element == null
 	 */
 	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
 		if(element == null)
@@ -245,19 +236,12 @@ public class Asteroid extends SpatialElement{
 	/**
 	 * Resolve the initial condition of this and the given element.
 	 * 
-	 * @param	overlappingElement
-	 * 			The element overlapping with this element.
 	 * @effect	If the overlapping element is not a ship or asteroid, let it
 	 * 			resolve the initial conditions with this asteroid.
 	 * 			| if (!overlappingElement.isShip() && !overlappingElement.isAsteroid())
 	 * 			| then overlappingElement.resolveInitialCondition(this)
-	 * @throws	IllegalArgumentException
-	 * 			The given element does not result in an valid object collision.
-	 * 			| !isValidObjectCollision(overlappingElement)
-	 * @throws	NullPointerException
-	 * 			The given element is noneffective.
-	 * 			| overlappingElement == null
 	 */
+	@Override
 	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(overlappingElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
