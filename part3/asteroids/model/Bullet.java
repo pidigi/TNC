@@ -214,6 +214,7 @@ public class Bullet extends SpatialElement{
 	 *			| || ((element2.isBullet() && element1.isShip())
 	 *			| && element2).getShip() == element1))
 	 */
+	// TODO alle doc hier checken...
 	@Override
 	public boolean isValidObjectCollision(SpatialElement element){
 		if(element.isAsteroid() || element.isBullet())

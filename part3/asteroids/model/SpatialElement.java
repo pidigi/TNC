@@ -375,13 +375,13 @@ public abstract class SpatialElement {
 	 *       	| if ((velocity != null) && (!velocity.containsNaN()) &&
 	 *       	| (!fuzzyLessThanOrEqualTo(velocity.getNorm(),this.getMaxSpeed()))) 
 	 *       	| then (new this).getVelocity.getNorm() == this.getMaxSpeed() 
-	 *       	| (new this).getVelocity.getDirection().equals(velocity.getDirection())
+	 *       	| 	   (new this).getVelocity.getDirection().equals(velocity.getDirection())
 	 * @post 	If the given velocity is non-effective or contains a NaN entry, the
 	 *       	velocity of this spatial element is set to zero. 
 	 *       	| if ((velocity == null) || (velocity.containsNaN()) 
 	 *       	| then (new this).getVelocity == new Vector2D(0,0)
 	 */
-	void setVelocity(Vector2D velocity) {
+	public void setVelocity(Vector2D velocity) {
 		if (velocity == null || velocity.containsNaN()) {
 			this.velocity = new Vector2D(0, 0);
 		} else {
@@ -442,8 +442,8 @@ public abstract class SpatialElement {
 	 */
 	public double getDistanceBetween(SpatialElement otherElement)
 			throws NullPointerException {
-//		if (otherElement == null)
-//			throw new NullPointerException("The other element is non existent.");
+		if (otherElement == null)
+			throw new NullPointerException("The other element is non existent.");
 		if (this == otherElement)
 			return 0;
 		else
@@ -713,7 +713,7 @@ public abstract class SpatialElement {
 	 */
 	@Basic
 	@Raw
-	private boolean isValidMass(double mass) {
+	public boolean isValidMass(double mass) {
 		return mass > 0;
 	}
 	
@@ -782,26 +782,6 @@ public abstract class SpatialElement {
 			return true;
 	}
 	
-//	/**
-//	 * Check whether a collision of this and the given element can be resolved.
-//	 * 
-//	 * @param 	otherElement
-//	 * 			The element to check resolving with.
-//	 * @return	True if and only if the other element is effective and
-//	 * 			the worlds of this and the given element are effective and the same.
-//	 * 			| result == !(otherElement == null || this.getWorld() == null ||
-//	 * 			|	otherElement.getWorld() == null || otherElement.getWorld() != this.getWorld())
-//	 */
-//	public boolean canResolve(SpatialElement otherElement){
-//		if(otherElement == null)
-//			return false;
-////		if(this.getWorld() == null || otherElement.getWorld() == null || 
-////				otherElement.getWorld() != this.getWorld())
-////			return false;
-////		return true;
-//		return true;
-//	}
-	
 	/**
 	 * Resolve this and the given element.
 	 * 
@@ -867,9 +847,7 @@ public abstract class SpatialElement {
 		otherElement.setVelocity(newVel2);
 	}
 	
-	public void resolveInitialCondition(SpatialElement overlappingElement) {
-		// do nothing
-	}
+	public abstract void resolveInitialCondition(SpatialElement overlappingElement);
 	
 	public void collide(){
 		this.terminate();

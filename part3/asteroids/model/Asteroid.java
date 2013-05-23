@@ -249,6 +249,8 @@ public class Asteroid extends SpatialElement{
 		return element.isValidObjectCollision(this);
 	}
 	
+	
+	// TODO doc
 	public void resolveInitialCondition(SpatialElement overlappingElement) {
 		if(!isValidObjectCollision(overlappingElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");

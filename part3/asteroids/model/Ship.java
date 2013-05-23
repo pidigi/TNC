@@ -15,8 +15,6 @@ import be.kuleuven.cs.som.annotate.*;
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
 			 Pieter Lietaert (1st master Mathematical engineering)
  */
-// Approach to methods:
-// Direction (angle): Nominally
 
 public class Ship extends SpatialElement{
 	/**
@@ -120,6 +118,8 @@ public class Ship extends SpatialElement{
 	/**
 	 * Set the angle of this ship to the given angle.
 	 * 
+	 * @param	angle
+	 * 			The given angle to set.
 	 * @pre		The given angle must be a valid angle for a ship.
 	 * 			| isValidAngle(angle)
 	 * @post	The angle of this ship is equal to the given angle.
@@ -192,6 +192,8 @@ public class Ship extends SpatialElement{
 	/** 
 	 * Set the status of the thruster.
 	 * 
+	 * @param	thrusterActive
+	 * 			The status of the thruster to set.
 	 * @post 	The status of the thruster is equal to the given status thrusterActive.
 	 * 			| (new this).isThrusterActive() == thrusterActive
 	 */	
@@ -212,8 +214,8 @@ public class Ship extends SpatialElement{
 	 * 			The element to check.
 	 * @return	True if and only if the element is an effective bullet and
 	 * 			its source is this ship and it is not terminated.
-	 * 			| result == (element != null && element.isBullet()
-	 * 			|	&& element.getShip() == this && !element.isTerminated())
+	 * 			| result == (element != null && element.getShip() == this 
+	 * 			|			&& !element.isTerminated())
 	 */
 	public boolean canHaveAsBullet(Bullet element){
 			return (element != null && element.getShip() == this &&
@@ -229,7 +231,7 @@ public class Ship extends SpatialElement{
 	 * 			| bullets.add(element)
 	 * @throws 	IllegalArgumentException
 	 * 			The element cannot be added.
-	 * 			| !this.canAddAsBullet(element)
+	 * 			| !this.canHaveAsBullet(element)
 	 */
 	public void addAsBullet(Bullet element) throws IllegalArgumentException{
 		if (!this.canHaveAsBullet(element)) {
@@ -263,7 +265,7 @@ public class Ship extends SpatialElement{
 	/**
 	 * Get the current number of non-terminated bullets fired by the ship.
 	 */
-	@Basic //TODO
+	@Basic
 	public int getNbBullets(){
 		return bullets.size();
 	}
@@ -284,6 +286,22 @@ public class Ship extends SpatialElement{
 	private final Set<Bullet> bullets = new HashSet<Bullet>();
 	
 	/**
+	 * Check whether this ship can have the given program as its program.
+	 * 
+	 * @param 	program
+	 * 			The program to check.
+	 * @return	True if and only if program is noneffective or if
+	 * 			the program is typecorrect and not terminated.
+	 * 			| result == program == null || 
+	 * 			|	(program.typeCheck() && !program.isTerminated())
+	 */
+	public boolean canHaveAsProgram(Program program){
+		return program == null || 
+			(program.typeCheck() && !program.isTerminated());
+	}
+	
+	
+	/**
 	 * Get the program of this ship.
 	 */
 	@Basic
@@ -293,46 +311,54 @@ public class Ship extends SpatialElement{
 	
 	/**
 	 * Set the program for this ship.
+	 * 
+	 * @param	program
+	 * 			The program to set
+	 * @post	The new program of this ship is the given program if it is effective.
+	 * 			| if (program != null)
+	 * 			| then (new this).getProgram() == program
+	 * @effect	The ship of the program is set to this ship.
+	 * 			| program.setShip(this)
+	 * @throws	IllegalArgumentException
+	 * 			This ship is terminated.
+	 * 			| this.isTerminated()
+	 * @throws	IllegalArgumentException
+	 * 			This ship cannot have the given program as its program
+	 * 			| !canHaveAsProgram()
 	 */
-	// TODO: Omdraaien van bidirectionele condities?
 	@Basic
 	public void setProgram(Program program) {
-		if (program == null) {
-			if (this.program != null) {
-				this.program.setShip(null);
-			}
-			this.program = program;
-//			if (this.program != null) {
-//				this.program.terminate();
-//			} else {
-//				this.program = program;
-//			}
-		} else if (program.typeCheck()) {
-			this.program = program;
+		if(this.isTerminated())
+			throw new IllegalArgumentException("Ship is terminated.");
+		if(!this.canHaveAsProgram(program))
+			throw new IllegalArgumentException("Cannot add program.");
+		Program temp = getProgram();
+		this.program = program;
+		// remove old association
+		if (temp != null)
+			temp.setShip(null);
+		// set new association
+		if (program != null)
 			program.setShip(this);
-			System.out.println("Toegevoegd.");
-		} else {
-			System.out.println("Niet toegevoegd.");
-		}
 	}
 	
 	/**
 	 * The program of this ship.
 	 */
 	private Program program;
-	
-	
+		
 	/** 
 	 * Fire a bullet from this ship and add this to the world that contains this ship.
 	 * 
-	 * @post	If the current number of bullets is smaller than the maximum allowed, 
-	 * 			a new bullet is created with position equal to the position of this ship 
-	 * 			added to the sum of the radius of this ship and the bullet, in the direction of angle, 
+	 * @post	If this ship is located in a world and the current number of bullets 
+	 * 			is smaller than the maximum allowed, a new bullet is created with 
+	 * 			position equal to the position of this ship added to the sum of 
+	 * 			the radius of this ship and the bullet, in the direction of angle, 
 	 * 			radius equal to 3, velocity equal to 250 in the direction of angle, 
 	 * 			maximum speed equal to the speed of light and
 	 * 			added as a spatial element to the world containing ship and 
 	 * 			this ship is appointed as the owner of the bullet.
-	 * 			| if(getNbBullets() < getMaxNbBullets())
+	 * 			| if(getWorld() != null && getNbBullets() < getMaxNbBullets())
 	 * 			| then let Bullet newBullet
 	 * 			| 	in
 	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getDirection().getXComponent() 
@@ -349,18 +375,18 @@ public class Ship extends SpatialElement{
 	 * 			| 	newBullet.getShip() == this
 	 * 			| 	this.getWorld().hasAsSpatialElement(newBullet)
 	 * @throws	NullpointerException
-	 * 			This ship needs to be located in a world in order to fire a bullet.
+	 * 			The ship has an effective world that is not proper.
 	 * 			| !this.hasProperWorld()
 	 */
 	public void fireBullet() throws NullPointerException {
 		if(!this.hasProperWorld())
-			throw new NullPointerException("Ship not located within a world.");
-		if(getNbBullets() < getMaxNbBullets()){
+			throw new IllegalArgumentException("Ship not located within a proper world.");
+		if(this.getWorld() != null && getNbBullets() < getMaxNbBullets()){
 		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
 				Math.sin(this.getAngle()));
 		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));
 		Vector2D bulletVelocity = shootingDirection.multiply(250);
-		double bulletRadius = 100;
+		double bulletRadius = 3;
 		Bullet bullet = new Bullet(bulletPosition, bulletRadius, bulletVelocity, 300000, this);
 		this.addAsBullet(bullet);
 		this.getWorld().addAsSpatialElement(bullet);
@@ -460,6 +486,8 @@ public class Ship extends SpatialElement{
 		return element.isValidObjectCollision(this);
 	}
 	
+	
+	// TODO doc
 	@Override
 	public void resolveInitialCondition(SpatialElement overlappingElement) {
 		if(!isValidObjectCollision(overlappingElement))
@@ -467,5 +495,35 @@ public class Ship extends SpatialElement{
 		if(!overlappingElement.isShip())
 			overlappingElement.resolveInitialCondition(this);
 	}
+	
+	/**
+	 * Terminate this spatial element.
+	 * 
+	 * @post	This spatial element is terminated.
+	 * 			| (new this).isTerminated()
+	 * @post 	This spatial element no longer references an effective 
+	 * 			world.
+	 * 			| (new this).getWorld() == null
+	 * @post	This spatial element is no longer one of the spatial
+	 * 			elements for the world to which this spatial element
+	 * 			belonged, if this element was associated with an 
+	 * 			effective world.
+	 * 			| if (this.getWorld() != null)
+	 * 		    | then this.getWorld().hasAsSpatialElement(this)
+	 */
+	// TODO doc
+	// TODO ship program ook laten terminaten???? (tests updaten dan wel)
+	@Override
+	public void terminate() {
+		if(getProgram() != null)
+			getProgram().terminate();
+		super.terminate();
+	}
+	
+	// TODO terminate bekijken!!!!!!!
+	// evt gewoon erbij setProgram(null)
+	// maar ook problemen met de collide dan (2x zelfde doen of 
+	// dynamische binding???????)
+	// DEBUG zegt dynamische binding...
 	
 }

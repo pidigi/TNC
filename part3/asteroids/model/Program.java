@@ -51,9 +51,10 @@ public class Program {
 	private Map<String, Object> globalExpressions = new HashMap<String,Object>();
 	
 	public void setShip(Ship ship) {
-		if (!this.isTerminated() && ship == null) 
-			throw new NullPointerException();
-		if (ship.getProgram() != this) 
+		if(ship != null && ship.getProgram() != this)
+			throw new IllegalArgumentException();
+		if(ship == null && getShip() != null 
+				&& getShip().getProgram() == this)
 			throw new IllegalArgumentException();
 		this.ship = ship;
 		globalExpressions.put("self", ship);
@@ -76,9 +77,10 @@ public class Program {
 	}
 	
 	public void terminate() {
+		if(getShip() != null){
+			this.getShip().setProgram(null);
+		}
 		this.terminated = true;
-		this.getShip().setProgram(null);
-		this.setShip(null);
 	}
 	
 	private boolean terminated = false;
