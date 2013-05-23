@@ -11,7 +11,8 @@ public abstract class Comparison extends BinaryE {
 	}
 
 	@Override
-	public boolean hasValidType(Map<String,T> tMap) {
+	public boolean hasValidType(Map<String,T> tMap) 
+			throws NullPointerException{
 		return (getE1().getType(tMap).isDouble() 
 				&& getE2().getType(tMap).isDouble());
 	}

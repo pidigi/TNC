@@ -21,7 +21,8 @@ public abstract class Logic extends BinaryE{
 	}
 
 	@Override
-	public boolean hasValidType(Map<String,T> tMap) {
+	public boolean hasValidType(Map<String,T> tMap) 
+			throws NullPointerException{
 		return (getE1().getType(tMap).isBoolean() 
 				&& getE2().getType(tMap).isBoolean());
 	}

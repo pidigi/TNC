@@ -60,7 +60,8 @@ public class Sequence extends S{
 		return this.getLine();
 	}
 	
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		if (this.getList().isEmpty()) {
 			return true;
 		}

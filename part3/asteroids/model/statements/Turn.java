@@ -18,7 +18,8 @@ public class Turn extends Action{
 	private E angle;
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws IllegalArgumentException, NullPointerException{
 		if (!(this.getAngle().getType(globalTypes).isDouble())) {
 			throw new IllegalArgumentException();
 		}
@@ -31,7 +32,8 @@ public class Turn extends Action{
 	}
 	
 	@Override
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		return angle.getType(globalTypes).isDouble() && angle.typeCheck(globalTypes);
 	}
 }

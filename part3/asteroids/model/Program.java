@@ -95,7 +95,7 @@ public class Program {
 	
 	private boolean broken;
 	
-	public void advanceProgram(double dt) {
+	public void advanceProgram(double dt) throws IllegalArgumentException, NullPointerException{
 		this.waitingTime += dt;
 		while(!this.isTerminated() && !getBroken() && this.waitingTime >= 0.2){
 				try {
@@ -117,7 +117,7 @@ public class Program {
 		}
 	}
 	
-	public boolean typeCheck() {
+	public boolean typeCheck() throws NullPointerException {
 		return this.getExecutable().typeCheck(this.getGlobalTypes());
 	}
 }

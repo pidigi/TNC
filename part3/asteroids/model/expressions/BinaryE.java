@@ -25,7 +25,8 @@ public abstract class BinaryE extends E {
 	}
 	
 	@Override
-	public boolean typeCheck(Map<String,T> tMap){
+	public boolean typeCheck(Map<String,T> tMap) 
+			throws NullPointerException{
 		return this.hasValidType(tMap) 
 				&& getE1().typeCheck(tMap)
 				&& getE2().typeCheck(tMap);

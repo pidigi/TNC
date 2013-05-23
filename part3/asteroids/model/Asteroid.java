@@ -94,24 +94,24 @@ public class Asteroid extends SpatialElement{
 	/**
 	 * Terminate this asteroid and create two new smaller asteroids.
 	 * 
-	 * @post	Two new asteroids are created, moving in opposite random directions.
+	 * @effect	Two new asteroids are created, moving in opposite random directions.
 	 * 			| if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated())
-	 * 			|		velocity1.equals(velocity2.multiply(-1)) &&
+	 * 			|		asteroid1 = new Asteroid(position1, newRadius, velocity1, new Random())
+	 * 			|		asteroid2 = new Asteroid(position2, newRadius, velocity2, new Random())
+	 * 			|		this.getWorld().addAsSpatialElement(asteroid1);
+	 *			|		this.getWorld().addAsSpatialElement(asteroid2);
+	 *			|		with
+	 *			|		velocity1.equals(velocity2.multiply(-1)) &&
 	 * 			|		fuzzyEquals(velocity1.getNorm(),this.getVelocity().getNorm()*1.5) &&
 	 * 			|		position1.minus(this.getPosition()).getDirection()
 	 * 			|			.equals(velocity1.getDirection()) &&
 	 * 			|		fuzzyEquals(this.getPosition().minus(position1).getNorm(),
 	 * 			|			this.getPosition().minus(position2).getNorm()) &&
-	 * 			| 		position1.minus(position2).getNorm() == this.getRadius()
+	 * 			| 		position1.minus(position2).getNorm() == this.getRadius() &&
 	 * 			|		newRadius = this.getRadius()/2
-	 * 			|		asteroid1 = new Asteroid(position1, newRadius, velocity1, new Random())
-	 * 			|		asteroid2 = new Asteroid(position2, newRadius, velocity2, new Random())
-	 * 			|		this.getWorld().addAsSpatialElement(asteroid1);
-	 *			|		this.getWorld().addAsSpatialElement(asteroid2);
 	 * @effect	The asteroid collides as a spatial element.
 	 * 		    | this.terminate()
 	 */
-	// TODO
 	@Override
 	public void collide() throws IllegalArgumentException, NullPointerException{
 		if(fuzzyLessThanOrEqualTo(30, getRadius()) && this.hasProperWorld() && !isTerminated()){
@@ -224,9 +224,9 @@ public class Asteroid extends SpatialElement{
 	 * 			| if(!element.isAsteroid())
 	 *			| then result == element.isValidObjectCollision(this)
 	 */
-	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
+	public boolean isValidObjectCollision(SpatialElement element){
 		if(element == null)
-			throw new NullPointerException();
+			return false;
 		if(element.isAsteroid())
 			return isValidObjectOverlap(element);
 		return element.isValidObjectCollision(this);
@@ -242,7 +242,7 @@ public class Asteroid extends SpatialElement{
 	 * 			| then overlappingElement.resolveInitialCondition(this)
 	 */
 	@Override
-	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
+	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException{
 		if(!isValidObjectCollision(overlappingElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(!overlappingElement.isShip() && !overlappingElement.isAsteroid())

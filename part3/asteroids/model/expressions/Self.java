@@ -11,7 +11,8 @@ public class Self extends EntityReference {
 	}
 
 	@Override
-	public Ship evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Ship evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		if(!eMap.containsKey("self") || !(eMap.get("self") instanceof Ship))

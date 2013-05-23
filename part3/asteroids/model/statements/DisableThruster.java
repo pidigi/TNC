@@ -11,7 +11,8 @@ public class DisableThruster extends Action{
 	}
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws NullPointerException{
 		((Ship) globalExpr.get("self")).setThrusterActive(false);
 	}
 }

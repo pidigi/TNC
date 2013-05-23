@@ -18,17 +18,20 @@ public class Assignment extends S{
 	private Object rhsEval;
 	
 	@Override
-	public Map<String, Object> updateGlobals(Map<String, Object> currentGlobals) {
+	public Map<String, Object> updateGlobals(Map<String, Object> currentGlobals) 
+			throws NullPointerException{
 		currentGlobals.put(variable,rhsEval);
 		return currentGlobals;
 	}
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws IllegalArgumentException, NullPointerException{
 		this.rhsEval = rhs.evaluate(globalTypes, globalExpr);
 	}
 	
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		boolean corrVar = globalTypes.containsKey(this.variable);
 		if (!corrVar)
 			return false;

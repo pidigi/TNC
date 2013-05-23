@@ -87,7 +87,8 @@ public class Foreach extends S{
 	}
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws IllegalArgumentException, NullPointerException{
 		if (getBody().containsAction())
 			throw new IllegalArgumentException("Body of for loop contains action statement.");
 		
@@ -142,7 +143,8 @@ public class Foreach extends S{
 	
 	private List<SpatialElement> list = new ArrayList<SpatialElement>();
 	
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		boolean bodyTypeCheck = this.getBody().typeCheck(globalTypes);
 		boolean bodyActionCheck = this.getBody().containsAction();
 		return bodyTypeCheck && !bodyActionCheck;

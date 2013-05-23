@@ -100,7 +100,8 @@ public class If extends S{
 	}
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws IllegalArgumentException, NullPointerException{
 		if (!(this.getCondition().getType(globalTypes).isBoolean())) {
 			throw new IllegalArgumentException();
 		}
@@ -108,7 +109,8 @@ public class If extends S{
 	}
 	
 	@Override
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		boolean bodyCheck = getThen().typeCheck(globalTypes) && getOtherwise().typeCheck(globalTypes);
 		if (!this.getCondition().typeCheck(globalTypes))
 			return false;

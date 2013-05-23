@@ -12,7 +12,8 @@ public class GetVY extends Property {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		return ((SpatialElement) getE().evaluate(tMap, eMap)).getVelocity().getYComponent();

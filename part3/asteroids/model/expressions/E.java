@@ -13,11 +13,13 @@ public abstract class E {
 		this.column = column;
 	}
 
-	public abstract Object evaluate(Map<String,T> tMap, Map<String,Object> eMap);
+	public abstract Object evaluate(Map<String,T> tMap, Map<String,Object> eMap)
+			throws IllegalArgumentException, NullPointerException;
 	
 	public abstract T getType(Map<String,T> tMap);
 
-	public abstract boolean hasValidType(Map<String,T> tMap);
+	public abstract boolean hasValidType(Map<String,T> tMap)
+			throws NullPointerException;
 	
 	public int getLine() {
 		return line;
@@ -27,5 +29,6 @@ public abstract class E {
 		return column;
 	}
 	
-	public abstract boolean typeCheck(Map<String,T> tMap);
+	public abstract boolean typeCheck(Map<String,T> tMap)
+			throws NullPointerException;
 }

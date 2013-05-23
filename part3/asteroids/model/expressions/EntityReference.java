@@ -20,7 +20,8 @@ public abstract class EntityReference extends E {
 	}
 	
 	@Override
-	public boolean typeCheck(Map<String,T> tMap){
+	public boolean typeCheck(Map<String,T> tMap)
+			throws NullPointerException{
 		return this.hasValidType(tMap);
 	}
 }

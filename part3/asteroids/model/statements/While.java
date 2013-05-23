@@ -45,7 +45,8 @@ public class While extends S{
 	}
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws IllegalArgumentException, NullPointerException{
 		if (!(this.getCondition().getType(globalTypes).isBoolean())) {
 			throw new IllegalArgumentException();
 		}
@@ -62,7 +63,8 @@ public class While extends S{
 	}
 	
 	@Override
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		boolean bodyCheck = getBody().typeCheck(globalTypes);
 		if(!this.getCondition().typeCheck(globalTypes))
 			return false;

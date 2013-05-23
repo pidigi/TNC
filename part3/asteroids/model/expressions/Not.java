@@ -11,7 +11,8 @@ public class Not extends UnitaryE {
 	}
 
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		return !((Boolean) getE().evaluate(tMap, eMap));
@@ -23,7 +24,8 @@ public class Not extends UnitaryE {
 	}
 
 	@Override
-	public boolean hasValidType(Map<String,T> tMap) {
+	public boolean hasValidType(Map<String,T> tMap) 
+			throws NullPointerException{
 		return getE().getType(tMap).isBoolean();
 	}
 

@@ -13,7 +13,8 @@ public class GetDirection extends Property {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws NullPointerException{
 		return ((Ship) eMap.get("self")).getAngle();
 	}
 
@@ -26,5 +27,4 @@ public class GetDirection extends Property {
 	public boolean hasValidType(Map<String,T> tMap) {
 		return true;
 	}
-
 }

@@ -10,7 +10,8 @@ public class Division extends Arithmatic {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		// Note that dividing by zero is not checked since inf is acceptable

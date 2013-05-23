@@ -40,7 +40,8 @@ public abstract class S {
 		return null;
 	}
 	
-	public Map<String, Object> updateGlobals(Map<String, Object> currentGlobals) {
+	public Map<String, Object> updateGlobals(Map<String, Object> currentGlobals) 
+			throws NullPointerException{
 		return currentGlobals;
 	}
 	
@@ -48,9 +49,11 @@ public abstract class S {
 		return this.getLine() + 1;
 	}
 	
-	public abstract void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr);
+	public abstract void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr)
+			throws IllegalArgumentException, NullPointerException;
 	
-	public boolean typeCheck(Map<String, T> globalTypes) {
+	public boolean typeCheck(Map<String, T> globalTypes) 
+			throws NullPointerException{
 		return true;
 	}
 }

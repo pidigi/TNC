@@ -10,10 +10,10 @@ public class Cos extends Function {
 	}
 	
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		return Math.cos((Double) getE().evaluate(tMap, eMap));
 	}
-
 }

@@ -10,7 +10,8 @@ public class GreaterThanOrEqualTo extends Comparison {
 	}
 	
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		double val1 = (Double) getE1().evaluate(tMap, eMap);

@@ -456,9 +456,9 @@ public class Ship extends SpatialElement{
 	 *			| then result == element.isValidObjectCollision(this)
 	 */
 	@Override
-	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
+	public boolean isValidObjectCollision(SpatialElement element){
 		if(element == null)
-			throw new NullPointerException();
+			return false;
 		if(element.isAsteroid() || element.isShip())
 			return isValidObjectOverlap(element);
 		return element.isValidObjectCollision(this);

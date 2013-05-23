@@ -15,7 +15,8 @@ public abstract class Property extends UnitaryE {
 	}
 	
 	@Override
-	public boolean hasValidType(Map<String,T> tMap) {
+	public boolean hasValidType(Map<String,T> tMap) 
+			throws NullPointerException{
 		return getE().getType(tMap).isEntity();
 	}
 	

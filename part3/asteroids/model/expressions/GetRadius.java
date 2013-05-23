@@ -12,11 +12,11 @@ public class GetRadius extends Property {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		// TODO op null checken??? --> evt daarvoor try catch in program
 		return ((SpatialElement) getE().evaluate(tMap, eMap)).getRadius();
 	}
-
 }

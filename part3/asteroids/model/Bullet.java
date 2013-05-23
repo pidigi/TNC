@@ -185,7 +185,7 @@ public class Bullet extends SpatialElement{
 	 * 			| then overlappingElement.resolveInitialCondition(this)
 	 */
 	@Override
-	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
+	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException{
 		if(!isValidObjectCollision(overlappingElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(overlappingElement.isShip() || overlappingElement.isAsteroid()
@@ -215,9 +215,9 @@ public class Bullet extends SpatialElement{
 	 *			| then result == element.isValidObjectCollision(this)
 	 */
 	@Override
-	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
+	public boolean isValidObjectCollision(SpatialElement element){
 		if(element == null)
-			throw new NullPointerException();
+			return false;
 		if(element.isAsteroid() || element.isBullet())
 			return isValidObjectOverlap(element);
 		if(element.isShip())

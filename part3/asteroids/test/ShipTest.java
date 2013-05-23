@@ -574,11 +574,10 @@ public class ShipTest {
 		assertFalse(ship100.isValidObjectCollision(bullet));
 	}
 	
-	// TODO:
-//	@Test (expected = IllegalArgumentException.class)
-//	public final void isValidObjectCollisioni_NullCase() {
-//		assertFalse(ship100.isValidObjectCollision(null));
-//	}
+	@Test
+	public final void isValidObjectCollisioni_NullCase() {
+		assertFalse(ship100.isValidObjectCollision(null));
+	}
 	
 	@Test
 	public final void isValidObjectCollision_SelfCase() {

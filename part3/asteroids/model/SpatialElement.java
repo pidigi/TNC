@@ -797,13 +797,11 @@ public abstract class SpatialElement {
 	 * 
 	 * @param 	element
 	 * 			The element to check the valid collision with.
-	 * @return	...
-	 * 
-	 * @throws	NullPointerException
-	 * 			The given element is null
-	 * 			| element == null
+	 * @return	If the given element is null, false is returned
+	 * 			| if(element == null)
+	 * 			| then result == false
 	 */
-	public abstract boolean isValidObjectCollision(SpatialElement element) throws NullPointerException;
+	public abstract boolean isValidObjectCollision(SpatialElement element);
 	
 	/**
 	 * Resolve this and the given element.
@@ -816,10 +814,10 @@ public abstract class SpatialElement {
 	 * 			The given element does not result in an valid object collision.
 	 * 			| !isValidObjectCollision(overlappingElement)
 	 * @throws	NullPointerException
-	 * 			The other element is not effective.
-	 * 			| otherElement == null
+	 * 			...
+	 * 			... ? true
 	 */
-	public abstract void resolve(SpatialElement otherElement) throws IllegalArgumentException,NullPointerException;
+	public abstract void resolve(SpatialElement otherElement) throws IllegalArgumentException, NullPointerException;
 	
 	/**
 	 * Resolve the bouncing of given spatial elements.
@@ -887,11 +885,8 @@ public abstract class SpatialElement {
 	 * @throws	IllegalArgumentException
 	 * 			The given element does not result in an valid object collision.
 	 * 			| !isValidObjectCollision(overlappingElement)
-	 * @throws	NullPointerException
-	 * 			The given element is noneffective.
-	 * 			| overlappingElement == null
 	 */
-	public abstract void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException;
+	public abstract void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException;
 	
 	/**
 	 * The element collides.
@@ -899,7 +894,7 @@ public abstract class SpatialElement {
 	 * @effect	This element is terminated.
 	 * 			| this.terminate();
 	 */
-	public void collide(){
+	public void collide() throws IllegalArgumentException, NullPointerException{
 		this.terminate();
 	}
 

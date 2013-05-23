@@ -10,15 +10,19 @@ public class Inequality extends Comparison {
 	}
 	
 	@Override
-	public boolean hasValidType(Map<String,T> tMap) {
+	public boolean hasValidType(Map<String,T> tMap) 
+			throws NullPointerException{
 		return (getE1().getType(tMap).isDouble() 
-				&& getE2().getType(tMap).isDouble() ||
-				getE1().getType(tMap).isEntity()
-				&& getE2().getType(tMap).isEntity());
+				&& getE2().getType(tMap).isDouble()) ||
+				(getE1().getType(tMap).isEntity()
+				&& getE2().getType(tMap).isEntity()) ||
+				(getE1().getType(tMap).isBoolean()
+				&& getE2().getType(tMap).isBoolean());
 	}
 
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		if(getE1().getType(tMap).isEntity())

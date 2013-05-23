@@ -17,7 +17,8 @@ public class Print extends S{
 	private final E exp;
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) 
+			throws IllegalArgumentException, NullPointerException{
 		System.out.println(this.getExp().evaluate(globalTypes,globalExpr));
 	}
 }

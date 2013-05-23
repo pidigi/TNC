@@ -10,7 +10,8 @@ public class Equality extends Comparison {
 	}
 	
 	@Override
-	public boolean hasValidType(Map<String,T> tMap) {
+	public boolean hasValidType(Map<String,T> tMap) 
+			throws NullPointerException{
 		return (getE1().getType(tMap).isDouble() 
 				&& getE2().getType(tMap).isDouble()) ||
 				(getE1().getType(tMap).isEntity()
@@ -20,7 +21,8 @@ public class Equality extends Comparison {
 	}
 	
 	@Override
-	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Boolean evaluate(Map<String,T> tMap, Map<String,Object> eMap)
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		return getE1().evaluate(tMap, eMap).equals(getE2().evaluate(tMap, eMap));

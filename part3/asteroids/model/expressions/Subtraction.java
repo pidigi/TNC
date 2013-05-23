@@ -10,13 +10,13 @@ public class Subtraction extends Arithmatic {
 	}
 
 	@Override
-	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+	public Double evaluate(Map<String,T> tMap, Map<String,Object> eMap) 
+			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
 		double val1 = (Double) getE1().evaluate(tMap, eMap);
 		double val2 = (Double) getE2().evaluate(tMap, eMap);
 		return val1 - val2;
 	}
-
 	
 }

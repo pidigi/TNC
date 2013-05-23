@@ -70,7 +70,7 @@ public class World{
 	 * 			| for each element in elements: 
 	 * 			|  element.terminate()
 	 */
-	public void terminate() {
+	public void terminate() throws NullPointerException, IllegalArgumentException{
 		if (!isTerminated()) {
 			Set<SpatialElement> clonedSet = new HashSet<SpatialElement>(elements);
 			for (SpatialElement element : clonedSet) {
@@ -241,8 +241,11 @@ public class World{
 	 * 			| ((result == null) &&
 	 * 			| (for each elem in this.elements
 	 * 			|  (!result.overlap(elem) || otherElement.isValidObjectCollision(element))))
+	 * @throws	NullPointerException
+	 * 			The given element is not effective.
+	 * 			| element == null
 	 */
-	public SpatialElement getIllegalOverlap(SpatialElement element){
+	public SpatialElement getIllegalOverlap(SpatialElement element) throws NullPointerException{
 		for (SpatialElement otherElement: elements){
 			if(element.overlap(otherElement) && element.isValidObjectCollision(otherElement)){
 				return otherElement;
@@ -381,9 +384,11 @@ public class World{
 	 * 
 	 * @param	element
 	 *          The spatial element to be removed.
-	 * @post 	The given element is no longer associated with this world.
-	 * 			| ! (new this).hasAsSpatialElement(element) && 
-	 * 			| element.getWorld == null
+	 * @effect 	The association with given element is removed by
+	 * 			removing it from the list of elements and setting
+	 * 			its world to null.
+	 * 			| elements.remove(element)
+	 *			| element.setWorld(null)
 	 * @effect	The given element no longer appears in the list of collisions.
 	 * 			| removeAsCollision(element)
 	 * @throws 	IllegalArgumentException
@@ -437,11 +442,11 @@ public class World{
 	 * 			|		result.contains(collision)
 	 */
 	public Set<Collision> getCollisions() {
-		Set<Collision> collisions_get = new HashSet<Collision>();
+		Set<Collision> collisionsGet = new HashSet<Collision>();
 		for(Collision collision: collisions) {
-			collisions_get.add(collision);
+			collisionsGet.add(collision);
 		}
-		return collisions_get;
+		return collisionsGet;
 	}
 	
 	/**
@@ -504,22 +509,26 @@ public class World{
 	 * Update the set of collisions of this world, so that all 
 	 * collisions involving the given spatial element are up to date.
 	 * 
-	 * @pre		...
-	 * 			| elementsToUpdate != null
-	 * @pre		...
-	 * 			| for each element in elementsToUpdate
-	 * 			|	element != null
 	 * @effect	...
 	 * 			| for each element in elementsToUpdate
 	 * 			| if !element.isTerminated()
 	 * 			| then this.removeCollision(element)
 	 * 			| 	   this.addCollisoin(element)
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			| elementsToUpdate == null
+	 * @throws	NullPointerException
+	 * 			...
+	 * 			| for some element in elementsToUpdate
+	 * 			|	element == null
 	 */
-	private void updateElementCollisions(Set<SpatialElement> elementsToUpdate){
-		assert elementsToUpdate != null;
+	private void updateElementCollisions(Set<SpatialElement> elementsToUpdate) throws NullPointerException, IllegalArgumentException{
+		if(elementsToUpdate == null)
+			throw new NullPointerException("Noneffective set.");
 		for(SpatialElement element: elementsToUpdate){
-			 assert element != null;
-		}	
+			 if(element == null)
+				 throw new NullPointerException("Noneffective element in set.");
+		}
 		for(SpatialElement element: elementsToUpdate){
 			if(!element.isTerminated()){
 				this.removeAsCollision(element);
@@ -570,7 +579,7 @@ public class World{
 	 * 			|		timeLeft -=	minCollisionTime
 	 * 			|	while(0 < timeLeft)
 	 */
-	public void evolve(Double deltaT, CollisionListener collisionListener) {
+	public void evolve(Double deltaT, CollisionListener collisionListener) throws IllegalArgumentException, NullPointerException{
 		assert (deltaT >= 0);
 		if(!this.isTerminated()){
 			double timeLeft = deltaT;
