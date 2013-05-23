@@ -2,7 +2,6 @@ package asteroids.model.statements;
 
 import java.util.Map;
 import asteroids.model.expressions.*;
-import asteroids.model.types.BooleanT;
 import asteroids.model.types.T;
 
 public class While extends S{
@@ -42,12 +41,12 @@ public class While extends S{
 		if (line == this.getLine()) {
 			return this;
 		}
-		return body.getStatement(line);
+		return this.getBody().getStatement(line);
 	}
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		if (!(this.getCondition().getType(globalTypes) instanceof BooleanT)) {
+		if (!(this.getCondition().getType(globalTypes).isDouble())) {
 			throw new IllegalArgumentException();
 		}
 		this.setConditionEval((Boolean) this.getCondition().evaluate(globalTypes,globalExpr));
@@ -64,8 +63,6 @@ public class While extends S{
 	
 	@Override
 	public boolean typeCheck(Map<String, T> globalTypes) {
-		// TODO: typecheck van condition moet eerst, want anders ga je niet getType 
-		// kunnen toepassen als condition niet in de lijst staat. Goed?
 		boolean bodyCheck = getBody().typeCheck(globalTypes);
 		if(!this.getCondition().typeCheck(globalTypes))
 			return false;

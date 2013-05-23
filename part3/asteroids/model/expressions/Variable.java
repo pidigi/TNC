@@ -18,6 +18,8 @@ public class Variable extends E {
 
 	@Override
 	public Object evaluate(Map<String,T> tMap, Map<String,Object> eMap) {
+		if(!hasValidType(tMap))
+			throw new IllegalArgumentException();
 		return eMap.get(getName());
 	}
 

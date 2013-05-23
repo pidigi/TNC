@@ -215,43 +215,50 @@ public class Asteroid extends SpatialElement{
 	}
 	
 	/**
-	 * Check whether this is a Asteroid object.
+	 * Check if the collision of this element and the given element
+	 * is a valid object collision.
 	 * 
-	 * @return	True
-	 * 			| result == true
+	 * @param 	element
+	 * 			The element to check the valid collision with.
+	 * @return	If the element is an asteroid, the result is the boolean 
+	 * 			indicating whether this is a valid object overlap.
+	 * 			| if(element.isAsteroid())
+	 *			| then result == isValidObjectOverlap(element)
+	 * @return	If the element is not an asteroid, the result is the boolean 
+	 * 			indicating whether the collision of the given element
+	 * 			with this element is valid.
+	 * 			| if(!element.isAsteroid())
+	 *			| then result == element.isValidObjectCollision(this)
+	 * @throws	NullPointerException
+	 * 			The given element is null
+	 * 			| element == null
 	 */
-	@Override
-	public boolean isAsteroid() {
-		return true;
-	}
-	
-	/**
-	 * Check if the collision between the given spatial element 1 and 
-	 * spatial element 2 is a valid object collision.
-	 * 
-	 * @return	...
-	 * 			| if(element1 == element2)
-	 * 			| then result == false
-	 * @return	...
-	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
-	 *			| (element1.getWorld() != element2.getWorld()))
-	 *			| then result == false
-	 * @return	...
-	 * 			| result == !(((element1.isBullet() && element2.isShip())
-	 *			| && (element1.getShip() == element2)
-	 *			| || ((element2.isBullet() && element1.isShip())
-	 *			| && element2).getShip() == element1))
-	 */
-	@Override
-	public boolean isValidObjectCollision(SpatialElement element){
+	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
+		if(element == null)
+			throw new NullPointerException();
 		if(element.isAsteroid())
-			return super.isValidObjectCollision(element);
+			return isValidObjectOverlap(element);
 		return element.isValidObjectCollision(this);
 	}
 	
 	
-	// TODO doc
-	public void resolveInitialCondition(SpatialElement overlappingElement) {
+	/**
+	 * Resolve the initial condition of this and the given element.
+	 * 
+	 * @param	overlappingElement
+	 * 			The element overlapping with this element.
+	 * @effect	If the overlapping element is not a ship or asteroid, let it
+	 * 			resolve the initial conditions with this asteroid.
+	 * 			| if (!overlappingElement.isShip() && !overlappingElement.isAsteroid())
+	 * 			| then overlappingElement.resolveInitialCondition(this)
+	 * @throws	IllegalArgumentException
+	 * 			The given element does not result in an valid object collision.
+	 * 			| !isValidObjectCollision(overlappingElement)
+	 * @throws	NullPointerException
+	 * 			The given element is noneffective.
+	 * 			| overlappingElement == null
+	 */
+	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(overlappingElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(!overlappingElement.isShip() && !overlappingElement.isAsteroid())

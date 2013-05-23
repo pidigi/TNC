@@ -58,13 +58,13 @@ public class Foreach extends S{
 	
 	@Override
 	public S getStatement(int line) {
-		if (line == body.getEndLine()) {
+		if (line == this.getBody().getEndLine()) {
 			return this;
 		}
 		if (line == this.getLine()) {
 			return this;
 		}
-		return body.getStatement(line);
+		return this.getBody().getStatement(line);
 	}
 	
 	@Override
@@ -73,14 +73,14 @@ public class Foreach extends S{
 			currentGlobals.remove(this.getName());
 			return currentGlobals;
 		}
-		currentGlobals.put(this.getName(),list.get(this.getLooped()));
+		currentGlobals.put(this.getName(),this.getList().get(this.getLooped()));
 		return currentGlobals;
 	}
 	
 	@Override
 	public int updateLine() {
 		if (this.getEnded()) {
-			return body.getEndLine() + 1;
+			return this.getBody().getEndLine() + 1;
 		} else {
 			return this.getLine() + 1;
 		}
@@ -88,11 +88,14 @@ public class Foreach extends S{
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+		if (body.containsAction())
+			throw new IllegalArgumentException("Body of for loop contains action statement.");
+		
 		Ship ship = ((Ship) globalExpr.get("self"));
-		if (looped == -1) {
+		if (this.getLooped() == -1) {
 			this.setEnded(false);
-			looped += 1;
-			switch (type) {
+			this.setLooped(this.getLooped()+1);
+			switch (this.getType()) {
 				case SHIP:
 					for (Ship shipje:ship.getWorld().getShips()) {
 						list.add(shipje);
@@ -120,7 +123,7 @@ public class Foreach extends S{
 					}
 					break;
 			}
-			if (list.isEmpty()) {
+			if (this.getList().isEmpty()) {
 				this.setLooped(-1);
 				this.setEnded(true);
 			}
@@ -134,13 +137,14 @@ public class Foreach extends S{
 	}
 	
 	public List<SpatialElement> getList() {
-		return this.list;
+		return this.getList();
 	}
+	
 	private List<SpatialElement> list = new ArrayList<SpatialElement>();
 	
 	public boolean typeCheck(Map<String, T> globalTypes) {
-		boolean bodyTypeCheck = body.typeCheck(globalTypes);
-		boolean bodyActionCheck = body.containsAction();
+		boolean bodyTypeCheck = this.getBody().typeCheck(globalTypes);
+		boolean bodyActionCheck = this.getBody().containsAction();
 		return bodyTypeCheck && !bodyActionCheck;
 	}
 }

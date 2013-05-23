@@ -65,4 +65,6 @@ public class BulletTest {
 		standardBullet.bounce();
 		assertTrue(standardBullet.getHasBounced());
 	}
+	
+	// Note that this test class does not contain tests for all methods.
 }

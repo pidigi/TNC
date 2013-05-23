@@ -3,7 +3,6 @@ package asteroids.model.statements;
 import java.util.Map;
 import asteroids.model.Ship;
 import asteroids.model.expressions.E;
-import asteroids.model.types.DoubleT;
 import asteroids.model.types.T;
 
 public class Turn extends Action{
@@ -20,7 +19,7 @@ public class Turn extends Action{
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		if (!(angle.getType(globalTypes) instanceof DoubleT)) {
+		if (!(this.getAngle().getType(globalTypes).isDouble())) {
 			throw new IllegalArgumentException();
 		}
 		Ship ship = ((Ship) globalExpr.get("self"));

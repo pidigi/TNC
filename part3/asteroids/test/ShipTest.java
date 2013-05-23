@@ -23,11 +23,11 @@ public class ShipTest {
 	public static void setUpImmutableFixture() throws Exception{
 		standardShip = new Ship(new Vector2D(0,0),0,10,new Vector2D(0,0),300000, 1E10);
 	}
-	
 	//private static SpatialElement element100, ship100PiD4, elementWorld, elementNoWorld, elementVelocity;
 	
 	private static Ship ship100, ship100PiD4, shipWorld, standardShipMutable,
-		shipNoWorld, shipVelocity, shipWorldBounce;
+		shipNoWorld, shipVelocity, shipWorldBounce, shipWorldBounce2, shipWorldBounce3, shipWorldBounce4, shipWorldBounce5,
+		shipWorldHorizontalWall,shipWorldVerticalWall;
 	private static World newWorld;
 	private static Program standardProgram, standardProgram2;
 	
@@ -53,14 +53,25 @@ public class ShipTest {
 		ship100PiD4 = new Ship(new Vector2D(100,0),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
 		shipWorld = new Ship(new Vector2D(100,100),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
 		shipWorldBounce = new Ship(new Vector2D(120,100),Math.PI/4,10,new Vector2D(-1,0),300000,1E5);
+		shipWorldBounce2 = new Ship(new Vector2D(160,100),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
+		shipWorldBounce3 = new Ship(new Vector2D(180,100),Math.PI/4,10,new Vector2D(-1,0),300000,3E5);
+		shipWorldBounce4 = new Ship(new Vector2D(200,200),Math.PI/4,10,new Vector2D(1,1),300000,1E5);
+		shipWorldBounce5 = new Ship(new Vector2D(200+Math.cos(Math.PI/4)*20,200+Math.sin(Math.PI/4)*20),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
+		shipWorldHorizontalWall = new Ship(new Vector2D(100,10),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
+		shipWorldVerticalWall = new Ship(new Vector2D(10,100),Math.PI/4,10,new Vector2D(0,0),300000,1E5);
 		standardShipMutable = new Ship(new Vector2D(0,0),0,10,new Vector2D(0,0),300000, 1E10);
 		newWorld = new World(1000,1000);
 		newWorld.addAsSpatialElement(shipWorld);
 		newWorld.addAsSpatialElement(shipWorldBounce);
+		newWorld.addAsSpatialElement(shipWorldBounce2);
+		newWorld.addAsSpatialElement(shipWorldBounce3);
+		newWorld.addAsSpatialElement(shipWorldBounce4);
+		newWorld.addAsSpatialElement(shipWorldBounce5);
 		shipNoWorld = new Ship(new Vector2D(100,100),0,10,new Vector2D(0,0),300000,1E5);
 		shipVelocity = new Ship(new Vector2D(0,0),0,10,new Vector2D(10,10),300000,1E5);
 		standardProgram = new Program(new HashMap<String,T>(), (S) new Fire(0,0));
 		standardProgram2 = new Program(new HashMap<String,T>(), (S) new Fire(1,1));
+		shipWorld.setProgram(standardProgram);
 	}
 	
 	@Test
@@ -222,6 +233,25 @@ public class ShipTest {
 		new Ship(new Vector2D(50,100),Math.PI/2,15,new Vector2D(300000,300000),300000,-10);
 	}
 	
+	@Test
+	public final void terminate_NormalCase() {
+		World originalWorld = shipWorld.getWorld();
+		Program originalProgram = shipWorld.getProgram();
+		shipWorld.terminate();
+		assertTrue(shipWorld.isTerminated());
+		assertTrue(shipWorld.getWorld() == null);
+		assertFalse(originalWorld.hasAsSpatialElement(shipWorld));
+		assertTrue(originalProgram.isTerminated());
+		assertTrue(shipWorld.getProgram() == null);
+	}
+	
+	@Test
+	public final void terminate_NormalCaseNonEffectiveWorld() {
+		ship100.terminate();
+		assertTrue(ship100.isTerminated());
+		assertTrue(ship100.getWorld() == null);
+	}
+	
 	// Checkers are tested because they are public methods, 
 	// although you could say that they already have been tested through 
 	// the tests for the constructor.
@@ -252,6 +282,11 @@ public class ShipTest {
 		assertEquals(Math.PI/4,ship100.getAngle(),EPSILON);
 	}
 	
+	public final void setThrusterActive_SingleCase(){
+		standardShip.setThrusterActive(true);
+		assertTrue(standardShip.isThrusterActive());
+	}
+	
 	@Test
 	public final void thrust_NormalCase(){
 		ship100PiD4.thrust(100);
@@ -273,9 +308,134 @@ public class ShipTest {
 		assertEquals(0,ship100PiD4.getVelocity().getYComponent(),EPSILON);
 	}
 	
-	public final void setThrusterActive_SingleCase(){
-		standardShip.setThrusterActive(true);
-		assertTrue(standardShip.isThrusterActive());
+	@Test
+	public final void canHaveAsBullet_TrueCase(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			assertTrue(shipWorld.canHaveAsBullet(bullet));
+		}
+	}
+	
+	@Test
+	public final void canHaveAsBullet_NullCase(){
+		assertFalse(shipWorld.canHaveAsBullet(null));
+	}
+	
+	@Test
+	public final void canHaveAsBullet_NotFromThisShip(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			assertFalse(standardShip.canHaveAsBullet(bullet));
+		}
+	}
+	
+	@Test
+	public final void canHaveAsBullet_TerminatedCase(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			bullet.terminate();
+			assertFalse(shipWorld.canHaveAsBullet(bullet));
+		}
+	}
+	
+	@Test
+	public final void addAsBullet_normalCase(){
+		// already tested by testing fireBullet
+		shipWorld.fireBullet();
+		assertEquals(1,shipWorld.getNbBullets());
+	}
+	
+	@Test
+	public final void addAsBullet_alreadyPresent(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			// has actually already been added by fireBullet
+			shipWorld.addAsBullet(bullet); 
+		}
+		assertEquals(1, shipWorld.getNbBullets());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public final void addAsBullet_NullCase(){
+		shipWorld.addAsBullet(null);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void addAsBullet_NotFromThisShip(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			standardShip.addAsBullet(bullet);
+		}
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void addAsBullet_TerminatedCase(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			bullet.terminate();
+			shipWorld.addAsBullet(bullet);
+		}
+	}
+	
+	@Test
+	public final void removeAsBullet_normalCase(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			bullet.terminate();
+		}
+		assertEquals(0, shipWorld.getNbBullets());
+	}
+	
+	@Test
+	public final void removeAsBullet_alreadyRemoved(){
+		shipWorld.fireBullet();
+		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
+		for(Bullet bullet : bullets){
+			bullet.terminate();
+			// has actually already been removed by terminate
+			shipWorld.removeAsBullet(bullet); 
+		}
+		assertEquals(0, shipWorld.getNbBullets());
+	}
+	
+	@Test
+	public final void removeAsBullet_NotPresent(){
+		shipWorld.fireBullet();
+		Bullet temp = new Bullet(new Vector2D(20,20), 10, new Vector2D(0,0),
+					10,shipNoWorld);
+		temp.terminate();
+		shipWorld.removeAsBullet(temp);
+		assertEquals(1, shipWorld.getNbBullets());
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public final void removeAsBullet_NullCase(){
+		shipWorld.removeAsBullet(null);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void removeAsBullet_NonTerminatedCase(){
+		Bullet temp = new Bullet(new Vector2D(20,20), 10, new Vector2D(0,0),
+				10,shipNoWorld);
+		shipWorld.removeAsBullet(temp);
+	}
+	
+	@Test
+	public final void setMaxNbBullets_NormalCase(){
+		shipWorld.setMaxNbBullets(5);
+		assertEquals(5, shipWorld.getMaxNbBullets());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void setMaxNbBullets_NegativeCase(){
+		shipWorld.setMaxNbBullets(-5);
 	}
 	
 	@Test
@@ -319,26 +479,152 @@ public class ShipTest {
 		assertEquals(0, shipWorld.getNbBullets(), EPSILON);
 	}
 	
-	// TODO NoProperWorld hard to check...
+	@Test
+	public final void canHaveAsProgram_NormalTrueCase(){
+		assertTrue(ship100.canHaveAsProgram(standardProgram));
+	}
+	
+	@Test
+	public final void canHaveAsProgram_TerminatedCase(){
+		standardProgram.terminate();
+		assertFalse(ship100.canHaveAsProgram(standardProgram));
+	}
+	
+	@Test
+	public final void canHaveAsProgram_NullCase(){
+		assertTrue(ship100.canHaveAsProgram(null));
+	}
+	// TODO Hard to check the typechecking
+	
+	@Test
+	public final void setProgram_NormalCase(){
+		ship100.setProgram(standardProgram);
+		assertTrue(standardProgram == ship100.getProgram());
+		assertTrue(standardProgram.getShip() == ship100);
+	}
+	
+	@Test
+	public final void setProgram_NullCase(){
+		ship100.setProgram(null);
+		assertTrue(null == ship100.getProgram());
+	}
+	
+	@Test
+	public final void setProgram_ChangeProgramCase(){
+		ship100.setProgram(standardProgram);
+		assertTrue(standardProgram == ship100.getProgram());
+		assertTrue(standardProgram.getShip() == ship100);
+		ship100.setProgram(standardProgram2);
+		assertTrue(standardProgram2 == ship100.getProgram());
+		assertTrue(standardProgram2.getShip() == ship100);
+		assertTrue(standardProgram.getShip() == null);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public final void setProgram_TerminatedCase(){
+		ship100.terminate();
+		ship100.setProgram(null);
+	}
+	
+	@Test
+	public final void setProgram_CollidedCase(){
+		ship100.setProgram(standardProgram);
+		ship100.collide();
+		assertTrue(ship100.getProgram() == null);
+		assertTrue(ship100.isTerminated());
+		assertTrue(standardProgram.isTerminated());
+	}
+	
+	@Test
+	public final void isValidObjectCollisioni_TrueCaseSameWorld() {
+		Ship ship = new Ship(new Vector2D(100,0),0,10,new Vector2D(-10,0),300000,1E5);
+		Asteroid asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,new Random());
+		Bullet bullet = new Bullet(new Vector2D(100,0),10, new Vector2D(-10,0),300000,ship100PiD4);
+		newWorld.addAsSpatialElement(ship);
+		newWorld.addAsSpatialElement(asteroid);
+		newWorld.addAsSpatialElement(bullet);
+		assertTrue(shipWorld.isValidObjectCollision(ship));
+		assertTrue(shipWorld.isValidObjectCollision(asteroid));
+		assertTrue(shipWorld.isValidObjectCollision(bullet));
+	}
+	
+	@Test
+	public final void isValidObjectCollisioni_TrueCaseOneNullWorld() {
+		Ship ship = new Ship(new Vector2D(100,0),0,10,new Vector2D(-10,0),300000,1E5);
+		Asteroid asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,new Random());
+		Bullet bullet = new Bullet(new Vector2D(100,0),10, new Vector2D(-10,0),300000,ship100PiD4);
+		assertTrue(shipWorld.isValidObjectCollision(ship));
+		assertTrue(shipWorld.isValidObjectCollision(asteroid));
+		assertTrue(shipWorld.isValidObjectCollision(bullet));
+	}
+	
+	@Test
+	public final void isValidObjectCollisioni_TrueCaseTwoNullWorlds() {
+		Ship ship = new Ship(new Vector2D(100,0),0,10,new Vector2D(-10,0),300000,1E5);
+		Asteroid asteroid = new Asteroid(new Vector2D(100,0),10,new Vector2D(-10,0),300000,new Random());
+		Bullet bullet = new Bullet(new Vector2D(100,0),10, new Vector2D(-10,0),300000,ship100PiD4);
+		assertTrue(ship100.isValidObjectCollision(ship));
+		assertTrue(ship100.isValidObjectCollision(asteroid));
+		assertTrue(ship100.isValidObjectCollision(bullet));
+	}
+	
+	@Test
+	public final void isValidObjectCollisioni_OwnBulletCase() {
+		Bullet bullet = new Bullet(new Vector2D(100,0),10, new Vector2D(-10,0),300000,ship100);
+		assertFalse(ship100.isValidObjectCollision(bullet));
+	}
+	
+	// TODO:
+//	@Test (expected = IllegalArgumentException.class)
+//	public final void isValidObjectCollisioni_NullCase() {
+//		assertFalse(ship100.isValidObjectCollision(null));
+//	}
+	
+	@Test
+	public final void isValidObjectCollision_SelfCase() {
+		assertFalse(ship100.isValidObjectCollision(ship100));
+	}
+	
+	@Test
+	public final void isValidObjectCollisioni_DifferentWorldCase() {
+		Ship ship = new Ship(new Vector2D(100,100),0,10,new Vector2D(-10,0),300000,1E5);
+		World world = new World(1000,1000);
+		world.addAsSpatialElement(ship);
+		assertFalse(shipWorld.isValidObjectCollision(ship));
+	}
+	
+	@Test
+	public final void resolveInitialCondition() throws Exception{
+		Ship ship = new Ship(new Vector2D(100,100),0,10,new Vector2D(-10,0),300000,1E5);
+		ship100.resolveInitialCondition(ship);
+		
+		assertTrue(!ship.isTerminated());
+		assertEquals(ship.getPosition().getXComponent(),100,EPSILON);
+		assertEquals(ship.getPosition().getYComponent(),100,EPSILON);
+		assertTrue(!ship100.isTerminated());
+		assertEquals(ship100.getPosition().getXComponent(),100,EPSILON);
+		assertEquals(ship100.getPosition().getYComponent(),0,EPSILON);
+	}
+	//TODO: Nog alle negatieve cases eventueel testen maar eigenlijk al gedaan bij isValidObjectCollision
+	
+	@Test
+	public final void resolve_NormalCase() {
+		Vector2D shipWorldPos = shipWorld.getPosition();
+		Vector2D shipWorldBouncePos = shipWorldBounce.getPosition();
+		shipWorld.resolve(shipWorldBounce);
+		assertEquals(-1, shipWorld.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorld.getVelocity().getYComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce.getVelocity().getYComponent(),EPSILON);
+		assertEquals(shipWorldPos.getXComponent(), shipWorld.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldPos.getYComponent(), shipWorld.getPosition().getYComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos.getXComponent(), shipWorldBounce.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos.getYComponent(), shipWorldBounce.getPosition().getYComponent(),EPSILON);
+	}
+	// Other resolve cases go through other classes, and would be tested in test suits for those classes.
+	//TODO: Nog alle negatieve cases eventueel testen maar eigenlijk al gedaan bij isValidObjectCollision
 	
 	// Include possible tests for abstract superclass
-	
-	@Test
-	public final void terminate_NormalCase() {
-		World originalWorld = shipWorld.getWorld();
-		shipWorld.terminate();
-		assertTrue(shipWorld.isTerminated());
-		assertTrue(shipWorld.getWorld() == null);
-		assertFalse(originalWorld.hasAsSpatialElement(shipWorld));
-	}
-	
-	@Test
-	public final void terminate_NormalCaseNonEffectiveWorld() {
-		ship100.terminate();
-		assertTrue(ship100.isTerminated());
-		assertTrue(ship100.getWorld() == null);
-	}
-	
 	@Test
 	public final void canHaveAsWorld_NormalCase() {
 		World newWorld = new World(1000,1000);
@@ -350,7 +636,6 @@ public class ShipTest {
 		World world = null;
 		assertTrue(shipWorld.canHaveAsWorld(world));
 	}
-	
 	// For test of canHaveAsSpatialElement, see World testsuite.
 	
 	@Test
@@ -363,8 +648,8 @@ public class ShipTest {
 		shipWorld.getWorld().removeAsSpatialElement(shipWorld);
 		assertTrue(shipWorld.hasProperWorld());
 	}
+	// TODO NoProperWorld hard to check...
 	// For test of hasAsSpatialElement, see World testsuite.
-	// TODO Rest hard to simulate
 	
 	@Test
 	public final void setWorld_NormalCase() throws Exception {
@@ -387,7 +672,6 @@ public class ShipTest {
 		shipWorld.setWorld(null);
 	}
 	// TODO Rest hard to simulate
-	
 	// Checkers are tested because they are public methods, 
 	// although you could say that they already have been tested through 
 	// the tests for the constructor.
@@ -405,10 +689,22 @@ public class ShipTest {
 	@Test
 	public final void isValidPosition_FalseCaseNaN(){
 		assertFalse(ship100.isValidPosition(new Vector2D(Double.NaN,10)));
-	}	
+	}
 	
-	// TODO setters ook nog speciaal testen? (wss niet)
+	@Test
+	public final void isValidTime_TrueCase(){
+		assertTrue(Ship.isValidTime(8.0));
+	}
 	
+	@Test
+	public final void isValidTime_FalseCaseNaN(){
+		assertFalse(Ship.isValidTime(Double.NaN));
+	}
+	
+	@Test
+	public final void isValidTime_FalseCaseNegative(){
+		assertFalse(Ship.isValidTime(-8.0));
+	}
 	
 	@Test
 	public final void move_NormalCase() throws Exception{
@@ -429,6 +725,34 @@ public class ShipTest {
 	@Test(expected = IllegalArgumentException.class)
 	public final void move_NaNTime() throws Exception{
 		ship100.move(Double.NaN);
+	}
+	
+	@Test
+	public final void setVelocity_NormalCase(){
+		ship100.setVelocity(new Vector2D(10,10));
+		assertEquals(10, ship100.getVelocity().getXComponent(), EPSILON);
+		assertEquals(10, ship100.getVelocity().getYComponent(), EPSILON);
+	}
+	
+	@Test
+	public final void setVelocity_NullCase(){
+		ship100.setVelocity(null);
+		assertEquals(0, ship100.getVelocity().getXComponent(), EPSILON);
+		assertEquals(0, ship100.getVelocity().getYComponent(), EPSILON);
+	}
+	
+	@Test
+	public final void setVelocity_NaNCase(){
+		ship100.setVelocity(new Vector2D(Double.NaN,10));
+		assertEquals(0, ship100.getVelocity().getXComponent(), EPSILON);
+		assertEquals(0, ship100.getVelocity().getYComponent(), EPSILON);
+	}
+	
+	@Test
+	public final void setVelocity_TooLargeCase(){
+		ship100.setVelocity(new Vector2D(300000,300000));
+		assertEquals(300000/Math.sqrt(2), ship100.getVelocity().getXComponent(), EPSILON);
+		assertEquals(300000/Math.sqrt(2), ship100.getVelocity().getYComponent(), EPSILON);
 	}
 	
 	@Test
@@ -593,22 +917,6 @@ public class ShipTest {
 		assertFalse(ship100.isValidMass(-1));
 	}
 	
-	
-	@Test
-	public final void isValidTime_TrueCase(){
-		assertTrue(Ship.isValidTime(8.0));
-	}
-	
-	@Test
-	public final void isValidTime_FalseCaseNaN(){
-		assertFalse(Ship.isValidTime(Double.NaN));
-	}
-	
-	@Test
-	public final void isValidTime_FalseCaseNegative(){
-		assertFalse(Ship.isValidTime(-8.0));
-	}
-	
 	@Test
 	public final void isShip_TrueCase(){
 		SpatialElement ship = new Ship(new Vector2D(100,0),10, 1 ,new Vector2D(-10,0),300000,1E5);
@@ -646,296 +954,73 @@ public class ShipTest {
 		assertFalse(asteroid.isBullet());
 	}
 	
-	@Test
-	public final void canHaveAsBullet_TrueCase(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			assertTrue(shipWorld.canHaveAsBullet(bullet));
-		}
-	}
+	// isValidObjectOverlap is tested via isValidObjectCollision in ship
 	
 	@Test
-	public final void canHaveAsBullet_NullCase(){
-		assertFalse(shipWorld.canHaveAsBullet(null));
-	}
-	
-	@Test
-	public final void canHaveAsBullet_NotFromThisShip(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			assertFalse(standardShip.canHaveAsBullet(bullet));
-		}
+	public final void resolveBounce_NormalCaseStraight(){
+		Vector2D shipWorldPos = shipWorld.getPosition();
+		Vector2D shipWorldBouncePos = shipWorldBounce.getPosition();
+		shipWorld.resolveBounce(shipWorldBounce);
+		assertEquals(-1, shipWorld.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorld.getVelocity().getYComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce.getVelocity().getYComponent(),EPSILON);
+		assertEquals(shipWorldPos.getXComponent(), shipWorld.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldPos.getYComponent(), shipWorld.getPosition().getYComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos.getXComponent(), shipWorldBounce.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos.getYComponent(), shipWorldBounce.getPosition().getYComponent(),EPSILON);
 	}
 	
 	@Test
-	public final void canHaveAsBullet_TerminatedCase(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			bullet.terminate();
-			assertFalse(shipWorld.canHaveAsBullet(bullet));
-		}
+	public final void resolveBounce_NormalCaseDifferentMass(){
+		Vector2D shipWorldBouncePos1 = shipWorldBounce2.getPosition();
+		Vector2D shipWorldBouncePos2 = shipWorldBounce3.getPosition();
+		shipWorldBounce2.resolveBounce(shipWorldBounce3);
+		assertEquals(-1.5, shipWorldBounce2.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce2.getVelocity().getYComponent(),EPSILON);
+		assertEquals(-0.5, shipWorldBounce3.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce3.getVelocity().getYComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos1.getXComponent(), shipWorldBounce2.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos1.getYComponent(), shipWorldBounce2.getPosition().getYComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos2.getXComponent(), shipWorldBounce3.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos2.getYComponent(), shipWorldBounce3.getPosition().getYComponent(),EPSILON);
 	}
 	
 	@Test
-	public final void addAsBullet_normalCase(){
-		// already tested by testing fireBullet
-		shipWorld.fireBullet();
-		assertEquals(1,shipWorld.getNbBullets());
+	public final void resolveBounce_NormalCaseAngle(){
+		Vector2D shipWorldBouncePos1 = shipWorldBounce4.getPosition();
+		Vector2D shipWorldBouncePos2 = shipWorldBounce5.getPosition();
+		shipWorldBounce4.resolveBounce(shipWorldBounce5);
+		assertEquals(0, shipWorldBounce4.getVelocity().getXComponent(),EPSILON);
+		assertEquals(0, shipWorldBounce4.getVelocity().getYComponent(),EPSILON);
+		assertEquals(1, shipWorldBounce5.getVelocity().getXComponent(),EPSILON);
+		assertEquals(1, shipWorldBounce5.getVelocity().getYComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos1.getXComponent(), shipWorldBounce4.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos1.getYComponent(), shipWorldBounce4.getPosition().getYComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos2.getXComponent(), shipWorldBounce5.getPosition().getXComponent(),EPSILON);
+		assertEquals(shipWorldBouncePos2.getYComponent(), shipWorldBounce5.getPosition().getYComponent(),EPSILON);
+	}
+	//TODO: Nog alle negatieve cases eventueel testen maar eigenlijk al gedaan bij isValidObjectCollision
+	
+	@Test
+	public final void collide() {
+		shipWorld.collide();
+		assertTrue(shipWorld.isTerminated());
 	}
 	
 	@Test
-	public final void addAsBullet_alreadyPresent(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			// has actually already been added by fireBullet
-			shipWorld.addAsBullet(bullet); 
-		}
-		assertEquals(1, shipWorld.getNbBullets());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public final void addAsBullet_NullCase(){
-		shipWorld.addAsBullet(null);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void addAsBullet_NotFromThisShip(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			standardShip.addAsBullet(bullet);
-		}
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void addAsBullet_TerminatedCase(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			bullet.terminate();
-			shipWorld.addAsBullet(bullet);
-		}
+	public final void resolveWall_Horizontal() {
+		Vector2D originalVelocity = shipWorldHorizontalWall.getVelocity();
+		shipWorldHorizontalWall.resolveWall(true);
+		assertTrue(originalVelocity.getXComponent() == shipWorldHorizontalWall.getVelocity().getXComponent());
+		assertTrue(originalVelocity.getYComponent() == -1*shipWorldHorizontalWall.getVelocity().getYComponent());
 	}
 	
 	@Test
-	public final void removeAsBullet_normalCase(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			bullet.terminate();
-		}
-		assertEquals(0, shipWorld.getNbBullets());
+	public final void resolveWall_Vertical() {
+		Vector2D originalVelocity = shipWorldVerticalWall.getVelocity();
+		shipWorldVerticalWall.resolveWall(true);
+		assertTrue(originalVelocity.getXComponent() == -1*shipWorldVerticalWall.getVelocity().getXComponent());
+		assertTrue(originalVelocity.getYComponent() == shipWorldVerticalWall.getVelocity().getYComponent());
 	}
-	
-	@Test
-	public final void removeAsBullet_alreadyRemoved(){
-		shipWorld.fireBullet();
-		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-		for(Bullet bullet : bullets){
-			bullet.terminate();
-			// has actually already been removed by terminate
-			shipWorld.removeAsBullet(bullet); 
-		}
-		assertEquals(0, shipWorld.getNbBullets());
-	}
-	
-	@Test
-	public final void removeAsBullet_NotPresent(){
-		shipWorld.fireBullet();
-		Bullet temp = new Bullet(new Vector2D(20,20), 10, new Vector2D(0,0),
-					10,shipNoWorld);
-		temp.terminate();
-		shipWorld.removeAsBullet(temp);
-		assertEquals(1, shipWorld.getNbBullets());
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public final void removeAsBullet_NullCase(){
-		shipWorld.removeAsBullet(null);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void removeAsBullet_NonTerminatedCase(){
-		Bullet temp = new Bullet(new Vector2D(20,20), 10, new Vector2D(0,0),
-				10,shipNoWorld);
-		shipWorld.removeAsBullet(temp);
-	}
-	
-	@Test
-	public final void setMaxNbBullets_NormalCase(){
-		shipWorld.setMaxNbBullets(5);
-		assertEquals(5, shipWorld.getMaxNbBullets());
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void setMaxNbBullets_NegativeCase(){
-		shipWorld.setMaxNbBullets(-5);
-	}
-	
-	
-//	@Test
-//	public final void canResolve_TrueCase(){
-//		shipWorld.fireBullet();
-//		Set<Bullet> bullets = shipWorld.getWorld().getBullets();
-//		for(Bullet bullet : bullets){
-//			assertTrue(shipWorld.isValidObjectCollision(bullet)); 
-//		}
-//	}
-//	
-//	@Test
-//	public final void canResolve_NullCase(){
-//		assertFalse(shipWorld.isValidObjectCollision(null)); 
-//	}
-//	
-//	@Test
-//	public final void canResolve_NullWorldCase1(){
-//		assertFalse(shipWorld.isValidObjectCollision(standardShip)); 
-//	}
-//	
-//	@Test
-//	public final void canResolve_NullWorldCase2(){
-//		assertFalse(standardShip.isValidObjectCollision(shipWorld)); 
-//	}
-//	
-//	@Test
-//	public final void canResolve_NotSameWorld(){
-//		World testWorld = new World(1000,1000);
-//		testWorld.addAsSpatialElement(shipNoWorld);
-//		assertFalse(shipNoWorld.isValidObjectCollision(shipWorld)); 
-//	}
-//	
-//	
-//	
-//	@Test
-//	public final void resolve_BounceCase(){
-//		Vector2D shipWorldPos = shipWorld.getPosition();
-//		Vector2D shipWorldBouncePos = shipWorldBounce.getPosition();
-//		shipWorld.resolve(shipWorldBounce);
-//		assertEquals(-1, shipWorld.getVelocity().getXComponent(),EPSILON);
-//		assertEquals(0, shipWorld.getVelocity().getYComponent(),EPSILON);
-//		assertEquals(0, shipWorldBounce.getVelocity().getXComponent(),EPSILON);
-//		assertEquals(0, shipWorldBounce.getVelocity().getYComponent(),EPSILON);
-//		assertEquals(shipWorldPos.getXComponent(), shipWorld.getPosition().getXComponent(),EPSILON);
-//		assertEquals(shipWorldPos.getYComponent(), shipWorld.getPosition().getYComponent(),EPSILON);
-//		assertEquals(shipWorldBouncePos.getXComponent(), shipWorldBounce.getPosition().getXComponent(),EPSILON);
-//		assertEquals(shipWorldBouncePos.getYComponent(), shipWorldBounce.getPosition().getYComponent(),EPSILON);
-//	}
-//	// TODO uitgebreider testen? (!= hoeken en massas???)
-//	// TODO andere cases testen...
-//	
-//	@Test(expected = IllegalArgumentException.class)
-//	public final void resolve_NullCase(){
-//		standardShip.resolve(null);
-//	}
-//	
-//	@Test(expected = IllegalArgumentException.class)
-//	public final void resolve_NullWorldCase1(){
-//		shipWorld.resolve(standardShip); 
-//	}
-//	
-//	@Test(expected = IllegalArgumentException.class)
-//	public final void resolve_NullWorldCase2(){
-//		standardShip.resolve(shipWorld); 
-//	}
-//	
-//	@Test(expected = IllegalArgumentException.class)
-//	public final void resolve_NotSameWorld(){
-//		World testWorld = new World(1000,1000);
-//		testWorld.addAsSpatialElement(shipNoWorld);
-//		shipNoWorld.resolve(shipWorld); 
-//	}
-	
-	
-	@Test
-	public final void canHaveAsProgram_NormalTrueCase(){
-		assertTrue(ship100.canHaveAsProgram(standardProgram));
-	}
-	
-	@Test
-	public final void canHaveAsProgram_TerminatedCase(){
-		standardProgram.terminate();
-		assertFalse(ship100.canHaveAsProgram(standardProgram));
-	}
-	
-	@Test
-	public final void canHaveAsProgram_NullCase(){
-		assertTrue(ship100.canHaveAsProgram(null));
-	}
-	// TODO Hard to check the typechecking
-	
-	@Test
-	public final void setProgram_NormalCase(){
-		ship100.setProgram(standardProgram);
-		assertTrue(standardProgram == ship100.getProgram());
-		assertTrue(standardProgram.getShip() == ship100);
-	}
-	
-	@Test
-	public final void setProgram_NullCase(){
-		ship100.setProgram(null);
-		assertTrue(null == ship100.getProgram());
-	}
-	
-	@Test
-	public final void setProgram_ChangeProgramCase(){
-		ship100.setProgram(standardProgram);
-		assertTrue(standardProgram == ship100.getProgram());
-		assertTrue(standardProgram.getShip() == ship100);
-		ship100.setProgram(standardProgram2);
-		assertTrue(standardProgram2 == ship100.getProgram());
-		assertTrue(standardProgram2.getShip() == ship100);
-		assertTrue(standardProgram.getShip() == null);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public final void setProgram_TerminatedCase(){
-		ship100.terminate();
-		ship100.setProgram(null);
-	}
-	
-	@Test
-	public final void setProgram_CollidedCase(){
-		ship100.setProgram(standardProgram);
-		ship100.collide();
-		assertTrue(ship100.getProgram() == null);
-		assertTrue(ship100.isTerminated());
-		assertTrue(standardProgram.isTerminated());
-	}
-	
-	// TODO Alles te maken met collisions
-	
-	
-	@Test
-	public final void setVelocity_NormalCase(){
-		ship100.setVelocity(new Vector2D(10,10));
-		assertEquals(10, ship100.getVelocity().getXComponent(), EPSILON);
-		assertEquals(10, ship100.getVelocity().getYComponent(), EPSILON);
-	}
-	
-	@Test
-	public final void setVelocity_NullCase(){
-		ship100.setVelocity(null);
-		assertEquals(0, ship100.getVelocity().getXComponent(), EPSILON);
-		assertEquals(0, ship100.getVelocity().getYComponent(), EPSILON);
-	}
-	
-	@Test
-	public final void setVelocity_NaNCase(){
-		ship100.setVelocity(new Vector2D(Double.NaN,10));
-		assertEquals(0, ship100.getVelocity().getXComponent(), EPSILON);
-		assertEquals(0, ship100.getVelocity().getYComponent(), EPSILON);
-	}
-	
-	@Test
-	public final void setVelocity_TooLargeCase(){
-		ship100.setVelocity(new Vector2D(300000,300000));
-		assertEquals(300000/Math.sqrt(2), ship100.getVelocity().getXComponent(), EPSILON);
-		assertEquals(300000/Math.sqrt(2), ship100.getVelocity().getYComponent(), EPSILON);
-	}
-	
-	// TODO alles rond isValidObjectCollision (en eronder is SpatialElement)
 }

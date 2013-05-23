@@ -9,7 +9,8 @@ import be.kuleuven.cs.som.annotate.*;
  * 
  * @invar	The angle of each ship must be a valid angle for a ship.
  *			| isValidAngle(getAngle())
- * @invar	/TODO andere toevoegen
+ * @invar	This ship has a proper world.
+ * 			| hasProperWorld();
  * 
  * @version  3.2
  * @author   Frederik Van Eeghem (1st master Mathematical engineering), 
@@ -95,6 +96,29 @@ public class Ship extends SpatialElement{
 	}
 		
 	/**
+	 * Terminate this spatial element.
+	 * 
+	 * @post	This spatial element is terminated.
+	 * 			| (new this).isTerminated()
+	 * @post 	This spatial element no longer references an effective 
+	 * 			world.
+	 * 			| (new this).getWorld() == null
+	 * @post	This spatial element is no longer one of the spatial
+	 * 			elements for the world to which this spatial element
+	 * 			belonged, if this element was associated with an 
+	 * 			effective world.
+	 * 			| if (this.getWorld() != null)
+	 * 		    | then this.getWorld().hasAsSpatialElement(this)
+	 */
+	// TODO doc
+	@Override
+	public void terminate() {
+		if(getProgram() != null)
+			getProgram().terminate();
+		super.terminate();
+	}	
+	
+	/**
 	 * Return the angle of this ship.
 	 */
 	@Basic 
@@ -156,28 +180,6 @@ public class Ship extends SpatialElement{
 		this.setAngle(this.getAngle() + angle);
 	}
 	
-	/**
-	 * Accelerate this ship according to the given acceleration.
-	 * 
-	 * @param	acceleration
-	 * 			The acceleration of this ship.
-	 * @post	If the given acceleration is NaN or negative, the velocity of this ship remains unchanged.
-	 * 			| if(acceleration.isNaN || acceleration < 0)
-	 * 			|	then (new this).getVelocity() == this.getVelocity
-	 * @effect	If the given acceleration is positive, the given acceleration in the direction 
-	 * 			of angle is added to the velocity of this ship and set as the velocity of this ship.
-	 * 			| if(acceleration >= 0)
-	 * 			|	then let Vector2D deltaVelocity == new Vector2D(Math.cos(this.getAngle())*acceleration,
-	 * 			|													Math.sin(this.getAngle())*acceleration)
-	 * 			|		 in this.setVelocity(this.getVelocity().add(deltaVelocity));
-	 */
-	public void thrust(double acceleration){
-		if(acceleration >= 0){
-			Vector2D deltaVelocity = new Vector2D(Math.cos(this.getAngle())*acceleration,Math.sin(this.getAngle())*acceleration);
-			this.setVelocity(this.getVelocity().add(deltaVelocity));
-		}
-	}
-	
 	/** 
 	 * Check the status of the thruster of this ship.
 	 * 
@@ -206,6 +208,27 @@ public class Ship extends SpatialElement{
 	 */
 	private boolean thrusterActive = false;
 	
+	/**
+	 * Accelerate this ship according to the given acceleration.
+	 * 
+	 * @param	acceleration
+	 * 			The acceleration of this ship.
+	 * @post	If the given acceleration is NaN or negative, the velocity of this ship remains unchanged.
+	 * 			| if(acceleration.isNaN || acceleration < 0)
+	 * 			|	then (new this).getVelocity() == this.getVelocity
+	 * @effect	If the given acceleration is positive, the given acceleration in the direction 
+	 * 			of angle is added to the velocity of this ship and set as the velocity of this ship.
+	 * 			| if(acceleration >= 0)
+	 * 			|	then let Vector2D deltaVelocity == new Vector2D(Math.cos(this.getAngle())*acceleration,
+	 * 			|													Math.sin(this.getAngle())*acceleration)
+	 * 			|		 in this.setVelocity(this.getVelocity().add(deltaVelocity));
+	 */
+	public void thrust(double acceleration){
+		if(acceleration >= 0){
+			Vector2D deltaVelocity = new Vector2D(Math.cos(this.getAngle())*acceleration,Math.sin(this.getAngle())*acceleration);
+			this.setVelocity(this.getVelocity().add(deltaVelocity));
+		}
+	}	
 	
 	/**
 	 * Check whether the given element can be added to the list of bullets of this ship.
@@ -286,6 +309,83 @@ public class Ship extends SpatialElement{
 	private final Set<Bullet> bullets = new HashSet<Bullet>();
 	
 	/**
+	 * Get the maximum number of bullets.
+	 */
+	@Basic
+	public int getMaxNbBullets() {
+		return maxNbBullets;
+	}
+	
+	/**
+	 * Set the maximum number of bullets
+	 * 
+	 * @param 	maxNbBullets
+	 * 			The new allowed number of bullets
+	 * @post	The new maximum number of bullets allowed is equal to the given value.
+	 * 			| (new this).getMaxNbBullets() = maxNbBullets
+	 * @throws	IllegalArgumentException
+	 * 			The given number is smaller than zero.
+	 * 			| maxNbBullets < 0
+	 */
+	@Basic
+	public void setMaxNbBullets(int maxNbBullets) throws IllegalArgumentException {
+		if(maxNbBullets < 0)
+			throw new IllegalArgumentException("Illegal maximum amount of bullets.");
+		this.maxNbBullets = maxNbBullets;
+	}
+	
+	/**
+	 * Variable containing the maximum number of effective bullets fired by a ship.
+	 */
+	private int maxNbBullets;
+	
+	/** 
+	 * Fire a bullet from this ship and add this to the world that contains this ship.
+	 * 
+	 * @post	If this ship is located in a world and the current number of bullets 
+	 * 			is smaller than the maximum allowed, a new bullet is created with 
+	 * 			position equal to the position of this ship added to the sum of 
+	 * 			the radius of this ship and the bullet, in the direction of angle, 
+	 * 			radius equal to 3, velocity equal to 250 in the direction of angle, 
+	 * 			maximum speed equal to the speed of light and
+	 * 			added as a spatial element to the world containing ship and 
+	 * 			this ship is appointed as the owner of the bullet.
+	 * 			| if(getWorld() != null && getNbBullets() < getMaxNbBullets())
+	 * 			| then let Bullet newBullet
+	 * 			| 	in
+	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getDirection().getXComponent() 
+	 * 			| 		== Math.cos(this.getAngle())
+	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getDirection().getYComponent() 
+	 * 			| 		== Math.sin(this.getAngle())
+	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getNorm() == this.getRadius()
+	 * 			| 	newBullet.getRadius() == 3
+	 * 			| 	newBullet.getVelocity().getNorm() == 250
+	 * 			| 	newBullet.getVelocity().getDirection().getXComponent() == Math.cos(this.getAngle())
+	 * 			| 	newBullet.getVelocity().getDirection().getYComponent() == Math.sin(this.getAngle())
+	 * 			| 	newBullet.getMaxSpeed() == 300000
+	 * 			| 	newBullet.getMass() == 4/3*PI*3^3*Bullet.getMassDensity()
+	 * 			| 	newBullet.getShip() == this
+	 * 			| 	this.getWorld().hasAsSpatialElement(newBullet)
+	 * @throws	NullpointerException
+	 * 			The ship has an effective world that is not proper.
+	 * 			| !this.hasProperWorld()
+	 */
+	public void fireBullet() throws NullPointerException {
+		if(!this.hasProperWorld())
+			throw new IllegalArgumentException("Ship not located within a proper world.");
+		if(this.getWorld() != null && getNbBullets() < getMaxNbBullets()){
+		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
+				Math.sin(this.getAngle()));
+		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));
+		Vector2D bulletVelocity = shootingDirection.multiply(250);
+		double bulletRadius = 3;
+		Bullet bullet = new Bullet(bulletPosition, bulletRadius, bulletVelocity, 300000, this);
+		this.addAsBullet(bullet);
+		this.getWorld().addAsSpatialElement(bullet);
+		}
+	}
+	
+	/**
 	 * Check whether this ship can have the given program as its program.
 	 * 
 	 * @param 	program
@@ -347,84 +447,57 @@ public class Ship extends SpatialElement{
 	 */
 	private Program program;
 		
-	/** 
-	 * Fire a bullet from this ship and add this to the world that contains this ship.
-	 * 
-	 * @post	If this ship is located in a world and the current number of bullets 
-	 * 			is smaller than the maximum allowed, a new bullet is created with 
-	 * 			position equal to the position of this ship added to the sum of 
-	 * 			the radius of this ship and the bullet, in the direction of angle, 
-	 * 			radius equal to 3, velocity equal to 250 in the direction of angle, 
-	 * 			maximum speed equal to the speed of light and
-	 * 			added as a spatial element to the world containing ship and 
-	 * 			this ship is appointed as the owner of the bullet.
-	 * 			| if(getWorld() != null && getNbBullets() < getMaxNbBullets())
-	 * 			| then let Bullet newBullet
-	 * 			| 	in
-	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getDirection().getXComponent() 
-	 * 			| 		== Math.cos(this.getAngle())
-	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getDirection().getYComponent() 
-	 * 			| 		== Math.sin(this.getAngle())
-	 * 			| 	(newBullet.getPosition().subtract(this.getPosition()).getNorm() == this.getRadius()
-	 * 			| 	newBullet.getRadius() == 3
-	 * 			| 	newBullet.getVelocity().getNorm() == 250
-	 * 			| 	newBullet.getVelocity().getDirection().getXComponent() == Math.cos(this.getAngle())
-	 * 			| 	newBullet.getVelocity().getDirection().getYComponent() == Math.sin(this.getAngle())
-	 * 			| 	newBullet.getMaxSpeed() == 300000
-	 * 			| 	newBullet.getMass() == 4/3*PI*3^3*Bullet.getMassDensity()
-	 * 			| 	newBullet.getShip() == this
-	 * 			| 	this.getWorld().hasAsSpatialElement(newBullet)
-	 * @throws	NullpointerException
-	 * 			The ship has an effective world that is not proper.
-	 * 			| !this.hasProperWorld()
-	 */
-	public void fireBullet() throws NullPointerException {
-		if(!this.hasProperWorld())
-			throw new IllegalArgumentException("Ship not located within a proper world.");
-		if(this.getWorld() != null && getNbBullets() < getMaxNbBullets()){
-		Vector2D shootingDirection = new Vector2D(Math.cos(this.getAngle()),
-				Math.sin(this.getAngle()));
-		Vector2D bulletPosition = this.getPosition().add(shootingDirection.multiply(getRadius()));
-		Vector2D bulletVelocity = shootingDirection.multiply(250);
-		double bulletRadius = 3;
-		Bullet bullet = new Bullet(bulletPosition, bulletRadius, bulletVelocity, 300000, this);
-		this.addAsBullet(bullet);
-		this.getWorld().addAsSpatialElement(bullet);
-		}
-	}
-	
-	
 	/**
-	 * Get the maximum number of bullets.
+	 * Check if the collision of this element and the given element
+	 * is a valid object collision.
+	 * 
+	 * @param 	element
+	 * 			The element to check the valid collision with.
+	 * @return	If the element is an asteroid or a ship, the result is
+	 * 			the boolean indicating whether this is a valid object overlap.
+	 * 			| if(element.isAsteroid() || element.isShip())
+	 *			| then result == isValidObjectOverlap(element)
+	 * @return	If the element is not an asteroid or a ship, the result
+	 * 			is the boolean indicating whether the collision of the given element
+	 * 			with this element is valid.
+	 * 			| if(!element.isAsteroid() && !element.isShip())
+	 *			| then result == element.isValidObjectCollision(this)
+	 * @throws	NullPointerException
+	 * 			The given element is null
+	 * 			| element == null
 	 */
-	@Basic
-	public int getMaxNbBullets() {
-		return maxNbBullets;
+	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
+		if(element == null)
+			throw new NullPointerException();
+		if(element.isAsteroid() || element.isShip())
+			return isValidObjectOverlap(element);
+		return element.isValidObjectCollision(this);
 	}
 	
 	/**
-	 * Set the maximum number of bullets
+	 * Resolve the initial condition of this and the given element.
 	 * 
-	 * @param 	maxNbBullets
-	 * 			The new allowed number of bullets
-	 * @post	The new maximum number of bullets allowed is equal to the given value.
-	 * 			| (new this).getMaxNbBullets() = maxNbBullets
+	 * @param	overlappingElement
+	 * 			The element overlapping with this element.
+	 * @effect	If the overlapping element is not a ship, let it
+	 * 			resolve the initial conditions with this ship.
+	 * 			| if (!overlappingElement.isShip())
+	 * 			| then overlappingElement.resolveInitialCondition(this)
 	 * @throws	IllegalArgumentException
-	 * 			The given number is smaller than zero.
-	 * 			| maxNbBullets < 0
+	 * 			The given element does not result in an valid object collision.
+	 * 			| !isValidObjectCollision(overlappingElement)
+	 * @throws	NullPointerException
+	 * 			The given element is noneffective.
+	 * 			| overlappingElement == null
 	 */
-	@Basic
-	public void setMaxNbBullets(int maxNbBullets) throws IllegalArgumentException {
-		if(maxNbBullets < 0)
-			throw new IllegalArgumentException("Illegal maximum amount of bullets.");
-		this.maxNbBullets = maxNbBullets;
+	// TODO maar isValidObjectCollision kan zelf NullPointerException
+	@Override
+	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
+		if(!isValidObjectCollision(overlappingElement))
+			throw new IllegalArgumentException("Element cannot be resolved.");
+		if(!overlappingElement.isShip())
+			overlappingElement.resolveInitialCondition(this);
 	}
-	
-	/**
-	 * Variable containing the maximum number of effective bullets fired by a ship.
-	 */
-	private int maxNbBullets;
-	
 	
 	/**
 	 * Resolve a collision of this ship and another element.
@@ -450,80 +523,5 @@ public class Ship extends SpatialElement{
 		else
 			otherElement.resolve(this);
 	}
-	
-	/**
-	 * Check whether this is a Ship object.
-	 * 
-	 * @return	True
-	 * 			| result == true
-	 */
-	@Override
-	public boolean isShip() {
-		return true;
-	}
-	
-	/**
-	 * Check if the collision between the given spatial element 1 and 
-	 * spatial element 2 is a valid object collision.
-	 * 
-	 * @return	...
-	 * 			| if(element1 == element2)
-	 * 			| then result == false
-	 * @return	...
-	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
-	 *			| (element1.getWorld() != element2.getWorld()))
-	 *			| then result == false
-	 * @return	...
-	 * 			| result == !(((element1.isBullet() && element2.isShip())
-	 *			| && (element1.getShip() == element2)
-	 *			| || ((element2.isBullet() && element1.isShip())
-	 *			| && element2).getShip() == element1))
-	 */
-	@Override
-	public boolean isValidObjectCollision(SpatialElement element){
-		if(element.isAsteroid() || element.isShip())
-			return super.isValidObjectCollision(element);
-		return element.isValidObjectCollision(this);
-	}
-	
-	
-	// TODO doc
-	@Override
-	public void resolveInitialCondition(SpatialElement overlappingElement) {
-		if(!isValidObjectCollision(overlappingElement))
-			throw new IllegalArgumentException("Element cannot be resolved.");
-		if(!overlappingElement.isShip())
-			overlappingElement.resolveInitialCondition(this);
-	}
-	
-	/**
-	 * Terminate this spatial element.
-	 * 
-	 * @post	This spatial element is terminated.
-	 * 			| (new this).isTerminated()
-	 * @post 	This spatial element no longer references an effective 
-	 * 			world.
-	 * 			| (new this).getWorld() == null
-	 * @post	This spatial element is no longer one of the spatial
-	 * 			elements for the world to which this spatial element
-	 * 			belonged, if this element was associated with an 
-	 * 			effective world.
-	 * 			| if (this.getWorld() != null)
-	 * 		    | then this.getWorld().hasAsSpatialElement(this)
-	 */
-	// TODO doc
-	// TODO ship program ook laten terminaten???? (tests updaten dan wel)
-	@Override
-	public void terminate() {
-		if(getProgram() != null)
-			getProgram().terminate();
-		super.terminate();
-	}
-	
-	// TODO terminate bekijken!!!!!!!
-	// evt gewoon erbij setProgram(null)
-	// maar ook problemen met de collide dan (2x zelfde doen of 
-	// dynamische binding???????)
-	// DEBUG zegt dynamische binding...
 	
 }

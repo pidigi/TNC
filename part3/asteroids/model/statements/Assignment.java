@@ -25,11 +25,7 @@ public class Assignment extends S{
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		if (rhs.getType(globalTypes) instanceof T) {
-			this.rhsEval = rhs.evaluate(globalTypes, globalExpr);
-		} else {
-			throw new IllegalArgumentException();
-		}
+		this.rhsEval = rhs.evaluate(globalTypes, globalExpr);
 	}
 	
 	public boolean typeCheck(Map<String, T> globalTypes) {

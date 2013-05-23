@@ -1,9 +1,7 @@
 package asteroids.model.statements;
 
 import java.util.Map;
-
 import asteroids.model.expressions.E;
-import asteroids.model.types.BooleanT;
 import asteroids.model.types.T;
 
 public class If extends S{
@@ -61,8 +59,6 @@ public class If extends S{
 	
 	@Override
 	public S getStatement(int line) {
-		// TODO: slechte code omdat je iets verandert en teruggeeft tegelijk.
-		// Oplossen door lijn mee te geven met setLine, setColumn, ...
 		if (line == this.getLine()) {
 			this.setEnded(false);
 			return this;
@@ -105,15 +101,14 @@ public class If extends S{
 	
 	@Override
 	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
-		if (!(condition.getType(globalTypes) instanceof BooleanT)) {
+		if (!(this.getCondition().getType(globalTypes).isBoolean())) {
 			throw new IllegalArgumentException();
 		}
-		this.setConditionEval((Boolean) condition.evaluate(globalTypes,globalExpr));
+		this.setConditionEval((Boolean) this.getCondition().evaluate(globalTypes,globalExpr));
 	}
 	
 	@Override
 	public boolean typeCheck(Map<String, T> globalTypes) {
-		// TODO: zie while.
 		boolean bodyCheck = getThen().typeCheck(globalTypes) && getOtherwise().typeCheck(globalTypes);
 		if (!this.getCondition().typeCheck(globalTypes))
 			return false;

@@ -729,9 +729,9 @@ public abstract class SpatialElement {
 	 * @return	...
 	 * 			| result == (this instanceof Ship)
 	 */
-	// Tried to combine the three methods but did not succeed.
+	// instanceof could be used everywhere but this improves the readability
 	public boolean isShip() {
-		return false;
+		return this instanceof Ship;
 	}
 
 	/**
@@ -741,7 +741,7 @@ public abstract class SpatialElement {
 	 * 			| result == (this instanceof Asteroid)
 	 */
 	public boolean isAsteroid() {
-		return false;
+		return this instanceof Asteroid;
 	}
 
 	/**
@@ -751,28 +751,32 @@ public abstract class SpatialElement {
 	 * 			| result == (this instanceof Bullet)
 	 */
 	public boolean isBullet() {
-		return false;
+		return this instanceof Bullet;
 	}
 	
 	
 	/**
-	 * Check if the collision between the given spatial element 1 and 
-	 * spatial element 2 is a valid object collision.
+	 * Check if the overlap of this element and 
+	 * the given element is a valid object overlap.
 	 * 
+	 * @param	element
+	 * 			The element to check the valid overlap with.
 	 * @return	...
-	 * 			| if(element1 == element2)
+	 * 			| if(element == null)
 	 * 			| then result == false
 	 * @return	...
-	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
-	 *			| (element1.getWorld() != element2.getWorld()))
-	 *			| then result == false
+	 * 			| if(this == element)
+	 * 			| then result == false
 	 * @return	...
-	 * 			| result == !(((element1.isBullet() && element2.isShip())
-	 *			| && (element1.getShip() == element2)
-	 *			| || ((element2.isBullet() && element1.isShip())
-	 *			| && element2).getShip() == element1))
+	 * 			| if((this.getWorld() != null) && (element.getWorld() != null))
+	 *			| then result == (this.getWorld() == element.getWorld())
+	 * @return	...
+	 * 			| if(element != null && element != this && 
+	 * 			|	(element.getWorld() == null || this.getWorld() == null))
+	 * 			| then result == true
 	 */
-	public boolean isValidObjectCollision(SpatialElement element){
+	// TODO check (alles) met liskov principe...
+	public boolean isValidObjectOverlap(SpatialElement element){
 			if (element == null)
 				return false;
 			if (this == element)
@@ -783,13 +787,31 @@ public abstract class SpatialElement {
 	}
 	
 	/**
+	 * Check if the collision of this element and the given element
+	 * is a valid object collision.
+	 * 
+	 * @param 	element
+	 * 			The element to check the valid collision with.
+	 * @return	...
+	 * 
+	 * @throws	NullPointerException
+	 * 			The given element is null
+	 * 			| element == null
+	 */
+	public abstract boolean isValidObjectCollision(SpatialElement element) throws NullPointerException;
+	
+	/**
 	 * Resolve this and the given element.
 	 * 
 	 * @param 	otherElement
 	 * 			The element to resolve with.
 	 * @return	...
+	 * 
+	 * @throws	NullPointerException
+	 * 			The other element is not effective.
+	 * 			| otherElement == null
 	 */
-	public abstract void resolve(SpatialElement otherElement);
+	public abstract void resolve(SpatialElement otherElement) throws NullPointerException;
 	
 	/**
 	 * Resolve the bouncing of given spatial elements.
@@ -847,12 +869,54 @@ public abstract class SpatialElement {
 		otherElement.setVelocity(newVel2);
 	}
 	
-	public abstract void resolveInitialCondition(SpatialElement overlappingElement);
+	/**
+	 * Resolve the initial conditions of this and the given overlappingElement
+	 * 
+	 * @param 	overlappingElement
+	 * 			The overlapping element to resolve the initial condition with.
+	 * @post	...
+	 * 
+	 * @throws	IllegalArgumentException
+	 * 			The given element does not result in an valid object collision.
+	 * 			| !isValidObjectCollision(overlappingElement)
+	 * @throws	NullPointerException
+	 * 			The given element is noneffective.
+	 * 			| overlappingElement == null
+	 */
+	public abstract void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException;
 	
+	/**
+	 * The element collides.
+	 * 
+	 * @effect	This element is terminated.
+	 * 			| this.terminate();
+	 */
 	public void collide(){
 		this.terminate();
 	}
 
+	/**
+	 * Resolve a collision with a horizontal or vertical wall
+	 * 
+	 * @param 	horizontal
+	 * 			The given parameter that indicates whether the wall is
+	 * 			horizontal (true) or vertical (false).
+	 * @post	If the wall is horizontal, the Y-component of the velocity
+	 * 			of this element is reversed while the X-component remains identical.
+	 * 			| if(horizontal)
+	 * 			|	then (new this).getVelocity().getXComponent() 
+	 * 			|			== this.getVelocity().getXComponent()
+	 * 			|	  && (new this).getVelocity().getYComponent() 
+	 * 			|			== - this.getVelocity().getYComponent()
+	 * @post	If the wall is vertical, the X-component of the velocity
+	 * 			of this element is reversed while the Y-component remains identical.
+	 * 			| if(!horizontal)
+	 * 			|	then (new this).getVelocity().getXComponent() 
+	 * 			|			== - this.getVelocity().getXComponent()
+	 * 			|	  && (new this).getVelocity().getYComponent() 
+	 * 			|			== this.getVelocity().getYComponent()
+	 */
+	// Note that to indicate a wall an enum could be used.
 	public void resolveWall(boolean horizontal) {
 		double xComp = this.getVelocity().getXComponent();
 		double yComp = this.getVelocity().getYComponent();

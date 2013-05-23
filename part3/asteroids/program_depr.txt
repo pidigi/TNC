@@ -1,0 +1,40 @@
+// Ship that prints the distance to the nearest asteroid, turns and fires a bullet.
+
+double angle;
+entity nearestAsteroid;
+double distanceToNearestAsteroid;
+double x;
+double y;
+double r;
+double ax;
+double ay;
+double ar;
+double distance;
+entity a;
+
+while(true) do {
+  x := getx self;
+  y := gety self;
+  r := getradius self;
+  nearestAsteroid := null;
+  foreach(asteroid, a) do {
+    ax := getx a;
+    ay := gety a;
+    ar := getradius a;
+    distance := sqrt((((x - ax) * (x - ax)) + ((y - ay) * (y - ay))));
+    if(nearestAsteroid == null) then {
+      nearestAsteroid := a;
+      distanceToNearestAsteroid := distance;
+    } else {
+      if(distance < distanceToNearestAsteroid) then {
+        nearestAsteroid := a;
+        distanceToNearestAsteroid := distance;
+      } 
+    }
+  }
+  if(nearestAsteroid != null) then {
+    print distanceToNearestAsteroid;
+  }
+  turn 0.2;
+  fire;
+}

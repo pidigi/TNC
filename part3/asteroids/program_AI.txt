@@ -1,0 +1,180 @@
+double x;
+double y;
+entity a;
+double ax;
+double ay;
+double distance;
+entity nearestAsteroid;
+double distanceToNearestAsteroid;
+entity nearestBullet;
+double distanceToNearestBullet;
+entity nearestShip;
+double distanceToNearestShip;
+double bulletRico;
+double bulletDirection;
+double shipRico;
+double shipDirection;
+double asteroidRico;
+double asteroidDirection;
+double nb;
+double i;
+
+i := 0;
+nb := 0;
+while(true) do {
+  x := getx self;
+  y := gety self;
+  nearestBullet := null;
+  nearestAsteroid := null;
+  nearestShip := null;
+  
+  foreach(asteroid, a) do {
+    ax := getx a;
+    ay := gety a;
+    distance := sqrt((((x - ax) * (x - ax)) + ((y - ay) * (y - ay))));
+    if(nearestAsteroid == null) then {
+      nearestAsteroid := a;
+      distanceToNearestAsteroid := distance;
+    } else {
+      if(distance < distanceToNearestAsteroid) then {
+        nearestAsteroid := a;
+        distanceToNearestAsteroid := distance;
+      }
+    }
+  }
+  
+  foreach(bullet, a) do {
+    ax := getx a;
+    ay := gety a;
+    distance := sqrt((((x - ax) * (x - ax)) + ((y - ay) * (y - ay))));
+    if(nearestBullet == null) then {
+      nearestBullet := a;
+      distanceToNearestBullet := distance;
+    } else {
+      if(distance < distanceToNearestAsteroid) then {
+        nearestBullet := a;
+        distanceToNearestBullet := distance;
+      }
+    }
+  }
+  
+  foreach(ship, a) do {
+    ax := getx a;
+    ay := gety a;
+    distance := sqrt((((x - ax) * (x - ax)) + ((y - ay) * (y - ay))));
+    if ((a != self)) {
+    	if( (nearestShip == null)) then {
+      		nearestShip := a;
+      		distanceToNearestShip := distance;
+    	} else {
+      		if(distance < distanceToNearestShip) then {
+       			nearestShip := a;
+        		distanceToNearestShip := distance;
+      		}
+    	}
+    }
+  }
+  
+  
+  
+  if(nearestBullet != null) {
+  	ax := getx nearestBullet;
+  	ay := gety nearestBullet;
+  	bulletRico := (ay-y)/(ax-x);
+  	bulletDirection := bulletRico - (bulletRico * bulletRico * bulletRico / 3) + (bulletRico * bulletRico * bulletRico * bulletRico * bulletRico / 5);
+  	//bulletDirection := sin(bulletRico);
+  	//if (x>ax) {
+   	//	bulletDirection := bulletDirection + 3.14159268;
+   	//}
+   	bulletDirection := bulletDirection - getdir;
+  }
+  
+  if(nearestShip != null) {
+  	ax := getx nearestShip;
+  	ay := gety nearestShip;
+  	shipRico := (ay-y)/(ax-x);
+  	//shipDirection := sin(shipRico);
+  	shipDirection := shipRico - (shipRico * shipRico * shipRico / 3) + (shipRico * shipRico * shipRico * shipRico * shipRico / 5);
+  	//if (x>ax) {
+   	//	shipDirection := shipDirection + 3.14159268;
+   	//}
+   	shipDirection := shipDirection - getdir;
+  }
+  
+  if(nearestAsteroid != null) {
+  	ax := getx nearestAsteroid;
+  	ay := gety nearestAsteroid;
+  	asteroidRico := (ay-y)/(ax-x);
+  	// asteroidDirection := sin(asteroidRico);
+  	asteroidDirection := asteroidRico - (asteroidRico * asteroidRico * asteroidRico / 3) + (asteroidRico * asteroidRico * asteroidRico * asteroidRico * asteroidRico / 5);
+  	//if (x>ax) {
+   	//	asteroidDirection := (asteroidDirection + 3.14159268);
+   	//}
+   	asteroidDirection := asteroidDirection - getdir;
+  }
+  
+  if(nearestBullet != null) {
+  	if(nearestAsteroid != null) {
+  		if( (distanceToNearestBullet < 100) && (distanceToNearestBullet < distanceToNearestAsteroid) ){
+  			turn (bulletDirection + 1.57);
+  			thrust;
+  			skip;
+  			thrust_off;
+  		} else {
+  			if(distanceToNearestAsteroid < 100) {
+  				turn asteroidDirection;
+  				fire;
+  				nb := nb + 1;
+  			} else {
+  				if (nb < 2) {
+  					turn shipDirection;
+  					fire;
+  					nb := nb + 1;
+  				}
+  			}
+  		}
+  	} else {
+  		if(distanceToNearestBullet < 100) {
+  			turn (bulletDirection + 1.57);
+  			thrust;
+  			skip;
+  			thrust_off;
+  		} else {
+  			if (nb < 2) {
+  				turn shipDirection;
+  				fire;
+  				nb := nb + 1;
+  			}
+  	    }
+  	}
+  } else {
+  	if(nearestAsteroid != null) {
+  		if(distanceToNearestAsteroid < 100) {
+  			turn asteroidDirection;
+  			fire;
+  			nb := nb + 1;
+  		} else {
+  			if (nb < 2) {
+  				turn shipDirection;
+  				fire;
+  				nb := nb + 1;
+  			}
+  		}
+  	} else {
+  		if (nb < 2) {
+  			turn shipDirection;
+  			fire;
+  			nb := nb + 1;
+  		}
+  	}
+  }
+  
+  if (i >= 40) {
+  	nb := 0;
+  	i := 0;
+  } else {
+  	i := i + 1;
+  }
+  
+  skip;
+}

@@ -66,10 +66,9 @@ public class World{
 	 * 
 	 * @post 	...
 	 * 			| (new this).isTerminated()
-	 * @post 	...
+	 * @effect 	...
 	 * 			| for each element in elements: 
-	 * 			| ((new element).isTerminated())
-	 * 			|	&& !this.hasAsSpatialElement(element)
+	 * 			|  element.terminate()
 	 */
 	public void terminate() {
 		if (!isTerminated()) {
@@ -238,12 +237,10 @@ public class World{
 	 * Check whether the given element overlaps with other elements in this world.
 	 * 
 	 * @return 	...
-	 * 			| (result.overlap(element) && 
-	 * 			| otherElement.isValidObjectCollision(element)) ||
+	 * 			| (result.overlap(element) && otherElement.isValidObjectCollision(element)) ||
 	 * 			| ((result == null) &&
 	 * 			| (for each elem in this.elements
-	 * 			| (!result.overlap(elem) || 
-	 * 			| otherElement.isValidObjectCollision(element))))
+	 * 			|  (!result.overlap(elem) || otherElement.isValidObjectCollision(element))))
 	 */
 	public SpatialElement getIllegalOverlap(SpatialElement element){
 		for (SpatialElement otherElement: elements){
@@ -280,8 +277,9 @@ public class World{
 	 * @return	False if the element is not effective
 	 * 			| if(element == null)
 	 * 			| then result == false
-	 * @return	True if the element is not terminated and this world is not terminated
-	 * 			| result == (!this.isTerminated()) && (!element.isTerminated())
+	 * @return	True if the effective element is not terminated and this world is not terminated
+	 * 			| if(element != null)
+	 * 			| then result == (!this.isTerminated()) && (!element.isTerminated())
 	 * @note	A bullet outside the boundaries or overlapping with other elements is seen as
 	 * 			a case that should be resolved on appearing on screen, so canHaveAsSpatialElement
 	 * 			does not need to check such cases.
@@ -304,6 +302,7 @@ public class World{
 	 * 		   	| 	(canHaveAsSpatialElement(element)) && 
 	 * 			| 		(element.getWorld() == this))
 	 * 			| then result == true
+	 * 			| else result == false
 	 */
 	public boolean hasProperSpatialElements() {
 		for (SpatialElement element : elements) {
@@ -337,25 +336,22 @@ public class World{
 	 *          The spatial element to be added.
 	 * @post	...
 	 * 			| if(!withinBound(element))
-	 * 			| 	then element.isTerminated() && 
-	 * 			| 	!this.hasAsSpatialElement(element)
+	 * 			| 	then (new element).isTerminated() 
+	 * 			|			&& !(new this).hasAsSpatialElement(element)
 	 * @effect	...
-	 * 			| if( getIllegalOverlap(element) != null )
+	 * 			| if(withinBound(element) && getIllegalOverlap(element) != null)
 	 * 			| 	then element.resolveInitialCondition(getIllegalOverlap(element))
 	 * @post	...
-	 * 			| if( withinBound(element) && getIllegalOverlap(element) == null)
-	 * 			|	then (hasAsSpatialElement(element) &&
-	 * 			|	element.getWorld == this )
+	 * 			| if(withinBound(element) && getIllegalOverlap(element) == null)
+	 * 			|	then (hasAsSpatialElement(element) && element.getWorld == this)
 	 * @effect	...
-	 * 			| if( withinBound(element) && getIllegalOverlap(element) == null)
-	 * 			|	this.addAsCollision(element);
+	 * 			| if(withinBound(element) && getIllegalOverlap(element) == null)
+	 * 			|	this.addAsCollision(element)
 	 * @throws 	IllegalArgumentException
-	 * 			This world can not have the given 
-	 * 			element as Spatial element.
+	 * 			This world can not have the given element as Spatial element.
 	 *          | !canHaveAsSpatialElement(element)
 	 * @throws 	IllegalArgumentException
-	 *			The given element already has a 
-	 *			world associated to it.
+	 *			The given element already has a world associated to it.
 	 *          | (element.getWorld() != null)
 	 */
 	public void addAsSpatialElement(SpatialElement element)
@@ -421,8 +417,9 @@ public class World{
 	/**
 	 * Check whether this world has the given collision associated with it.
 	 * 
-	 * @return	The list of collisions of this world contains the given collision.
-	 * 			| collisions.contains(collision)
+	 * @return	True if and only if the list of collisions 
+	 * 			of this world contains the given collision.
+	 * 			| result == collisions.contains(collision)
 	 */
 	public boolean hasAsCollision(Collision collision) {
 		return collisions.contains(collision);
@@ -434,8 +431,10 @@ public class World{
 	 * @return 	A set containing all the collisions associated with this world.
 	 * 			| let result == Set<Collision>
 	 * 			| in
-	 * 			| for all collision in result
+	 * 			| for each collision in result
 	 * 			|	this.hasAsCollision(collision)
+	 * 			| && for each collision in this.collisions
+	 * 			|		result.contains(collision)
 	 */
 	public Set<Collision> getCollisions() {
 		Set<Collision> collisions_get = new HashSet<Collision>();
@@ -464,7 +463,6 @@ public class World{
 	 * 			This world does not have element1 as a spatial element.
 	 * 			| !this.hasAsSpatialElement(element1)
 	 */
-	// TODO Methode veranderd. -> Documentatie aanpassen.
 	public void addAsCollision(SpatialElement element1) throws IllegalArgumentException, 
 	NullPointerException{
 		if (element1 == null) {
@@ -507,7 +505,7 @@ public class World{
 	 * collisions involving the given spatial element are up to date.
 	 * 
 	 * @pre		...
-	 * 			| elementsToUpdat != null
+	 * 			| elementsToUpdate != null
 	 * @pre		...
 	 * 			| for each element in elementsToUpdate
 	 * 			|	element != null
@@ -562,10 +560,12 @@ public class World{
 	 *			|	then timeLeft -= minCollisionTime
 	 *			|		 firstCollision = collision.poll()
 	 * 			|		 firstCollision.resolve(collisionListener)
-	 * 			|		 updateElementCollision(firstCollision.getAllElements())
+	 * 			|		 updateElementCollisions(firstCollision.getAllElements())
 	 * 			|	else
 	 * 			|		for each element in {element | element is in elements && element.isThrusterActive()}
 	 * 			|			element.thrust(deltaT * 1.1E18 / element.getMass())
+	 * 			|		for each ship in {ship | ship is in getShips() && ship.getProgram() != null}
+	 * 			|			ship.getProgram().advanceProgram(deltaT)
 	 * 			|		element.updateElementCollisions({element | element is in elements && element.isThrusterActive()})
 	 * 			|		timeLeft -=	minCollisionTime
 	 * 			|	while(0 < timeLeft)

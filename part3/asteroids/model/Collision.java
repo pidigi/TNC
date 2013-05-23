@@ -114,6 +114,7 @@ public abstract class Collision implements Comparable<Collision>{
 	 */
 	//TODO in subclasses nog bij dat enkel resolven als ze dicht genoeg????
 	// SOWIESO erbij in commentaar!!!!!!!!!!!!!
+	// TODO liskov
 	public abstract void resolve(CollisionListener collisionListener);
 	
 	/**

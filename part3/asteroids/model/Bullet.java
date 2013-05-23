@@ -176,18 +176,29 @@ public class Bullet extends SpatialElement{
 	}
 	
 	/**
-	 * Check whether this is a Bullet object.
+	 * Resolve the initial condition of this and the given element.
 	 * 
-	 * @return	True
-	 * 			| result == true
+	 * @param	overlappingElement
+	 * 			The element overlapping with this element.
+	 * @effect	If the overlapping element is a ship or asteroid or bullet,
+	 * 			resolve the initial conditions with this bullet.
+	 * 			| if (overlappingElement.isShip() || overlappingElement.isAsteroid()
+	 *			|		|| overlappingElement.isBullet())
+	 * 			| then this.resolve(overlappingElement)
+	 * @effect	If the overlapping element is no ship, bullet or asteroid, let it
+	 * 			resolve the initial conditions with this bullet.
+	 * 			| if (!overlappingElement.isShip() && !overlappingElement.isAsteroid()
+	 *			|		&& !overlappingElement.isBullet())
+	 * 			| then overlappingElement.resolveInitialCondition(this)
+	 * @throws	IllegalArgumentException
+	 * 			The given element does not result in an valid object collision.
+	 * 			| !isValidObjectCollision(overlappingElement)
+	 * @throws	NullPointerException
+	 * 			The given element is noneffective.
+	 * 			| overlappingElement == null
 	 */
 	@Override
-	public boolean isBullet() {
-		return true;
-	}
-	
-	@Override
-	public void resolveInitialCondition(SpatialElement overlappingElement) {
+	public void resolveInitialCondition(SpatialElement overlappingElement) throws IllegalArgumentException, NullPointerException{
 		if(!isValidObjectCollision(overlappingElement))
 			throw new IllegalArgumentException("Element cannot be resolved.");
 		if(overlappingElement.isShip() || overlappingElement.isAsteroid()
@@ -198,32 +209,68 @@ public class Bullet extends SpatialElement{
 	}
 	
 	/**
-	 * Check if the collision between the given spatial element 1 and 
-	 * spatial element 2 is a valid object collision.
+	 * Check if the collision of this element and the given element
+	 * is a valid object collision.
 	 * 
-	 * @return	...
-	 * 			| if(element1 == element2)
-	 * 			| then result == false
-	 * @return	...
-	 * 			| if((element1.getWorld() != null) && (element1.getWorld() != null) && 
-	 *			| (element1.getWorld() != element2.getWorld()))
-	 *			| then result == false
-	 * @return	...
-	 * 			| result == !(((element1.isBullet() && element2.isShip())
-	 *			| && (element1.getShip() == element2)
-	 *			| || ((element2.isBullet() && element1.isShip())
-	 *			| && element2).getShip() == element1))
+	 * @param 	element
+	 * 			The element to check the valid collision with.
+	 * @return	If the element is an asteroid or a bullet, the result is
+	 * 			the boolean indicating whether this is a valid object overlap.
+	 * 			| if(element.isAsteroid() || element.isBullet())
+	 *			| then result == isValidObjectOverlap(element)
+	 * @return	If the given element is a ship, the result is true if and only if
+	 * 			the overlap of this and the given element is valid and the ship of 
+	 * 			this bullet is different from the given element.
+	 * 			| if(element.isShip())
+	 * 			| then result == (isValidObjectOverlap(element) && this.getShip() != element)
+	 * @return	If the element is not an asteroid or a ship or a bullet, the result
+	 * 			is the boolean indicating whether the collision of the given element
+	 * 			with this element is valid.
+	 * 			| if(!element.isAsteroid() && !element.isShip() && !element.isBullet())
+	 *			| then result == element.isValidObjectCollision(this)
+	 * @throws	NullPointerException
+	 * 			The given element is null
+	 * 			| element == null
 	 */
 	// TODO alle doc hier checken...
 	@Override
-	public boolean isValidObjectCollision(SpatialElement element){
+	public boolean isValidObjectCollision(SpatialElement element) throws NullPointerException{
+		if(element == null)
+			throw new NullPointerException();
 		if(element.isAsteroid() || element.isBullet())
-			return super.isValidObjectCollision(element);
+			return isValidObjectOverlap(element);
 		if(element.isShip())
-			return (super.isValidObjectCollision(element) && this.getShip() != element);
+			return (isValidObjectOverlap(element) && this.getShip() != element);
 		return element.isValidObjectCollision(this);
 	}
 	
+	/**
+	 * Resolve a collision with a horizontal or vertical wall
+	 * 
+	 * @param 	horizontal
+	 * 			The given parameter that indicates whether the wall is
+	 * 			horizontal (true) or vertical (false).
+	 * @post	If the wall is horizontal, the Y-component of the velocity
+	 * 			of this element is reversed while the X-component remains identical.
+	 * 			| if(horizontal)
+	 * 			|	then (new this).getVelocity().getXComponent() 
+	 * 			|			== this.getVelocity().getXComponent()
+	 * 			|	  && (new this).getVelocity().getYComponent() 
+	 * 			|			== - this.getVelocity().getYComponent()
+	 * @post	If the wall is vertical, the X-component of the velocity
+	 * 			of this element is reversed while the Y-component remains identical.
+	 * 			| if(!horizontal)
+	 * 			|	then (new this).getVelocity().getXComponent() 
+	 * 			|			== - this.getVelocity().getXComponent()
+	 * 			|	  && (new this).getVelocity().getYComponent() 
+	 * 			|			== this.getVelocity().getYComponent()
+	 * @effect	If the bullet has already bounced, it collides.
+	 * 			| if(this.getHasBounced())
+	 * 			| then this.collide()
+	 * @effect	If the bullet has not bounced yet, it bounces.
+	 * 			| if(!this.getHasBounced())
+	 * 			| then this.bounce()
+	 */
 	@Override
 	public void resolveWall(boolean horizontal){
 		super.resolveWall(horizontal);
