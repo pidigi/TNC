@@ -17,12 +17,12 @@ public class Sequence extends S{
 	private final List<S> list;
 	
 	@Override	
-	public S getStatement(int line) {
-		if (this.getList().isEmpty()) {
+	public S getStatement(int line,int column) {
+		if (this.getList().isEmpty() || this.getLine() > line) {
 				return null;
 		}
 		for (S stat:this.getList()) {
-			S statement = stat.getStatement(line);
+			S statement = stat.getStatement(line,column);
 			if (statement != null) {
 				return statement;
 			}
@@ -52,12 +52,15 @@ public class Sequence extends S{
 	}
 	
 	@Override
-	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
+	public int getEndColumn() {
+		if (this.getList().isEmpty()) {
+			return this.getColumn();
+		}
+		return this.getList().get(this.getList().size()-1).getEndColumn();
 	}
 	
 	@Override
-	public int updateLine() {
-		return this.getLine();
+	public void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr) {
 	}
 	
 	public boolean typeCheck(Map<String, T> globalTypes) 

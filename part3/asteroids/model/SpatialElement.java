@@ -780,7 +780,6 @@ public abstract class SpatialElement {
 	 * 			|	(element.getWorld() == null || this.getWorld() == null))
 	 * 			| then result == true
 	 */
-	// TODO check (alles) met liskov principe...
 	public boolean isValidObjectOverlap(SpatialElement element){
 			if (element == null)
 				return false;

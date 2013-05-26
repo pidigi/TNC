@@ -25,6 +25,8 @@ public class Equality extends Comparison {
 			throws IllegalArgumentException, NullPointerException{
 		if(!hasValidType(tMap))
 			throw new IllegalArgumentException();
+		if(getE1().getType(tMap).isEntity())
+			return getE1().evaluate(tMap, eMap) == getE2().evaluate(tMap, eMap);
 		return getE1().evaluate(tMap, eMap).equals(getE2().evaluate(tMap, eMap));
 	}
 }

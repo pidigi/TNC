@@ -10,6 +10,7 @@ public class Program {
 		this.executable = executable;
 		this.setLine(executable.getLine());
 		this.endLine = executable.getEndLine()+1;
+		this.setColumn(0);
 	}
 	
 	public Map<String, T> getGlobalTypes() {
@@ -39,6 +40,16 @@ public class Program {
 	}
 	
 	private final int endLine;
+	
+	public int getColumn(){
+		return this.column;
+	}
+	
+	public void setColumn(int column){
+		this.column = column;
+	}
+	
+	private int column;
 	
 	public Map<String, Object> getGlobalExpressions() {
 		return this.globalExpressions;
@@ -101,16 +112,19 @@ public class Program {
 				try {
 					S currentStatement = null;
 					while (!(currentStatement instanceof Action) && this.getLine() < this.getEndLine()){
-						currentStatement = this.getExecutable().getStatement(this.line);
-						if (currentStatement == null) { // Empty line is skipped.
+						currentStatement = this.getExecutable().getStatement(this.getLine(),this.getColumn());
+						if (currentStatement == null) { // At end of line.
 							this.setLine(this.getLine()+1);
+							this.setColumn(0);
 						} else {
 							currentStatement.execute(this.getGlobalTypes(),this.getGlobalExpressions());
 							this.setGlobalExpressions(currentStatement.updateGlobals(this.getGlobalExpressions()));
 							this.setLine(currentStatement.updateLine());
+							this.setColumn(currentStatement.updateColumn());
 						}
 					}
 				} catch(RuntimeException exc) {
+					System.out.println(exc);
 					this.setBroken(true);
 				}
 			this.waitingTime -= 0.2;

@@ -7,7 +7,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 import org.antlr.v4.runtime.*;
-import org.omg.PortableInterceptor.SUCCESSFUL;
 
 import asteroids.CollisionListener;
 import asteroids.IFacade;
@@ -31,27 +30,47 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public double getWorldWidth(World world) {
-		return world.getWidth();
+		try{
+			return world.getWidth();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getWorldHeight(World world) {
-		return world.getHeight();
+		try {
+			return world.getHeight();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public Set<Ship> getShips(World world) {
-		return world.getShips();
+		try {
+			return world.getShips();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public Set<Asteroid> getAsteroids(World world) {
-		return world.getAsteroids();
+		try {
+			return world.getAsteroids();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public Set<Bullet> getBullets(World world) {
-		return world.getBullets();
+		try {
+			return world.getBullets();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
@@ -67,7 +86,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 	@Override
 	public void addAsteroid(World world, Asteroid asteroid) {
 		try {
-		world.addAsSpatialElement(asteroid);
+			world.addAsSpatialElement(asteroid);
 		}
 		catch (Exception exc){
 			throw new ModelException(exc);	
@@ -77,7 +96,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 	@Override
 	public void removeShip(World world, Ship ship) {
 		try {
-		world.removeAsSpatialElement(ship);
+			world.removeAsSpatialElement(ship);
 		}
 		catch (Exception exc){
 			throw new ModelException(exc);	
@@ -87,7 +106,7 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 	@Override
 	public void removeAsteroid(World world, Asteroid asteroid) {
 		try {
-		world.removeAsSpatialElement(asteroid);
+			world.removeAsSpatialElement(asteroid);
 		}
 		catch (Exception exc){
 			throw new ModelException(exc);	
@@ -97,7 +116,11 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 	@Override
 	public void evolve(World world, double dt,
 			CollisionListener collisionListener) {
-		world.evolve(dt, collisionListener);
+		try{
+			world.evolve(dt, collisionListener);
+		} catch (Exception exc){
+			throw new ModelException(exc);
+		}
 	}
 
 	@Override
@@ -122,57 +145,101 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public double getShipX(Ship ship) {
-		return ship.getPosition().getXComponent();
+		try {
+			return ship.getPosition().getXComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getShipY(Ship ship) {
-		return ship.getPosition().getYComponent();
+		try {
+			return ship.getPosition().getYComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getShipXVelocity(Ship ship) {
-		return ship.getVelocity().getXComponent();
+		try {
+			return ship.getVelocity().getXComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getShipYVelocity(Ship ship) {
-		return ship.getVelocity().getYComponent();
+		try {
+			return ship.getVelocity().getYComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getShipRadius(Ship ship) {
-		return ship.getRadius();
+		try {
+			return ship.getRadius();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getShipDirection(Ship ship) {
-		return ship.getAngle();
+		try {
+			return ship.getAngle();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getShipMass(Ship ship) {
-		return ship.getMass();
+		try {
+			return ship.getMass();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public World getShipWorld(Ship ship) {
-		return ship.getWorld();
+		try {
+			return ship.getWorld();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public boolean isShipThrusterActive(Ship ship) {
-		return ship.isThrusterActive();
+		try {
+			return ship.isThrusterActive();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public void setThrusterActive(Ship ship, boolean active) {
-		ship.setThrusterActive(active);
+		try {
+			ship.setThrusterActive(active);
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public void turn(Ship ship, double angle) {
-		ship.turn(angle);
+		try {
+			ship.turn(angle);
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
@@ -217,37 +284,65 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public double getAsteroidX(Asteroid asteroid) {
-		return asteroid.getPosition().getXComponent();
+		try {
+			return asteroid.getPosition().getXComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getAsteroidY(Asteroid asteroid) {
-		return asteroid.getPosition().getYComponent();
+		try {
+			return asteroid.getPosition().getYComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getAsteroidXVelocity(Asteroid asteroid) {
-		return asteroid.getVelocity().getXComponent();
+		try {
+			return asteroid.getVelocity().getXComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getAsteroidYVelocity(Asteroid asteroid) {
-		return asteroid.getVelocity().getYComponent();
+		try {
+			return asteroid.getVelocity().getYComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getAsteroidRadius(Asteroid asteroid) {
-		return asteroid.getRadius();
+		try {
+			return asteroid.getRadius();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getAsteroidMass(Asteroid asteroid) {
-		return asteroid.getMass();
+		try {
+			return asteroid.getMass();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public World getAsteroidWorld(Asteroid asteroid) {
-		return asteroid.getWorld();
+		try {
+			return asteroid.getWorld();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
@@ -262,42 +357,74 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public double getBulletX(Bullet bullet) {
-		return bullet.getPosition().getXComponent();
+		try {
+			return bullet.getPosition().getXComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getBulletY(Bullet bullet) {
-		return bullet.getPosition().getYComponent();
+		try {
+			return bullet.getPosition().getYComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getBulletXVelocity(Bullet bullet) {
-		return bullet.getVelocity().getXComponent();
+		try {
+			return bullet.getVelocity().getXComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getBulletYVelocity(Bullet bullet) {
-		return bullet.getVelocity().getYComponent();
+		try{
+			return bullet.getVelocity().getYComponent();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getBulletRadius(Bullet bullet) {
-		return bullet.getRadius();
+		try {
+			return bullet.getRadius();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public double getBulletMass(Bullet bullet) {
-		return bullet.getMass();
+		try {
+			return bullet.getMass();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public World getBulletWorld(Bullet bullet) {
-		return bullet.getWorld();
+		try {
+			return bullet.getWorld();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
 	public Ship getBulletSource(Bullet bullet) {
-		return bullet.getShip();
+		try {
+			return bullet.getShip();
+		} catch (Exception exc){
+			throw new ModelException(exc);	
+		}
 	}
 
 	@Override
@@ -349,14 +476,22 @@ public class Facade implements IFacade<World, Ship, Asteroid, Bullet, Program> {
 
 	@Override
 	public asteroids.IFacade.TypeCheckOutcome typeCheckProgram(Program program) {
-		if(program.typeCheck())
-			return asteroids.IFacade.TypeCheckOutcome.success();
-		else
-			return asteroids.IFacade.TypeCheckOutcome.failure("Fail");
+		try {
+			if(program.typeCheck())
+				return asteroids.IFacade.TypeCheckOutcome.success();
+			else
+				return asteroids.IFacade.TypeCheckOutcome.failure("Fail");
+		} catch (Exception exc){
+			throw new ModelException(exc);
+		}
 	}
 
 	@Override
 	public void setShipProgram(Ship ship, Program program) {
-		ship.setProgram(program);
+		try {
+			ship.setProgram(program);
+		} catch (Exception exc){
+			throw new ModelException(exc);
+		}	
 	}
 }

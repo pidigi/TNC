@@ -57,14 +57,18 @@ public class Foreach extends S{
 	private boolean ended = false;
 	
 	@Override
-	public S getStatement(int line) {
-		if (line == this.getBody().getEndLine()) {
+	public S getStatement(int line,int column) {
+		if (line == this.getLine() && column <= this.getColumn()) {
 			return this;
 		}
-		if (line == this.getLine()) {
+		S bodyStat = this.getBody().getStatement(line,column);
+		if (bodyStat != null) {
+			return bodyStat;
+		}
+		if (line == this.getBody().getEndLine() && column <= this.getBody().getEndColumn()) {
 			return this;
 		}
-		return this.getBody().getStatement(line);
+		return null;
 	}
 	
 	@Override
@@ -80,9 +84,18 @@ public class Foreach extends S{
 	@Override
 	public int updateLine() {
 		if (this.getEnded()) {
-			return this.getBody().getEndLine() + 1;
+			return this.getBody().getEndLine();
 		} else {
-			return this.getLine() + 1;
+			return this.getLine();
+		}
+	}
+	
+	@Override
+	public int updateColumn() {
+		if (this.getEnded()) {
+			return this.getBody().getEndColumn() + 1;
+		} else {
+			return this.getColumn() + 1;
 		}
 	}
 	
@@ -147,6 +160,9 @@ public class Foreach extends S{
 			throws NullPointerException{
 		boolean bodyTypeCheck = this.getBody().typeCheck(globalTypes);
 		boolean bodyActionCheck = this.getBody().containsAction();
-		return bodyTypeCheck && !bodyActionCheck;
+		if (!globalTypes.containsKey(this.getName()))
+			return false;
+		boolean variableCheck = globalTypes.get(this.getName()).isEntity();
+		return bodyTypeCheck && !bodyActionCheck && variableCheck;
 	}
 }

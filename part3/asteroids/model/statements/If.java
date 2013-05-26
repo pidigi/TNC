@@ -1,6 +1,8 @@
 package asteroids.model.statements;
 
 import java.util.Map;
+
+import be.kuleuven.cs.som.annotate.Basic;
 import asteroids.model.expressions.E;
 import asteroids.model.types.T;
 
@@ -10,33 +12,38 @@ public class If extends S{
 		this.condition = condition;
 		this.then = then;
 		this.otherwise = otherwise;
-		this.simple = (otherwise.getLine() == this.getLine());
+		this.simple = (otherwise.getLine() == this.getLine() && otherwise.getColumn() == this.getColumn());
 	}
 	
+	@Basic
 	public E getCondition() {
 		return this.condition;
 	}
 	
 	private final E condition;
 	
+	@Basic
 	public S getThen() {
 		return this.then;
 	}
 	
 	private final S then;
 	
+	@Basic
 	public S getOtherwise() {
 		return this.otherwise;
 	}
 	
 	private final S otherwise;
 	
+	@Basic
 	public boolean getSimple() {
 		return this.simple;
 	}
 	
 	private final boolean simple;
 	
+	@Basic
 	public boolean getConditionEval() {
 		return this.conditionEval;
 	}
@@ -58,45 +65,68 @@ public class If extends S{
 	private boolean ended = false;
 	
 	@Override
-	public S getStatement(int line) {
-		if (line == this.getLine()) {
+	public S getStatement(int line,int column) {
+		if (line == this.getLine() && column <= this.getColumn()) {
 			this.setEnded(false);
 			return this;
 		}
-		if (this.getSimple() && line == this.getThen().getEndLine()) {
-			this.setEnded(true);
-			return this;
-		}
-		if (!this.getSimple() && this.getConditionEval() && line == this.getThen().getEndLine()) {
-			this.setEnded(true);
-			return this;
-		}
-		if (!this.getSimple() && line == this.getOtherwise().getEndLine()) {
-			this.setEnded(true);
-			return this;
-		}
-		S thenStatement = this.getThen().getStatement(line);
+		S thenStatement = this.getThen().getStatement(line,column);
 		if (thenStatement == null && !this.getSimple()) {
-			return this.getOtherwise().getStatement(line);
+			if (!this.getSimple() && this.getConditionEval() && line == this.getThen().getEndLine() && column <= this.getThen().getEndColumn()) {
+				this.setEnded(true);
+				return this;
+			}
+			S otherwiseStatement = this.getOtherwise().getStatement(line,column);
+			if (otherwiseStatement != null) {
+				return otherwiseStatement;
+			}
 		}
-		return thenStatement;
+		if(thenStatement != null) {
+			return thenStatement;
+		}
+		if (this.getSimple() && line == this.getThen().getEndLine() && column <= this.getThen().getEndColumn()) {
+			this.setEnded(true);
+			return this;
+		}
+		if (!this.getSimple() && line == this.getOtherwise().getEndLine() && column <= this.getOtherwise().getEndColumn()) {
+			this.setEnded(true);
+			return this;
+		}
+		return null;
 	}
 	
 	@Override
 	public int updateLine() {
 		if (this.getEnded()) {
 			if (this.getSimple()) {
-				return this.getThen().getEndLine()+1;
+				return this.getThen().getEndLine();
 			}
-			return this.getOtherwise().getEndLine()+1;
+			return this.getOtherwise().getEndLine();
 		}
 		if (!this.getConditionEval()) {
 			if (this.getSimple()) {
-				return this.getThen().getEndLine()+1;
+				return this.getThen().getEndLine();
 			}
 			return this.getOtherwise().getLine();
 		}
-		return this.getLine()+1;
+		return this.getLine();
+	}
+	
+	@Override
+	public int updateColumn() {
+		if (this.getEnded()) {
+			if (this.getSimple()) {
+				return this.getThen().getEndColumn() + 1;
+			}
+			return this.getOtherwise().getEndColumn() + 1;
+		}
+		if (!this.getConditionEval()) {
+			if (this.getSimple()) {
+				return this.getThen().getEndColumn() + 1;
+			}
+			return this.getOtherwise().getColumn();
+		}
+		return this.getColumn() + 1;
 	}
 	
 	@Override

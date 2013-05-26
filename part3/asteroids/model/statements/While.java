@@ -34,14 +34,18 @@ public class While extends S{
 	private boolean conditionEval;
 	
 	@Override
-	public S getStatement(int line) {
-		if (line == this.getBody().getEndLine()) {
+	public S getStatement(int line,int column) {
+		if (line == this.getLine() && column <=  this.getColumn()) {
 			return this;
 		}
-		if (line == this.getLine()) {
-			return this;
+		S insideStat = this.getBody().getStatement(line,column);
+		if (insideStat != null) {
+			return insideStat;
 		}
-		return this.getBody().getStatement(line);
+		if (line == this.getBody().getEndLine() && column <= this.getBody().getEndColumn()) {
+				return this;
+		}
+		return null;
 	}
 	
 	@Override
@@ -56,10 +60,17 @@ public class While extends S{
 	@Override
 	public int updateLine() {
 		if (this.getConditionEval()) {
-			return this.getLine()+1;
-		} else {
-			return this.getEndLine() + 1;
-		}
+			return this.getLine();
+		} 
+		return this.getBody().getEndLine();
+	}
+	
+	@Override
+	public int updateColumn() {
+		if (this.getConditionEval()) {
+			return this.getColumn() + 1;
+		} 
+		return this.getBody().getEndColumn() + 1;
 	}
 	
 	@Override

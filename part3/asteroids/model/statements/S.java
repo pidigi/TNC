@@ -13,6 +13,10 @@ public abstract class S {
 		return this.column;
 	}
 	
+	public int getEndColumn(){
+		return this.column;
+	}
+	
 	private final int column;
 	
 	public int getLine() {
@@ -33,8 +37,8 @@ public abstract class S {
 		return isAction();
 	}
 	
-	public S getStatement(int line) {
-		if (line == this.getLine()) {
+	public S getStatement(int line,int column) {
+		if (line == this.getLine() && column <= this.getColumn()) {
 			return this;
 		}
 		return null;
@@ -46,7 +50,11 @@ public abstract class S {
 	}
 	
 	public int updateLine() {
-		return this.getLine() + 1;
+		return this.getLine();
+	}
+	
+	public int updateColumn() {
+		return this.getColumn() + 1;
 	}
 	
 	public abstract void execute(Map<String, T> globalTypes,  Map<String, Object> globalExpr)
